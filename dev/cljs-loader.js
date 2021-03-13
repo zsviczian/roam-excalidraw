@@ -106,3 +106,5 @@ if (getClojureNS(sketchingUID) != ExcalidrawConfig.cljCodeVersion) {
                   tripple_accent);
   ExcalidrawConfig.dataComponent = null;
 }
+
+delete ExcalidrawConfig.cljCodeVersion;

@@ -3,7 +3,7 @@
   $path = '/home/getmnvmr/roam-excalidraw.com/'.$channel.'/';
 
   header('content-type: application/javascript');
-  $response = 'ExcalidrawConfig.mainComponent = `'
+  $response = 'ExcalidrawConfig.mainComponent = `';
   $code = file_get_contents($path.'main-component.cljs');
   $response = $response.$code.'`;\n';
 

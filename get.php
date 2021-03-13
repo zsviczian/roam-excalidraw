@@ -22,10 +22,17 @@ $channel = ($_GET['c']);
 
 // Specify file path.
 $path = '/home/getmnvmr/roam-excalidraw.com/';
-
 $download_file =  $path.$channel.'/'.$filename;
 
-if(!empty($filename)){
+$jsobject = '';
+if($filename == 'main-component.cljs') {
+  $jsobject = 'ExcalidrawConfig.mainComponent = `';
+} 
+else if ($filename == 'data-component.cljs') {
+  $jsobject = 'ExcalidrawConfig.dataComponent = `';
+}
+
+if(!empty($jsobject)){
     // Check file is exists on given path.
     if(file_exists($download_file))
     {
@@ -33,7 +40,8 @@ if(!empty($filename)){
     //  readfile($download_file); 
     //  exit;
       header('content-type: application/javascript');
-      echo file_get_contents($download_file);
+      $code = file_get_contents($download_file);
+      echo $jsobject.$code.'`;';
     }
     else
     {

@@ -1,5 +1,5 @@
-const mainComponentFile = ExcalidrawConfig.rootPath + 'get.php?f=main-component.cljs&c='+ExcalidrawConfig.channel;
-const dataComponentFile = ExcalidrawConfig.rootPath + 'get.php?f=data-component.cljs&c='+ExcalidrawConfig.channel;
+//const mainComponentFile = ExcalidrawConfig.rootPath + 'get.php?f=main-component.cljs&c='+ExcalidrawConfig.channel;
+//const dataComponentFile = ExcalidrawConfig.rootPath + 'get.php?f=data-component.cljs&c='+ExcalidrawConfig.channel;
 const sketchingUID  = 'sketching';
 const excalDATAUID = 'ExcalDATA';
 const pageTitle = 'roam/excalidraw';
@@ -93,22 +93,18 @@ function buildPage() {
                                    "block": {"uid": excalDATAUID}});  
 }
 
-function sendXMLHttpRequest (filename, blockUID) {
-  const tripple_accent = String.fromCharCode(96,96,96);
-  const client = new XMLHttpRequest();
-  client.withCredentials = false;
-  client.open('GET', filename);
-  client.onreadystatechange = function() {
-    if(client.readyState == 4) {
-      //console.log('ready ', client.responseText);
-      updateCodeBlock(blockUID,tripple_accent+'clojure\n'+client.responseText+tripple_accent);
-    }
-  }
-  client.send();  
-}
-
 if (getClojureNS(sketchingUID) != ExcalidrawConfig.cljCodeVersion) {
   buildPage();
-  sendXMLHttpRequest(mainComponentFile, sketchingUID);
-  sendXMLHttpRequest(dataComponentFile, excalDATAUID);
+  
+  updateCodeBlock(sketchingUID,tripple_accent + 
+                  'clojure\n' + 
+                  ExcalidrawConfig.mainComponent +
+                  tripple_accent);
+  ExcalidrawConfig.mainComponent = null;
+
+  updateCodeBlock(excalDATAUID,tripple_accent + 
+                  'clojure\n' + 
+                  ExcalidrawConfig.dataComponent +
+                  tripple_accent);
+  ExcalidrawConfig.dataComponent = null;
 }

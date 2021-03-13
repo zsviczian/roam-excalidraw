@@ -6,5 +6,6 @@
 //shell_exec( ‘cd /home/getmnvmr/roam-excalidraw.com/ && git reset –hard HEAD && git pull’ );
 //}
 
-shell_exec( ‘cd /home/getmnvmr/roam-excalidraw.com/ && git pull’ );
-?>hi
+$output = shell_exec( 'cd /home/getmnvmr/roam-excalidraw.com/ && git pull' );
+echo "<pre>$output</pre>"
+?>

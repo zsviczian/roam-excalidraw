@@ -21,7 +21,7 @@ $filename = basename($_GET['f']);
 $channel = ($_GET['c']);
 
 // Specify file path.
-$path = ''; //'/home/getmnvmr/roam-excalidraw.com/';
+$path = '/home/getmnvmr/roam-excalidraw.com/';
 
 $download_file =  $path.$channel.'/'.$filename;
 

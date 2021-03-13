@@ -7,7 +7,7 @@
   $code = file_get_contents($path.'main-component.cljs');
   $response = $response.$code.'`;\n';
 
-  $response = $response.'ExcalidrawConfig.dataComponent = `'
+  $response = $response.'ExcalidrawConfig.dataComponent = `';
   $code = file_get_contents($path.'data-component.cljs');
   $response = $response.$code.'`;\n';
   $code = file_get_contents($path.'cljs-loader.js');

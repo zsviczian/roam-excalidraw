@@ -9,11 +9,11 @@ window.ExcalidrawConfig = {
 }
 
 function getClojureNS(blockUID) {
-  const q = `[:find ?s . :where [?e :block/uid "${blockUID}"][?e :block/string ?s]]`;
-  const renderString = window.roamAlphaAPI.q(q);
+  q = `[:find ?s . :where [?e :block/uid "${blockUID}"][?e :block/string ?s]]`;
+  renderString = window.roamAlphaAPI.q(q);
   if(renderString != null) { 
     ptrn = /\(ns (.*)\s/g;
-    const res = ptrn.exec(renderString);
+    let res = ptrn.exec(renderString);
     if(res == null) return '';
     return res[1];
   }
@@ -37,7 +37,7 @@ ExcalidrawConfig.libs.push ('https://unpkg.com/@excalidraw/utils@0.1.0-temp/dist
  
 
 ExcalidrawConfig.libs.forEach(function (x) {
-	let s = document.createElement('script');
+	s = document.createElement('script');
   s.type = "text/javascript";
   s.src =  x;
   s.async = false;

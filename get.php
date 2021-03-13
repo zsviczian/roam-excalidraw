@@ -29,9 +29,10 @@ if(!empty($filename)){
     // Check file is exists on given path.
     if(file_exists($download_file))
     {
-      header('Content-Disposition: attachment; filename=' . $filename);  
-      readfile($download_file); 
-      exit;
+    //  header('Content-Disposition: attachment; filename=' . $filename);  
+    //  readfile($download_file); 
+    //  exit;
+      echo file_get_contents($filename);
     }
     else
     {

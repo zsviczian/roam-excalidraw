@@ -181,7 +181,7 @@
 (defn main [{:keys [block-uid]} & args]
   (debug ["(main) component starting..."])
   (check-js-dependencies)
-  (reset! silent (.-DEBUG js/ExcalidrawConfig))
+  (reset! silent (not (.-DEBUG js/ExcalidrawConfig)))
   (if (= @deps-available false)
     [:div "Libraries have not yet loaded. Please refresh the block in a moment."]
     (fn []

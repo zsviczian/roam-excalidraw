@@ -12,7 +12,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Common functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(def silent true)
+(def silent (r/atom true)
 (defn debug [x]
   (if-not silent (apply (.-log js/console) x)))
 
@@ -181,6 +181,7 @@
 (defn main [{:keys [block-uid]} & args]
   (debug ["(main) component starting..."])
   (check-js-dependencies)
+  (reset! debug (.-DEBUG js/window.ExcalidrawConfig))
   (if (= @deps-available false)
     [:div "Libraries have not yet loaded. Please refresh the block in a moment."]
     (fn []

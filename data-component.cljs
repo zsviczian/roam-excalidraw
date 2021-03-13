@@ -1,1 +1,9 @@
-äㆡ塝䃌଀✢䰥%͘h䁝 㜠■᎙Ю瀮䚁}Ӽ‧6昣㠠怱䀲䲭ೂS㙬ጁৰᮀ㞫ࢨ㕈夔泂­〣䷐Ή瀥殆⛭䪤䱠ⵚ⒙⥒狎૕㜠ਅ㍶模娳/┤䆂₄˸㰡Ა䵼⧀הႳ倠䱦7:梥燤ᮉⅡ秖墒ঠ៲桯ϴ悸Ⳍ㬚⌠ᅝষᶥ滤㝔䲥ᚦ峒षࣷᦪ摇⃳炩␴橻⾁ੀ♇ቱ⧐Ba*䴋劊ᤦĠ 
+(ns excalidraw.data.alpha.v01)
+
+(def silent true)
+(defn debug [x] 
+  (if-not silent (apply (.-log js/console) x)))
+
+(defn main2 [{:keys [block-uid]}  args]
+  (debug ["data: " args])
+  [:div [:span.excalidraw-data "Excalidraw DATA"]])

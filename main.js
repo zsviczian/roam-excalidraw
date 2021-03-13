@@ -1,5 +1,3 @@
-var DEBUG = false;
-
 function myKeyboardListner(ev) {
   console.log(ev);
   if (ev.ctrlKey && (ev.code=='z' || ev.key=='z') ) 
@@ -80,7 +78,7 @@ window['ExcalidrawWrapper'] = class {
         )
       );
     }), this.hostDIV);// document.getElementById(appName));
-    if (DEBUG) console.log("js: ExcalidrawWrapper.constructor() ReactDOM.render() initiated") ;
+    if (ExcalidrawConfig.DEBUG) console.log("js: ExcalidrawWrapper.constructor() ReactDOM.render() initiated") ;
   }
     
   //this is a workaround because Roam catches some of the keys (e.g. CTRL+Z) before 
@@ -98,7 +96,7 @@ window['ExcalidrawWrapper'] = class {
   }
  
   static getDrawing(o) {
-    if (DEBUG) console.log("js: ExcalidrawWrapper.getDrawing() entering function, object is available: ",(o!=null));
+    if (ExcalidrawConfig.DEBUG) console.log("js: ExcalidrawWrapper.getDrawing() entering function, object is available: ",(o!=null));
     if(o!=null) {
       let appstate = o.excalidrawRef.current.getAppState();
       delete appstate['collaborators'];

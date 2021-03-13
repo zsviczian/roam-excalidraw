@@ -93,7 +93,7 @@ function buildPage() {
 
 if (getClojureNS(sketchingUID) != ExcalidrawConfig.cljCodeVersion) {
   buildPage();
-
+  const tripple_accent = String.fromCharCode(96,96,96);
   updateCodeBlock(sketchingUID,tripple_accent + 
                   'clojure\n' + 
                   ExcalidrawConfig.mainComponent +

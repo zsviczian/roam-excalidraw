@@ -97,13 +97,13 @@ function loadExcalidrawCljs() {
                   'clojure\n' + 
                   ExcalidrawConfig.mainComponent +
                   tripple_accent);
-  ExcalidrawConfig.mainComponent = undefined;
+  delete ExcalidrawConfig.mainComponent;
 
   ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalDATAUID,tripple_accent + 
                   'clojure\n' + 
                   ExcalidrawConfig.dataComponent +
                   tripple_accent);
-  ExcalidrawConfig.dataComponent = undefined;
+  delete ExcalidrawConfig.dataComponent;
 }
 
 loadExcalidrawCljs();

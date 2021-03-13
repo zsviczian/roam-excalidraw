@@ -93,22 +93,13 @@ function buildPage() {
                                    "block": {"uid": excalDATAUID}});  
 }
 
-function sendXMLHttpRequest (filename, blockUID) {
-  const client = new XMLHttpRequest();
-  client.open('GET', filename);
-  client.onreadystatechange = function() {
-    if(client.readyState == 4) {
-      const tripple_grave_accent = String.fromCharCode(96,96,96);
-      updateCodeBlock(blockUID,tripple_grave_accent+'clojure\n'+client.responseText+tripple_grave_accent);
-    }
-  }
-  client.send();  
-}
-
-const localVersion = getClojureNS(sketchingUID);
-
-if (localVersion != ExcalidrawConfig.cljCodeVersion) {
+if (getClojureNS(sketchingUID) != ExcalidrawConfig.cljCodeVersion) {
   buildPage();
-  sendXMLHttpRequest(mainComponentFile, sketchingUID);
-  sendXMLHttpRequest(dataComponentFile, excalDATAUID);
+  const tripple_accent = String.fromCharCode(96,96,96);
+  fetch(mainComponentFile)
+    .then(response => responese.text())
+    .then(text => updateCodeBlock(sketchingUID,tripple_accent+'clojure\n'+text+tripple_accent))
+  fetch(dataComponentFile)
+    .then(response => responese.text())
+    .then(text => updateCodeBlock(excalDATAUID,tripple_accent+'clojure\n'+text+tripple_accent));
 }

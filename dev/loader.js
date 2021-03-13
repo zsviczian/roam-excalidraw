@@ -25,8 +25,8 @@ if (getClojureNS(ExcalidrawConfig.sketchingUID) != ExcalidrawConfig.cljCodeVersi
   console.log('Excalidraw loader - need to update roam/render components');
 }
 else {
-  delete ExcalidrawConfig.sketchingUID;
-  delete ExcalidrawConfig.excalDATAUID
+  ExcalidrawConfig.sketchingUID = undefined;
+  ExcalidrawConfig.excalDATAUID = undefined;
 }
 
 ExcalidrawConfig.libs.push (ExcalidrawConfig.rootPath+ExcalidrawConfig.channel+'/main.js');

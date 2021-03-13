@@ -202,8 +202,7 @@
            drawing-before-edit (r/atom nil)
            app-name (str/join ["excalidraw-app-" block-uid])
            style (r/atom {:host-div (host-div-style cs)})
-           resize-handler (fn [] (if (is-full-screen cs) 
-                                   (swap! style assoc-in [:host-div] (host-div-style cs))))
+           resize-handler (fn [] (swap! style assoc-in [:host-div] (host-div-style cs)))
            pull-watch-callback (fn [before after]
                                  (let [drawing-data (pull-children block-uid 0)
                                        drawing-text (pull-children block-uid 1)]

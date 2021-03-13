@@ -20,8 +20,10 @@ function getClojureNS(blockUID) {
   return '';
 }
 
-if (getClojureNS(ExcalidrawConfig.sketchingUID) != ExcalidrawConfig.cljCodeVersion)
+if (getClojureNS(ExcalidrawConfig.sketchingUID) != ExcalidrawConfig.cljCodeVersion) {
   ExcalidrawConfig.libs.push (ExcalidrawConfig.rootPath + 'get.php?c='+ExcalidrawConfig.channel);
+  console.log('Excalidraw loader - need to update roam/render components');
+}
 else {
   delete ExcalidrawConfig.sketchingUID;
   delete ExcalidrawConfig.excalDATAUID

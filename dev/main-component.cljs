@@ -98,7 +98,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def embedded-view "ev")
 (def full-screen-view "fs")
-(def embed-width 500)
 
 (defn is-full-screen [cs]  ;;component-state
   (not= (:position @cs) embedded-view))
@@ -134,8 +133,8 @@
                          (.-parentElement)
                          (.-parentElement)
                          (.-parentElement)
-                         (.-clientWidth))]
-    (reset! embed-width (if (> host-div-width 500) 500 host-div-width))
+                         (.-clientWidth))
+        embed-width (if (> host-div-width 500) 500 host-div-width)]
     (debug ["(host-div-style) cur-state :position " (:position @cs) " :top " (int (* height 0.03)) " :left " (int (* width 0.03)) " full-screen? " (is-full-screen cs)])
     (if (is-full-screen cs)
       {:position "fixed"

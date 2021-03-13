@@ -17,6 +17,6 @@
 
     echo $response.$code;
   } else {
-    echo 'unexpected input'
+    echo 'unexpected input';
   }
 ?>

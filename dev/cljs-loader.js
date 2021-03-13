@@ -38,7 +38,7 @@ window.ExcalidrawLoader = {
   getORcreateBlockBYString (pageUID, order, blockString) {
     let uid = this.getBlockUIDByStringANDOrder (pageUID, order, blockString);
     if (uid == null)
-      uid = createBlock(pageUID,order, blockString);
+      uid = this.createBlock(pageUID,order, blockString);
     return uid;
   },
 

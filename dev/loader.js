@@ -44,8 +44,8 @@ ExcalidrawConfig.libs.forEach(function (x) {
   document.getElementsByTagName('head')[0].appendChild(s);  
 });
 
-delete ExcalidrawConfig.libs;
-delete ExcalidrawConfig.rootPath;
-delete ExcalidrawConfig.channel;
-delete getClojureNS;
-delete ExcalidrawConfig.cljCodeVersion;
+ExcalidrawConfig.libs = undefined;
+ExcalidrawConfig.rootPath = undefined;
+ExcalidrawConfig.channel = undefined;
+getClojureNS = undefined;
+ExcalidrawConfig.cljCodeVersion = undefined;

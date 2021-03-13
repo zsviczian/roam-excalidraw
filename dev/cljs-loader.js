@@ -1,21 +1,9 @@
 window.ExcalidrawLoader = {
-  sketchingUID : 'sketching',
-  excalDATAUID : 'ExcalDATA',
+  sketchingUID : ExcalidrawConfig.sketchingUID,
+  excalDATAUID : sketchingUID.excalDATAUID,
   pageTitle : 'roam/excalidraw',
   mainComponentParent : "Main Component",
   dataComponentParent : "Data Block Component",
-
-  getClojureNS(blockUID) {
-    const q = `[:find ?s . :where [?e :block/uid "${blockUID}"][?e :block/string ?s]]`;
-    const renderString = window.roamAlphaAPI.q(q);
-    if(renderString != null) { 
-      ptrn = /\(ns (.*)\s/g;
-      const res = ptrn.exec(renderString);
-      if(res == null) return '';
-      return res[1];
-    }
-    return '';
-  },
 
   updateCodeBlock(blockUID, sourceCode) {
     window.roamAlphaAPI.updateBlock({"block": 
@@ -102,21 +90,18 @@ window.ExcalidrawLoader = {
   }
 }
 
-if (ExcalidrawLoader.getClojureNS(ExcalidrawLoader.sketchingUID) != ExcalidrawConfig.cljCodeVersion) {
-  ExcalidrawLoader.buildPage();
-  const tripple_accent = String.fromCharCode(96,96,96);
-  ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.sketchingUID,tripple_accent + 
-                  'clojure\n' + 
-                  ExcalidrawConfig.mainComponent +
-                  tripple_accent);
-  ExcalidrawConfig.mainComponent = null;
+ExcalidrawLoader.buildPage();
+const tripple_accent = String.fromCharCode(96,96,96);
+ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.sketchingUID,tripple_accent + 
+                'clojure\n' + 
+                ExcalidrawConfig.mainComponent +
+                tripple_accent);
+ExcalidrawConfig.mainComponent = null;
 
-  ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalDATAUID,tripple_accent + 
-                  'clojure\n' + 
-                  ExcalidrawConfig.dataComponent +
-                  tripple_accent);
-  ExcalidrawConfig.dataComponent = null;
-}
+ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalDATAUID,tripple_accent + 
+                'clojure\n' + 
+                ExcalidrawConfig.dataComponent +
+                tripple_accent);
+ExcalidrawConfig.dataComponent = null;
 
-delete ExcalidrawConfig.cljCodeVersion;
 delete ExcalidrawLoader;

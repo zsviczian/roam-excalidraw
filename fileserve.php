@@ -29,7 +29,8 @@ if(!empty($filename)){
     if(file_exists($download_file))
     {
       header('Content-Disposition: attachment; filename=' . $filename);  
-      readfile($download_file); 
+      //readfile($download_file); 
+      echo 'File does not exists on given path :' . $channel ;
       exit;
     }
     else

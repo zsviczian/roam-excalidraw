@@ -30,8 +30,8 @@ if(!empty($filename)){
     {
       header('Content-Disposition: attachment; filename=' . $filename);  
       //readfile($download_file); 
-      echo 'File does not exists on given path :' . $channel ;
-      exit;
+      echo 'Channel is: ' . $channel ;
+      //exit;
     }
     else
     {

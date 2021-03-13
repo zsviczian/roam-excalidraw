@@ -129,7 +129,7 @@
         height   (.-innerHeight js/window)
         top      (int (* height 0.03))
         left     (int (* width 0.03))
-        host-div-width (if (nil? (:this-dom-node @cs) 500)
+        host-div-width (if (nil? (:this-dom-node @cs)) 500
                          (-> (:this-dom-node @cs)  
                            (.-parentElement)
                            (.-parentElement)
@@ -197,7 +197,7 @@
             cs (r/atom {:position embedded-view  ;;component-state
                         :zen-mode false
                         :grid-mode false
-                        :this-dom-node (r/atom nil)})
+                        :this-dom-node nil})
            ew (r/atom nil) ;;excalidraw-wrapper
            drawing-before-edit (r/atom nil)
            app-name (str/join ["excalidraw-app-" block-uid])

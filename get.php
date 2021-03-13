@@ -32,6 +32,7 @@ if(!empty($filename)){
     //  header('Content-Disposition: attachment; filename=' . $filename);  
     //  readfile($download_file); 
     //  exit;
+      header('content-type: application/javascript');
       echo file_get_contents($download_file);
     }
     else

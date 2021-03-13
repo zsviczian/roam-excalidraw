@@ -1,5 +1,6 @@
-// Allow from any origin
-if (isset($_SERVER['HTTP_ORIGIN'])) {
+<?php
+ // Allow from any origin
+ if (isset($_SERVER['HTTP_ORIGIN'])) {
     // should do a check here to match $_SERVER['HTTP_ORIGIN'] to a
     // whitelist of safe domains
     header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
@@ -16,3 +17,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
         header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
 
 }
+$filename = basename($_GET['file']);
+// Specify file path.
+$path = ''; // '/uplods/'
+$download_file =  $path.$filename;
+
+if(!empty($filename)){
+    // Check file is exists on given path.
+    if(file_exists($download_file))
+    {
+      header('Content-Disposition: attachment; filename=' . $filename);  
+      readfile($download_file); 
+      exit;
+    }
+    else
+    {
+      echo 'File does not exists on given path';
+    }
+ }
+ ?>

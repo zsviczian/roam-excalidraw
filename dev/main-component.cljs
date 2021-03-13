@@ -167,8 +167,8 @@
        (not= (str (type js/ReactDOM)) "")
        (not= (str (type js/React)) "")
        (not= (str (type js/ExcalidrawConfig)) ""))
-    (do (reset! deps-available true)
-      (reset! silent (not (.-DEBUG js/ExcalidrawConfig))))
+    (do (reset! silent (not (.-DEBUG js/ExcalidrawConfig)))
+      (reset! deps-available true))
     (js/setTimeout check-js-dependencies 1000)
   ))
 

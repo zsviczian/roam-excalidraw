@@ -17,21 +17,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
         header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
 
 }
-$filename = basename($_GET['file']);
-$channel = ($_GET['channel']);
+$filename = basename($_GET['f']);
+$channel = ($_GET['c']);
 
 // Specify file path.
-$path = '/home/getmnvmr/roam-excalidraw.com/dev/'; // '/uplods/'
-$download_file =  $path.$filename;
+$path = '/home/getmnvmr/roam-excalidraw.com/';
+
+$download_file =  $path.$channel.'/'.$filename;
 
 if(!empty($filename)){
     // Check file is exists on given path.
     if(file_exists($download_file))
     {
       header('Content-Disposition: attachment; filename=' . $filename);  
-      //readfile($download_file); 
-      echo 'Channel is: ' . $channel ;
-      //exit;
+      readfile($download_file); 
+      exit;
     }
     else
     {

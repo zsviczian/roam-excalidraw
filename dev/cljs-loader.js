@@ -1,5 +1,3 @@
-//const mainComponentFile = ExcalidrawConfig.rootPath + 'get.php?f=main-component.cljs&c='+ExcalidrawConfig.channel;
-//const dataComponentFile = ExcalidrawConfig.rootPath + 'get.php?f=data-component.cljs&c='+ExcalidrawConfig.channel;
 const sketchingUID  = 'sketching';
 const excalDATAUID = 'ExcalDATA';
 const pageTitle = 'roam/excalidraw';
@@ -95,7 +93,7 @@ function buildPage() {
 
 if (getClojureNS(sketchingUID) != ExcalidrawConfig.cljCodeVersion) {
   buildPage();
-  
+
   updateCodeBlock(sketchingUID,tripple_accent + 
                   'clojure\n' + 
                   ExcalidrawConfig.mainComponent +

@@ -109,3 +109,5 @@ function loadExcalidrawCljs() {
 loadExcalidrawCljs();
 loadExcalidrawCljs = undefined;
 ExcalidrawLoader = undefined;
+delete ExcalidrawConfig.sketchingUID;
+delete ExcalidrawConfig.excalDATAUID;

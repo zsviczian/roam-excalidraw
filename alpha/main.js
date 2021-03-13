@@ -181,7 +181,7 @@ window['ExcalidrawWrapper'] = class {
 
 }
 
-const cssCode = `
+cssCode = `
 @font-face {
   font-family: "Virgil";
   src: url("https://excalidraw.com/FG_Virgil.woff2");
@@ -299,7 +299,7 @@ kbd {
 }
 `;
 
-let styleElement = document.createElement('style');
+styleElement = document.createElement('style');
 styleElement.type = 'text/css';
 if (styleElement.styleSheet) {
   styleElement.styleSheet.cssText = cssCode;
@@ -308,7 +308,7 @@ if (styleElement.styleSheet) {
 }
 document.getElementsByTagName("head")[0].appendChild(styleElement);
 
-const excalidrawSplashScreen = {"elements": [
+excalidrawSplashScreen = {"elements": [
     {
         "type": "rectangle",
         "version": 498,

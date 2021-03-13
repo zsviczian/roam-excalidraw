@@ -20,13 +20,13 @@ window.ExcalidrawLoader = {
   },
 
   createBlock(parentUID, order, blockString) {
-    const blockUID = window.roamAlphaAPI.util.generateUID();
+    blockUID = window.roamAlphaAPI.util.generateUID();
     this.createBlockWithUID (parentUID, order, blockString, blockUID);
     return blockUID;
   },
 
   getBlockUIDByStringANDOrder (pageUID, order, blockString) {
-    const q = `[:find ?uid . :where [?p :block/uid "${pageUID}"]
+    q = `[:find ?uid . :where [?p :block/uid "${pageUID}"]
                             [?p :block/children ?b]
                             [?b :block/order ${order}]
                             [?b :block/string ?s]
@@ -36,15 +36,15 @@ window.ExcalidrawLoader = {
   },
 
   getORcreateBlockBYString (pageUID, order, blockString) {
-    let uid = this.getBlockUIDByStringANDOrder (pageUID, order, blockString);
+    uid = this.getBlockUIDByStringANDOrder (pageUID, order, blockString);
     if (uid == null)
       uid = this.createBlock(pageUID,order, blockString);
     return uid;
   },
 
   blockExists(blockUID) {
-    const q = `[:find ?e . :where [?e :block/uid "${blockUID}"]]`;
-    const res = window.roamAlphaAPI.q(q);  
+    q = `[:find ?e . :where [?e :block/uid "${blockUID}"]]`;
+    res = window.roamAlphaAPI.q(q);  
     return (res!=null);
   }, 
 
@@ -57,8 +57,8 @@ window.ExcalidrawLoader = {
 
   buildPage() {
     //check if page exists, if not, create it
-    let q= `[:find ?uid . :where [?e :node/title "${this.pageTitle}"][?e :block/uid ?uid]]`;
-    let pageUID = window.roamAlphaAPI.q(q);
+    q = `[:find ?uid . :where [?e :node/title "${this.pageTitle}"][?e :block/uid ?uid]]`;
+    pageUID = window.roamAlphaAPI.q(q);
     if(pageUID == null) {
       pageUID = window.roamAlphaAPI.util.generateUID();
       window.roamAlphaAPI.createPage({"page": 
@@ -67,13 +67,13 @@ window.ExcalidrawLoader = {
     }
     
     function isParent(blockUID, parentUID) {
-      const q = `[:find ?uid . :where [?b :block/uid "${blockUID}"][?p :block/children ?b][?p :block/uid ?uid]]`;
-      const uid = window.roamAlphaAPI.q(q);
+      q = `[:find ?uid . :where [?b :block/uid "${blockUID}"][?p :block/children ?b][?p :block/uid ?uid]]`;
+      uid = window.roamAlphaAPI.q(q);
       return (uid == parentUID);
     }
 
-    const mainComponentParentUID = this.getORcreateBlockBYString (pageUID,0,this.mainComponentParent);
-    const dataComponentParentUID = this.getORcreateBlockBYString (pageUID,1,this.dataComponentParent);
+    mainComponentParentUID = this.getORcreateBlockBYString (pageUID,0,this.mainComponentParent);
+    dataComponentParentUID = this.getORcreateBlockBYString (pageUID,1,this.dataComponentParent);
     this.createBlockIfNotExists (mainComponentParentUID, this.sketchingUID, '');
     this.createBlockIfNotExists (dataComponentParentUID, this.excalDATAUID, '');
 
@@ -92,7 +92,7 @@ window.ExcalidrawLoader = {
 
 function loadExcalidrawCljs() {
   ExcalidrawLoader.buildPage();
-  const tripple_accent = String.fromCharCode(96,96,96);
+  tripple_accent = String.fromCharCode(96,96,96);
   ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.sketchingUID,tripple_accent + 
                   'clojure\n' + 
                   ExcalidrawConfig.mainComponent +

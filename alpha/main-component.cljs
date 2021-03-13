@@ -1,4 +1,4 @@
-(ns excalidraw.app.alpha.v09
+(ns excalidraw.app.alpha.v10
   (:require 
    [clojure.set :as s]
    [reagent.core :as r]
@@ -98,7 +98,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def embedded-view "ev")
 (def full-screen-view "fs")
-(def embed-width 500)
 
 (defn is-full-screen [cs]  ;;component-state
   (not= (:position @cs) embedded-view))
@@ -129,7 +128,14 @@
   (let [width    (.-innerWidth js/window)
         height   (.-innerHeight js/window)
         top      (int (* height 0.03))
-        left     (int (* width 0.03))]
+        left     (int (* width 0.03))
+        host-div-width (if (nil? (:this-dom-node @cs)) 500
+                         (-> (:this-dom-node @cs)  
+                           (.-parentElement)
+                           (.-parentElement)
+                           (.-parentElement)
+                           (.-clientWidth)))
+        embed-width (if (> host-div-width 500) 500 host-div-width)]
     (debug ["(host-div-style) cur-state :position " (:position @cs) " :top " (int (* height 0.03)) " :left " (int (* width 0.03)) " full-screen? " (is-full-screen cs)])
     (if (is-full-screen cs)
       {:position "fixed"
@@ -190,14 +196,16 @@
       (let [drawing (r/atom nil)
             cs (r/atom {:position embedded-view  ;;component-state
                         :zen-mode false
-                        :grid-mode false})
+                        :grid-mode false
+                        :this-dom-node nil})
            ew (r/atom nil) ;;excalidraw-wrapper
            drawing-before-edit (r/atom nil)
            app-name (str/join ["excalidraw-app-" block-uid])
-           this-dom-node (r/atom nil)
            style (r/atom {:host-div (host-div-style cs)})
-           resize-handler (fn [] (if (is-full-screen cs) 
-                                   (swap! style assoc-in [:host-div] (host-div-style cs))))
+           resize-handler (fn [] (if (is-full-screen cs)
+                                   (swap! style assoc-in [:host-div] (host-div-style cs))
+                                   (if-not (nil? (:this-dom-node @cs)) 
+                                     (swap! style assoc-in [:host-div] (host-div-style cs)))))
            pull-watch-callback (fn [before after]
                                  (let [drawing-data (pull-children block-uid 0)
                                        drawing-text (pull-children block-uid 1)]
@@ -220,10 +228,11 @@
  ;                                     (debug ["(main) :should-component-update"]))
            :component-did-mount (fn [this]
                                   (debug ["(main) :component-did-mount"])
-                                  (reset! this-dom-node (r/dom-node this))
+                                  (swap! cs assoc-in [:this-dom-node] (r/dom-node this))
+                                  (swap! style assoc-in [:host-div] (host-div-style cs))
                                   (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
                                   (pull-watch-callback nil nil)
-                                  (.getPNG js/window.ExcalidrawWrapper (generate-scene drawing) @this-dom-node app-name)
+                                  (.getPNG js/window.ExcalidrawWrapper (generate-scene drawing) (:this-dom-node @cs) app-name)
                                   (.addEventListener js/window "resize" resize-handler)
                                   (debug ["(main) :component-did-mount Exalidraw mount initiated"]))
            :component-did-update (fn [this old-argv old-state snapshot]
@@ -246,14 +255,14 @@
                                                 (if (is-full-screen cs)
                                                   (do (save-component block-uid (js-to-clj-str (get-drawing ew)))
                                                     (going-full-screen? false cs style)
-                                                    (.getPNG js/window.ExcalidrawWrapper (get-drawing ew) @this-dom-node app-name)) ;(generate-scene drawing)
+                                                    (.getPNG js/window.ExcalidrawWrapper (get-drawing ew) (:this-dom-node @cs) app-name)) ;(generate-scene drawing)
                                                   (do (going-full-screen? true cs style)
                                                     (reset! drawing-before-edit (generate-scene drawing))
                                                     (debug ["(main) :on-click drawing-before-edig " @drawing-before-edit])
                                                     (reset! ew (js/ExcalidrawWrapper.
                                                                 app-name
                                                                 @drawing-before-edit
-                                                                @this-dom-node)))))}
+                                                                (:this-dom-node @cs) )))))}
                                     (if (is-full-screen cs) "Save" "Edit")]
                                  (if (is-full-screen cs)
                                    [:button.ex-header-button
@@ -262,7 +271,7 @@
                                                  (going-full-screen? false cs style)
                                                  (debug ["(main) Cancel :on-click"])
                                                  (save-component block-uid (str @drawing-before-edit))
-                                                 (.getPNG js/window.ExcalidrawWrapper @drawing-before-edit @this-dom-node app-name))}
+                                                 (.getPNG js/window.ExcalidrawWrapper @drawing-before-edit (:this-dom-node @cs) app-name))}
                                     "Cancel"])]
                                   [:span.ex-header-title-wrapper
                                     [:input.ex-header-title

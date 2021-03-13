@@ -90,18 +90,24 @@ window.ExcalidrawLoader = {
   }
 }
 
-ExcalidrawLoader.buildPage();
-const tripple_accent = String.fromCharCode(96,96,96);
-ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.sketchingUID,tripple_accent + 
-                'clojure\n' + 
-                ExcalidrawConfig.mainComponent +
-                tripple_accent);
-ExcalidrawConfig.mainComponent = null;
+function loadExcalidrawCljs() {
+  ExcalidrawLoader.buildPage();
+  const tripple_accent = String.fromCharCode(96,96,96);
+  ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.sketchingUID,tripple_accent + 
+                  'clojure\n' + 
+                  ExcalidrawConfig.mainComponent +
+                  tripple_accent);
+  delete ExcalidrawConfig.mainComponent;
 
-ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalDATAUID,tripple_accent + 
-                'clojure\n' + 
-                ExcalidrawConfig.dataComponent +
-                tripple_accent);
-ExcalidrawConfig.dataComponent = null;
+  ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalDATAUID,tripple_accent + 
+                  'clojure\n' + 
+                  ExcalidrawConfig.dataComponent +
+                  tripple_accent);
+  delete ExcalidrawConfig.dataComponent;
+}
 
-delete ExcalidrawLoader;
+loadExcalidrawCljs();
+loadExcalidrawCljs = undefined;
+ExcalidrawLoader = undefined;
+delete ExcalidrawConfig.sketchingUID;
+delete ExcalidrawConfig.excalDATAUID;

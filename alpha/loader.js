@@ -1,8 +1,8 @@
 window.ExcalidrawConfig = {
   rootPath: 'https://roam-excalidraw.com/',
-  channel: 'alpha',
-  cljCodeVersion: 'excalidraw.app.alpha.v08',
-  DEBUG : false,
+  channel: 'dev',
+  cljCodeVersion: 'excalidraw.app.alpha.x',
+  DEBUG : true,
   sketchingUID : 'sketching',
   excalDATAUID : 'ExcalDATA',
   libs: [],
@@ -26,7 +26,7 @@ if (getClojureNS(ExcalidrawConfig.sketchingUID) != ExcalidrawConfig.cljCodeVersi
 }
 else {
   delete ExcalidrawConfig.sketchingUID;
-  delete ExcalidrawConfig.excalDATAUID
+  delete ExcalidrawConfig.excalDATAUID;
 }
 
 ExcalidrawConfig.libs.push (ExcalidrawConfig.rootPath+ExcalidrawConfig.channel+'/main.js');
@@ -47,5 +47,5 @@ ExcalidrawConfig.libs.forEach(function (x) {
 delete ExcalidrawConfig.libs;
 delete ExcalidrawConfig.rootPath;
 delete ExcalidrawConfig.channel;
-delete getClojureNS;
+getClojureNS = undefined;
 delete ExcalidrawConfig.cljCodeVersion;

@@ -1,4 +1,4 @@
-(ns excalidraw.app.alpha.v08
+(ns excalidraw.app.alpha.v09
   (:require 
    [clojure.set :as s]
    [reagent.core :as r]
@@ -14,7 +14,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def silent (r/atom true))
 (defn debug [x]
-  (if-not silent (apply (.-log js/console) x)))
+  (if-not @silent (apply (.-log js/console) x)))
 
 (defn js-to-clj-str [& x]
   (debug ["(js-to-clj-str): x: " x (str x)])
@@ -167,8 +167,8 @@
        (not= (str (type js/ReactDOM)) "")
        (not= (str (type js/React)) "")
        (not= (str (type js/ExcalidrawConfig)) ""))
-    (do (reset! deps-available true)
-      (reset! silent (not (.-DEBUG js/ExcalidrawConfig))))
+    (do (reset! silent (not (.-DEBUG js/ExcalidrawConfig)))
+      (reset! deps-available true))
     (js/setTimeout check-js-dependencies 1000)
   ))
 

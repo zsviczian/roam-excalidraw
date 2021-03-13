@@ -12,7 +12,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Common functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(def silent (r/atom true))
+(def silent true)
 (defn debug [x]
   (if-not silent (apply (.-log js/console) x)))
 
@@ -20,14 +20,14 @@
   (debug ["(js-to-clj-str): x: " x (str x)])
   (let [res (-> x
               (str)
-              (str/replace #"(#js"  "")
+              (str/replace #"\(#js"  "")
               (str/replace #"#js" "")
-              (str/replace #"}})" "}}"))]
+              (str/replace #"\}\}\)" "}}"))]
     (debug ["(js-to-clj-str) result: " res])
     res))
 
 (defn fix-double-bracket [x]
-  (str/replace x #"[{2}" "[ ["))
+  (str/replace x #"\[{2}" "[ ["))
 
 (defn save-component [block-uid map-string]
   (debug ["(save-component) Enter"])
@@ -61,8 +61,8 @@
       nil)
     (do
       (let [data-string (get-in (first x) [0 :block/string])]
-        ;;(debug ["(get-data-from-block-string) returning: " (second (re-find #"ExcalDATA){2}s*({.*})s*}{2}" data-string))])
-        (edn/read-string (second (re-find #"ExcalDATA){2}s*({.*})s*}{2}" data-string)))))))
+        ;;(debug ["(get-data-from-block-string) returning: " (second (re-find #"ExcalDATA\){2}\s*(\{.*\})\s*\}{2}" data-string))])
+        (edn/read-string (second (re-find #"ExcalDATA\){2}\s*(\{.*\})\s*\}{2}" data-string)))))))
 
 (defn load-drawing [block-uid drawing data text] ;drawing is the atom holding the drawing map
   (debug ["(load-drawing) enter"])
@@ -181,7 +181,6 @@
 (defn main [{:keys [block-uid]} & args]
   (debug ["(main) component starting..."])
   (check-js-dependencies)
-  (reset! debug (.-DEBUG js/window.ExcalidrawConfig))
   (if (= @deps-available false)
     [:div "Libraries have not yet loaded. Please refresh the block in a moment."]
     (fn []
@@ -308,4 +307,4 @@
                                   :style (if (is-full-screen cs)
                                            {:position "relative" :width "100%" :height "calc(100% - 30px)"}
                                            {:background (if (= (get-in @drawing [:drawing :appState :appearance]) "dark") "black" "white")})}
-                               ]])})))))
+                               ]])})))))  

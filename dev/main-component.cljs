@@ -165,8 +165,10 @@
   (if (and (not= (str (type js/ExcalidrawUtils)) "")
        (not= (str (type js/Excalidraw)) "")
        (not= (str (type js/ReactDOM)) "")
-       (not= (str (type js/React)) ""))
-    (reset! deps-available true)
+       (not= (str (type js/React)) "")
+       (not= (str (type js/ExcalidrawConfig)) ""))
+    (do (reset! deps-available true)
+      (reset! silent (not (.-DEBUG js/ExcalidrawConfig))))
     (js/setTimeout check-js-dependencies 1000)
   ))
 
@@ -181,7 +183,6 @@
 (defn main [{:keys [block-uid]} & args]
   (debug ["(main) component starting..."])
   (check-js-dependencies)
-  (reset! silent (not (.-DEBUG js/ExcalidrawConfig)))
   (if (= @deps-available false)
     [:div "Libraries have not yet loaded. Please refresh the block in a moment."]
     (fn []

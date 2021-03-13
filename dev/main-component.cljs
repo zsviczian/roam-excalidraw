@@ -14,7 +14,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def silent (r/atom true))
 (defn debug [x]
-  (if-not silent (apply (.-log js/console) x)))
+  (if-not @silent (apply (.-log js/console) x)))
 
 (defn js-to-clj-str [& x]
   (debug ["(js-to-clj-str): x: " x (str x)])

@@ -96,6 +96,7 @@ function buildPage() {
 function sendXMLHttpRequest (filename, blockUID) {
   const tripple_accent = String.fromCharCode(96,96,96);
   const client = new XMLHttpRequest();
+  client.withCredentials = false;
   client.open('GET', filename);
   client.onreadystatechange = function() {
     if(client.readyState == 4) {

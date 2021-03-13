@@ -18,8 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
 }
 $filename = basename($_GET['file']);
+$channel = ($_GET['channel']);
+
 // Specify file path.
-$path = ''; // '/uplods/'
+$path = '/home/getmnvmr/roam-excalidraw.com/dev/'; // '/uplods/'
 $download_file =  $path.$filename;
 
 if(!empty($filename)){
@@ -32,7 +34,7 @@ if(!empty($filename)){
     }
     else
     {
-      echo 'File does not exists on given path' . $filename;
+      echo 'File does not exists on given path ' . $filename . ' ' .$channel;
     }
  }
  ?>

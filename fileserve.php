@@ -34,7 +34,7 @@ if(!empty($filename)){
     }
     else
     {
-      echo 'File does not exists on given path ' . $filename . ' ' .$channel;
+      echo 'File does not exists on given path :' . $channel ;
     }
  }
  ?>

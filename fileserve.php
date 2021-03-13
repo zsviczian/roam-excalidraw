@@ -32,7 +32,7 @@ if(!empty($filename)){
     }
     else
     {
-      echo 'File does not exists on given path';
+      echo 'File does not exists on given path' . $filename;
     }
  }
  ?>

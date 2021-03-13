@@ -1,5 +1,5 @@
-const mainComponentFile = ExcalidrawConfig.rootPath + 'main-component.cljs';
-const dataComponentFile = ExcalidrawConfig.rootPath + 'data-component.cljs';
+const mainComponentFile = ExcalidrawConfig.rootPath + 'get.php?f=main-component.cljs&c='+ExcalidrawConfig.channel;
+const dataComponentFile = ExcalidrawConfig.rootPath + 'get.php?f=data-component.cljs&c='+ExcalidrawConfig.channel;
 const sketchingUID  = 'sketching';
 const excalDATAUID = 'ExcalDATA';
 const pageTitle = 'roam/excalidraw';

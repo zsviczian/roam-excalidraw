@@ -32,7 +32,7 @@ if(!empty($filename)){
     //  header('Content-Disposition: attachment; filename=' . $filename);  
     //  readfile($download_file); 
     //  exit;
-      echo file_get_contents($filename);
+      echo file_get_contents($download_file);
     }
     else
     {

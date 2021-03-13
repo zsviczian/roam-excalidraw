@@ -202,7 +202,10 @@
            drawing-before-edit (r/atom nil)
            app-name (str/join ["excalidraw-app-" block-uid])
            style (r/atom {:host-div (host-div-style cs)})
-           resize-handler (fn [] (swap! style assoc-in [:host-div] (host-div-style cs)))
+           resize-handler (fn [] (if (is-full-screen cs)
+                                   (swap! style assoc-in [:host-div] (host-div-style cs))
+                                   (if-not (nil? (:this-dom-node @cs)) 
+                                     (swap! style assoc-in [:host-div] (host-div-style cs)))))
            pull-watch-callback (fn [before after]
                                  (let [drawing-data (pull-children block-uid 0)
                                        drawing-text (pull-children block-uid 1)]
@@ -226,6 +229,7 @@
            :component-did-mount (fn [this]
                                   (debug ["(main) :component-did-mount"])
                                   (swap! cs assoc-in [:this-dom-node] (r/dom-node this))
+                                  (swap! style assoc-in [:host-div] (host-div-style cs))
                                   (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
                                   (pull-watch-callback nil nil)
                                   (.getPNG js/window.ExcalidrawWrapper (generate-scene drawing) (:this-dom-node @cs) app-name)

@@ -65,9 +65,10 @@ window.ExcalidrawLoader = {
     pageUID = window.roamAlphaAPI.q(q);
     if(pageUID == null) {
       pageUID = window.roamAlphaAPI.util.generateUID();
-      window.roamAlphaAPI.createPage({"page": 
-                                            {"title": this.pageTitle, 
-                                            "uid": pageUID}});
+      window.roamAlphaAPI.createPage(
+        {"page": 
+          {"title": this.pageTitle, 
+           "uid": pageUID}});
       firstEverRun = true;                                
     }
     
@@ -104,10 +105,18 @@ window.ExcalidrawLoader = {
     
     //create template
     if (firstEverRun) {
+      roamTemplatesUID = window.roamAlphaAPI.q('[:find ?uid . :where [?p :node/title "roam/templates"][?p :block/uid ?uid]]');
+      if (roamTemplatesUID == null) {
+        roamTemplatesUID = window.roamAlphaAPI.util.generateUID();
+        window.roamAlphaAPI.createPage( 
+          {"page": 
+             {"uid": roamTemplatesUID,
+              "title": "roam/templates"}});
+      }
       templateUID = window.roamAlphaAPI.util.generateUID();
       window.roamAlphaAPI.createBlock( 
         {"location": 
-           {"parent-uid": window.roamAlphaAPI.q('[:find ?uid . :where [?p :node/title "roam/templates"][?p :block/uid ?uid]]'),
+           {"parent-uid": roamTemplatesUID,
             "order": 1000},
          "block": 
            {"string": "Excalidraw",

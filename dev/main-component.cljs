@@ -25,36 +25,6 @@
 (defn create-block [parent-uid order block-string]
   (.createBlock js/window.ExcalidrawWrapper parent-uid order block-string))
 
-(defn js-to-clj-str [& x]
-  (debug ["(js-to-clj-str): x: " x (str x)])
-  (let [res (-> x
-              (str)
-              (str/replace #"\(#js"  "")
-              (str/replace #"#js" "")
-              (str/replace #"\}\}\)" "}}"))]
-    (debug ["(js-to-clj-str) result: " res])
-    res))
-
-(defn fix-double-bracket [x]
-  (str/replace x #"\[{2}" "[ ["))
-
-(defn save-component [block-uid map-string]
-  (debug ["(save-component) Enter"])
-  (let [drawing-block-uid (rd/q '[:find ?drawing-uid .
-                                  :in $ ?uid
-                                  :where [?e :block/uid ?uid]
-                                         [?e :block/children ?c]
-                                         [?c :block/order 0]
-                                         [?c :block/string ?s]
-                                         [(clojure.string/starts-with? ?s "{{roam/render: ((ExcalDATA)) ")]
-                                         [?c :block/uid ?drawing-uid]]
-                                block-uid)
-        render-string (str/join ["{{roam/render: ((ExcalDATA)) " (fix-double-bracket map-string) " }}"])]
-    ;(debug  ["(save-component)  data-string: " render-string])
-    (block/update
-      {:block {:uid drawing-block-uid
-               :string render-string}})))
-
 (defn save-settings []
   (debug ["(save-settings) Enter"])
   (let [settings-host (r/atom (rd/q '[:find ?uid .
@@ -87,6 +57,37 @@
         (do (debug ["(save-settings) settings-block exists, updating"])
           (block/update {:block {:uid @settings-block 
                                  :string (str @app-settings)}}))))))
+
+(defn js-to-clj-str [& x]
+  (debug ["(js-to-clj-str): x: " x (str x)])
+  (let [res (-> x
+              (str)
+              (str/replace #"\(#js"  "")
+              (str/replace #"#js" "")
+              (str/replace #"\}\}\)" "}}"))]
+    (debug ["(js-to-clj-str) result: " res])
+    res))
+
+(defn fix-double-bracket [x]
+  (str/replace x #"\[{2}" "[ ["))
+
+(defn save-component [block-uid map-string]
+  (debug ["(save-component) Enter"])
+  (let [drawing-block-uid (rd/q '[:find ?drawing-uid .
+                                  :in $ ?uid
+                                  :where [?e :block/uid ?uid]
+                                         [?e :block/children ?c]
+                                         [?c :block/order 0]
+                                         [?c :block/string ?s]
+                                         [(clojure.string/starts-with? ?s "{{roam/render: ((ExcalDATA)) ")]
+                                         [?c :block/uid ?drawing-uid]]
+                                block-uid)
+        render-string (str/join ["{{roam/render: ((ExcalDATA)) " (fix-double-bracket map-string) " }}"])]
+    ;(debug  ["(save-component)  data-string: " render-string])
+    (block/update
+      {:block {:uid drawing-block-uid
+               :string render-string}}))
+  (save-settings))
 
 (defn load-settings []
   (debug ["(load-settings) Enter"])

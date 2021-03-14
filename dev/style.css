@@ -90,6 +90,7 @@
       display: table-cell;
       width: 1px;
       white-space: nowrap;
+      background: black;
     }
 
         .ex-header-button-dark {
@@ -111,8 +112,8 @@
     }
 
         .ex-header-title-dark {
-          background: darkgray;
-          color: white;
+          background: black;
+          color: lightgray;
           vertical-align: middle;
           height: 30px;
           border: 0px;

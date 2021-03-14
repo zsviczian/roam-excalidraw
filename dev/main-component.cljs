@@ -132,7 +132,7 @@
       (do
         (debug ["(load-drawing) create ExcalDATA & title"])
         (let [default-data {:appState {:name "Untitled drawing"
-                                       :appearance (:mode @app-settings)}]
+                                       :appearance (:mode @app-settings)}}]
           (create-block block-uid 0 (str/join ["{{roam/render: ((ExcalDATA)) "
                                       (str default-data) " }}"]))
           (reset! drawing {:drawing default-data} 

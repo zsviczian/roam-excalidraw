@@ -91,10 +91,12 @@
       width: 1px;
       white-space: nowrap;
       background: black;
+      border-radius: 5px;
     }
 
         .ex-header-button-dark {
           background-color: transparent;
+          color: lightgray;
           height: 30px;
           border-radius: 15px;
           margin-right: 3px;
@@ -103,7 +105,7 @@
 
         .ex-header-button-dark:hover {
           border: 1px solid ;
-          background-color: rgba(255,255,255,0.1);
+          background-color: darkgray;
         }
 
     .ex-header-title-wrapper-dark {

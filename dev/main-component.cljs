@@ -124,7 +124,7 @@
       nil)
     (do
       (let [data-string (get-in (first x) [0 :block/string])]
-        (debug ["(get-data-from-block-string) returning: " (second (re-find #"ExcalDATA\){2}\s*(\{.*\})\s*\}{2}" data-string))])
+        ;;(debug ["(get-data-from-block-string) returning: " (second (re-find #"ExcalDATA\){2}\s*(\{.*\})\s*\}{2}" data-string))])
         (edn/read-string (second (re-find #"ExcalDATA\){2}\s*(\{.*\})\s*\}{2}" data-string)))))))
 
 (defn load-drawing [block-uid drawing data text] ;drawing is the atom holding the drawing map

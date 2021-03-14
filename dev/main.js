@@ -100,6 +100,7 @@ window['ExcalidrawWrapper'] = class {
     if(o!=null) {
       let appstate = o.excalidrawRef.current.getAppState();
       delete appstate['collaborators'];
+      delete appstate['fileHandle'];
       return {elements: 
               o.excalidrawRef.current.getSceneElements(),
               appState: appstate};
@@ -184,137 +185,6 @@ window['ExcalidrawWrapper'] = class {
   }
 
 }
-
-cssCode = `
-@font-face {
-  font-family: "Virgil";
-  src: url("https://excalidraw.com/FG_Virgil.woff2");
-}
-@font-face {
-  font-family: "Cascadia";
-  src: url("https://excalidraw.com/Cascadia.woff2");
-}
-
-.ex-header-wrapper {
-  height: 30px;
-  display: table;
-  width: 100%;
-  border-radius: 5px;
-}
-
-    .ex-header-buttons-wrapper {
-      margin-left: 1px;
-      display: table-cell;
-      width: 1px;
-      white-space: nowrap;
-    }
-
-        .ex-header-button {
-          background-color: transparent;
-          height: 30px;
-          border-radius: 15px;
-          margin-right: 3px;
-          border: none;
-        }
-
-        .ex-header-button:hover {
-          border: 1px solid ;
-          background-color: rgba(0,0,0,0.1);
-        }
-
-    .ex-header-title-wrapper {
-       width: 100%;
-       display: table-cell; 
-    }
-
-        .ex-header-title {
-          background: transparent;
-          color: black;
-          vertical-align: middle;
-          height: 30px;
-          border: 0px;
-          width: 100%; 
-        }
-
-
-    .ex-header-options-wrapper {
-      /*float: right;*/
-      display: table-cell;
-      min-width: fit-content;
-      margin-right: 1px;
-      white-space: nowrap;
-    }
-
-        .ex-header-options-label {
-          margin: 0px 8px 0px 0px;
-          vertical-align: middle !important;
-          /*position: relative;*/
-          display: inline-block;
-          white-space: nowrap;
-        }
-
-        .ex-header-options-checkbox {
-          margin: 0px 3px 0px 0px !important;
-          vertical-align: middle !important;
-          /*position: relative;*/
-        }
-
-.excalidraw-data {
-  background: silver;
-  border: 1px solid black;
-  border-radius: 5px;
-  padding: 2px 5px 2px 5px;
-}
-
-.excalidraw.excalidraw-modal-container {
-  z-index: 1010 !important; 
-}
-
-kbd {
-  color: black !important;
-}
-
-.popover {
-  display: block;
-  top: auto;
-  left: auto;
-  z-index: 1010 !important;
-}
-
-.excalidraw .App-menu_top .buttonList {
-  display: flex;
-}
-
-.excalidraw-host {     
- /* resize: vertical;*/
-}
-
-.excalidraw-wrapper { 
-  height: 100%;
-  margin: 0px;
-  position: relative;
-}
-
-.excalidraw-svg {
-  margin: 0px -4px -4px -4px;
-}
-
-:root[dir="ltr"]
-  .excalidraw
-  .layer-ui__wrapper
-  .zen-mode-transition.App-menu_bottom--transition-left {
-  transform: none;
-}
-`;
-
-styleElement = document.createElement('style');
-styleElement.type = 'text/css';
-if (styleElement.styleSheet) {
-  styleElement.styleSheet.cssText = cssCode;
-} else {
-  styleElement.appendChild(document.createTextNode(cssCode));
-}
-document.getElementsByTagName("head")[0].appendChild(styleElement);
 
 excalidrawSplashScreen = {"elements": [
     {

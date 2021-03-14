@@ -147,12 +147,14 @@
 
         .ex-header-options-label-dark {
           margin: 0px 8px 0px 0px;
+          color: lightgray;
           vertical-align: middle !important;
           display: inline-block;
           white-space: nowrap;
         }
 
         .ex-header-options-checkbox-dark {
+          color: lightgray;
           margin: 0px 3px 0px 0px !important;
           vertical-align: middle !important;
         }

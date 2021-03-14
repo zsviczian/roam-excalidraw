@@ -138,11 +138,11 @@
                                        :appearance (:mode @app-settings)}}]
           (if-not initializing? 
             (create-block block-uid 0 (str/join ["{{roam/render: ((ExcalDATA)) "
-                                        (str default-data) " }}"])))
-          (reset! drawing {:drawing default-data 
-                           :title {:text "Untitled drawing"
-                                   :block-uid (create-block block-uid 1 "Untitled drawing")}}))
-          (block/update {:block {:uid block-uid :open false}}))
+                                        (str default-data) " }}"]))
+            (reset! drawing {:drawing default-data 
+                             :title {:text "Untitled drawing"
+                                     :block-uid (create-block block-uid 1 "Untitled drawing")}}))
+            (block/update {:block {:uid block-uid :open false}})))
       (if (= (count text) 0)
         (do
           (debug ["(load-drawing) create title only"])

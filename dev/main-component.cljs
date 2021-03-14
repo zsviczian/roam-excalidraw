@@ -133,7 +133,8 @@
         (debug ["(load-drawing) create ExcalDATA & title"])
         (create-block block-uid 0 "{{roam/render: ((ExcalDATA)) {} }}")
         (reset! drawing {:drawing 
-                         {:appState {:name "Untitled drawing"}} 
+                         {:appState {:name "Untitled drawing"
+                                     :appearance (:mode @app-settings)}} 
                          :title {:text "Untitled drawing"
                                  :block-uid (create-block block-uid 1 "Untitled drawing")}}));
       (if (= (count text) 0)

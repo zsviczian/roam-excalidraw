@@ -15,11 +15,11 @@
     document.getElementsByTagName('head')[0].appendChild(element);
   }
 
-  ExcalidrawRoam.loader.addScriptToPage = (tagId, script)=> {
+  ExcalidrawConfig.loader.addScriptToPage = (tagId, script)=> {
     addElementToPage(Object.assign(document.createElement('script'),{src:script}) , tagId, 'text/javascript');
   }
 
-  ExcalidrawRoam.loader.addCSSToPage = (tagId, cssToAdd)=> {
+  ExcalidrawConfig.loader.addCSSToPage = (tagId, cssToAdd)=> {
     addElementToPage(Object.assign(document.createElement('link'),{href:cssToAdd, rel: 'stylesheet'} ) , tagId, 'text/css');
   }
 })();

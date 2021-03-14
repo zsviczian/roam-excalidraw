@@ -214,6 +214,7 @@ cssCode = `
           height: 30px;
           border-radius: 15px;
           margin-right: 3px;
+          border: none;
         }
 
         .ex-header-button:hover {

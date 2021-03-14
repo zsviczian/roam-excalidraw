@@ -256,6 +256,9 @@
     (.getSVG js/window.ExcalidrawWrapper drawing dom-node app-name)
   ))
 
+(defn get-style [x]
+  (str/join [x "-" (:mode @app-settings)]))
+
 (defn main [{:keys [block-uid]} & args]
   (debug ["(main) component starting..."])
   (check-js-dependencies)
@@ -316,12 +319,14 @@
 ;           :component-did-catch (fn [this error info])
            :reagent-render (fn [{:keys [block-uid]} & args]
                              (debug ["(main) :reagent-render"])
-                               [:div.excalidraw-host
-                                {:style (:host-div @style)}
-                                [:div.ex-header-wrapper
-                                 [:span.ex-header-buttons-wrapper
-                                  [:button.ex-header-button
-                                   {:draggable true
+                               [:div
+                                {:class (get-style "excalidraw-host")
+                                 :style (:host-div @style)}
+                                [:div {:class (get-style "ex-header-wrapper")}
+                                 [:span {:class (get-style "ex-header-buttons-wrapper")}
+                                  [:button
+                                   {:class (get-style "ex-header-button")
+                                    :draggable true
                                     :on-click (fn [e]
                                                 (if (is-full-screen cs)
                                                   (do (save-component block-uid (js-to-clj-str (get-drawing ew)))
@@ -336,17 +341,19 @@
                                                                 (:this-dom-node @cs) )))))}
                                     (if (is-full-screen cs) "💾" "🖋")]
                                  (if (is-full-screen cs)
-                                   [:button.ex-header-button
-                                    {:draggable true
+                                   [:button
+                                    {:class (get-style "ex-header-button")
+                                     :draggable true
                                      :on-click (fn [e]
                                                  (going-full-screen? false cs style)
                                                  (debug ["(main) Cancel :on-click"])
                                                  (save-component block-uid (str @drawing-before-edit))
                                                  (get-embed-image @drawing-before-edit (:this-dom-node @cs) app-name))}
                                     "❌"])]
-                                  [:span.ex-header-title-wrapper
-                                    [:input.ex-header-title
-                                     {:value (get-in @drawing [:title :text])
+                                  [:span {:class (get-style "ex-header-title-wrapper")}
+                                    [:input
+                                     {:class (get-style "ex-header-title")
+                                      :value (get-in @drawing [:title :text])
                                       :on-change (fn [e] 
                                                    (swap! drawing assoc-in [:title :text] (.. e -target -value))
                                                    (block/update
@@ -365,9 +372,11 @@
                                                            [:appState :name] (get-in @drawing [:title :text]))))))
                                                    )}]]
                                  (if (is-full-screen cs)
-                                    [:span.ex-header-options-wrapper
-                                      [:label.ex-header-options-label [:input.ex-header-options-checkbox
-                                        {:type "checkbox"
+                                    [:span {:class (get-style "ex-header-options-wrapper")}
+                                      [:label {:class (get-style "ex-header-options-label")} 
+                                       [:input
+                                        {:class (get-style "ex-header-options-checkbox")
+                                         :type "checkbox"
                                          :checked (:zen-mode @cs)
                                          :on-change (fn [e]
                                                       (set-zen-mode-enabled
@@ -375,8 +384,10 @@
                                                        cs
                                                        (not (:zen-mode @cs))))}]
                                         "Zen Mode"]
-                                    [:label.ex-header-options-label [:input.ex-header-options-checkbox
-                                      {:type "checkbox"
+                                    [:label {:class (get-style "ex-header-options-label")}
+                                     [:input
+                                      {:class (get-style "ex-header-options-checkbox")
+                                       :type "checkbox"
                                        :checked (:grid-mode @cs)
                                        :on-change (fn [e]
                                                     (set-grid-mode-enabled

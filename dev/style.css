@@ -1,0 +1,203 @@
+@font-face {
+  font-family: "Virgil";
+  src: url("https://excalidraw.com/FG_Virgil.woff2");
+}
+@font-face {
+  font-family: "Cascadia";
+  src: url("https://excalidraw.com/Cascadia.woff2");
+}
+
+/******************/
+/*   Light mode   */
+/******************/
+.ex-header-wrapper-light {
+  height: 30px;
+  display: table;
+  width: 100%;
+  border-radius: 5px;
+}
+
+    .ex-header-buttons-wrapper-light {
+      margin-left: 1px;
+      display: table-cell;
+      width: 1px;
+      white-space: nowrap;
+    }
+
+        .ex-header-button-light {
+          background-color: transparent;
+          height: 30px;
+          border-radius: 15px;
+          margin-right: 3px;
+          border: none;
+        }
+
+        .ex-header-button-light:hover {
+          border: 1px solid ;
+          background-color: rgba(0,0,0,0.1);
+        }
+
+    .ex-header-title-wrapper-light {
+       width: 100%;
+       display: table-cell; 
+    }
+
+        .ex-header-title-light {
+          background: transparent;
+          color: black;
+          vertical-align: middle;
+          height: 30px;
+          border: 0px;
+          width: 100%; 
+        }
+
+
+    .ex-header-options-wrapper-light {
+      /*float: right;*/
+      display: table-cell;
+      min-width: fit-content;
+      margin-right: 1px;
+      white-space: nowrap;
+    }
+
+        .ex-header-options-label-light {
+          margin: 0px 8px 0px 0px;
+          vertical-align: middle !important;
+          /*position: relative;*/
+          display: inline-block;
+          white-space: nowrap;
+        }
+
+        .ex-header-options-checkbox-light {
+          margin: 0px 3px 0px 0px !important;
+          vertical-align: middle !important;
+          /*position: relative;*/
+        }
+
+/*
+.excalidraw-host-light {     
+}*/
+
+.excalidraw-wrapper-light { 
+  height: 100%;
+  margin: 0px;
+  position: relative;
+}
+
+/******************/
+/*   Light mode   */
+/******************/
+.ex-header-wrapper-dark {
+  height: 30px;
+  display: table;
+  width: 100%;
+  border-radius: 5px;
+}
+
+    .ex-header-buttons-wrapper-dark {
+      margin-left: 1px;
+      display: table-cell;
+      width: 1px;
+      white-space: nowrap;
+    }
+
+        .ex-header-button-dark {
+          background-color: transparent;
+          height: 30px;
+          border-radius: 15px;
+          margin-right: 3px;
+          border: none;
+        }
+
+        .ex-header-button-dark:hover {
+          border: 1px solid ;
+          background-color: rgba(255,255,255,0.1);
+        }
+
+    .ex-header-title-wrapper-dark {
+       width: 100%;
+       display: table-cell; 
+    }
+
+        .ex-header-title-dark {
+          background: transparent;
+          color: black;
+          vertical-align: middle;
+          height: 30px;
+          border: 0px;
+          width: 100%; 
+        }
+
+
+    .ex-header-options-wrapper-dark {
+      /*float: right;*/
+      display: table-cell;
+      min-width: fit-content;
+      margin-right: 1px;
+      white-space: nowrap;
+    }
+
+        .ex-header-options-label-dark {
+          margin: 0px 8px 0px 0px;
+          vertical-align: middle !important;
+          /*position: relative;*/
+          display: inline-block;
+          white-space: nowrap;
+        }
+
+        .ex-header-options-checkbox-dark {
+          margin: 0px 3px 0px 0px !important;
+          vertical-align: middle !important;
+          /*position: relative;*/
+        }
+
+/*
+.excalidraw-host-dark {     
+}*/
+
+.excalidraw-wrapper-dark { 
+  height: 100%;
+  margin: 0px;
+  position: relative;
+}
+
+
+/*****************/
+/* other settings*/
+/*****************/
+.excalidraw-data {
+  background: silver;
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 2px 5px 2px 5px;
+}
+
+.excalidraw.excalidraw-modal-container {
+  z-index: 1010 !important; 
+}
+
+kbd {
+  color: black !important;
+}
+
+.popover {
+  display: block;
+  top: auto;
+  left: auto;
+  z-index: 1010 !important;
+}
+
+.excalidraw .App-menu_top .buttonList {
+  display: flex;
+}
+
+.excalidraw-svg {
+  margin: 0px -4px -4px -4px;
+}
+
+:root[dir="ltr"]
+  .excalidraw
+  .layer-ui__wrapper
+  .zen-mode-transition.App-menu_bottom--transition-left {
+  transform: none;
+}

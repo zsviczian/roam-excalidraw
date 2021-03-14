@@ -100,6 +100,7 @@ window['ExcalidrawWrapper'] = class {
     if(o!=null) {
       let appstate = o.excalidrawRef.current.getAppState();
       delete appstate['collaborators'];
+      delete appstate['fileHandle'];
       return {elements: 
               o.excalidrawRef.current.getSceneElements(),
               appState: appstate};
@@ -185,6 +186,7 @@ window['ExcalidrawWrapper'] = class {
 
 }
 
+/*
 cssCode = `
 @font-face {
   font-family: "Virgil";
@@ -238,7 +240,6 @@ cssCode = `
 
 
     .ex-header-options-wrapper {
-      /*float: right;*/
       display: table-cell;
       min-width: fit-content;
       margin-right: 1px;
@@ -248,7 +249,6 @@ cssCode = `
         .ex-header-options-label {
           margin: 0px 8px 0px 0px;
           vertical-align: middle !important;
-          /*position: relative;*/
           display: inline-block;
           white-space: nowrap;
         }
@@ -256,7 +256,6 @@ cssCode = `
         .ex-header-options-checkbox {
           margin: 0px 3px 0px 0px !important;
           vertical-align: middle !important;
-          /*position: relative;*/
         }
 
 .excalidraw-data {
@@ -286,7 +285,7 @@ kbd {
 }
 
 .excalidraw-host {     
- /* resize: vertical;*/
+ 
 }
 
 .excalidraw-wrapper { 
@@ -315,7 +314,7 @@ if (styleElement.styleSheet) {
   styleElement.appendChild(document.createTextNode(cssCode));
 }
 document.getElementsByTagName("head")[0].appendChild(styleElement);
-
+*/
 excalidrawSplashScreen = {"elements": [
     {
         "type": "rectangle",

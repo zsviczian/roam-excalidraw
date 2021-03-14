@@ -10,6 +10,12 @@
 /******************/
 /*   Light mode   */
 /******************/
+.excalidraw-host-dark {
+  background-color: white;
+  border-radius: 5px;
+  display: block;
+}
+
 .ex-header-wrapper-light {
   height: 30px;
   display: table;
@@ -76,8 +82,16 @@
 
 
 /******************/
-/*   Light mode   */
+
+/*   Dark mode    */
 /******************/
+
+.excalidraw-host-dark {
+  background-color: black;
+  border-radius: 5px;
+  display: block;
+}
+
 .ex-header-wrapper-dark {
   height: 30px;
   display: table;

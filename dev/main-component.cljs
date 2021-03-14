@@ -212,11 +212,10 @@
        :left left
        :width  (str/join ["calc(100% - " (* left 2) "px)"]) 
        :height (- height (* top 2))
-       :background (if (= (:mode @app-settings) "light") "white" "darkgray")} ;
+       :resize "none"} 
       {:position "relative"
        :width embed-width
        :height "100%"
-       :display "block"
        :resize "both"
        :overflow "hidden"})))
 

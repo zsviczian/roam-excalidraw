@@ -110,13 +110,17 @@ window['ExcalidrawWrapper'] = class {
   static getSVG(diagram,node,appName) {
     const hostDIV = node.querySelector('#'+appName);
     ReactDOM.unmountComponentAtNode(hostDIV);
+    let mode = 'light';
+    if (diagram != null) 
+      if(diagram.appState != null)
+        mode = (diagram.appState.appearance == 'dark') ? "dark" : "light";    
     if (diagram==null) 
       diagram = excalidrawSplashScreen;
     else 
       if (diagram['elements'] == undefined) 
         diagram = excalidrawSplashScreen;   
     
-    if(diagram.appState.appearance == 'dark')
+    if(mode == 'dark')
       diagram.appState.exportWithDarkMode = true;
     else
       diagram.appState.exportWithDarkMode = false;
@@ -133,13 +137,17 @@ window['ExcalidrawWrapper'] = class {
   static getPNG(diagram,node,appName) {
     const hostDIV = node.querySelector('#'+appName);
     ReactDOM.unmountComponentAtNode(hostDIV);
+    let mode = 'light';
+    if (diagram != null) 
+      if(diagram.appState != null)
+        mode = (diagram.appState.appearance == 'dark') ? "dark" : "light";
     if (diagram==null) 
       diagram = excalidrawSplashScreen;
     else 
       if (diagram['elements'] == undefined) 
         diagram = excalidrawSplashScreen;    
     
-    if(diagram.appState.appearance == 'dark')
+    if(mode == 'dark')
       diagram.appState.exportWithDarkMode = true;
     else
       diagram.appState.exportWithDarkMode = false;

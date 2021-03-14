@@ -138,13 +138,15 @@
                                       (str default-data) " }}"]))
           (reset! drawing {:drawing default-data 
                            :title {:text "Untitled drawing"
-                                   :block-uid (create-block block-uid 1 "Untitled drawing")}})))
+                                   :block-uid (create-block block-uid 1 "Untitled drawing")}}))
+          (block/update {:block {:uid block-uid :open false}}))
       (if (= (count text) 0)
         (do
           (debug ["(load-drawing) create title only"])
           (reset! drawing {:drawing data
                            :title {:text "Untitled drawing"
-                                   :block-uid (create-block block-uid 1 "Untitled drawing")}}))
+                                   :block-uid (create-block block-uid 1 "Untitled drawing")}})
+          (block/update {:block {:uid block-uid :open false}}))
         (do
           (debug ["(load-drawing) ExcalDATA & title already exist"])
           (reset! drawing {:drawing data

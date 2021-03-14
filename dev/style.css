@@ -44,7 +44,6 @@
 
         .ex-header-title-light {
           background: transparent;
-          color: black;
           vertical-align: middle;
           height: 30px;
           border: 0px;
@@ -53,7 +52,6 @@
 
 
     .ex-header-options-wrapper-light {
-      /*float: right;*/
       display: table-cell;
       min-width: fit-content;
       margin-right: 1px;
@@ -63,7 +61,6 @@
         .ex-header-options-label-light {
           margin: 0px 8px 0px 0px;
           vertical-align: middle !important;
-          /*position: relative;*/
           display: inline-block;
           white-space: nowrap;
         }
@@ -71,7 +68,6 @@
         .ex-header-options-checkbox-light {
           margin: 0px 3px 0px 0px !important;
           vertical-align: middle !important;
-          /*position: relative;*/
         }
 
 /*
@@ -120,8 +116,8 @@
     }
 
         .ex-header-title-dark {
-          background: transparent;
-          color: black;
+          background: darkgray;
+          color: silver;
           vertical-align: middle;
           height: 30px;
           border: 0px;
@@ -130,7 +126,6 @@
 
 
     .ex-header-options-wrapper-dark {
-      /*float: right;*/
       display: table-cell;
       min-width: fit-content;
       margin-right: 1px;
@@ -140,7 +135,6 @@
         .ex-header-options-label-dark {
           margin: 0px 8px 0px 0px;
           vertical-align: middle !important;
-          /*position: relative;*/
           display: inline-block;
           white-space: nowrap;
         }
@@ -148,7 +142,6 @@
         .ex-header-options-checkbox-dark {
           margin: 0px 3px 0px 0px !important;
           vertical-align: middle !important;
-          /*position: relative;*/
         }
 
 /*
@@ -166,8 +159,7 @@
 /* other settings*/
 /*****************/
 .excalidraw-data {
-  background: silver;
-  border: 1px solid black;
+  border: 1px solid gray;
   border-radius: 5px;
   padding: 2px 5px 2px 5px;
 }

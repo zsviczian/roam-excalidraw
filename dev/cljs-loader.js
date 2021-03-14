@@ -112,7 +112,7 @@ window.ExcalidrawLoader = {
          "block": 
            {"string": "Excalidraw",
             "uid": templateUID}});
-      window.roamAlphaAPI.crateBlock(
+      window.roamAlphaAPI.createBlock(
         {"location":
            {"parent-uid": templateUID,
             "order": 0},

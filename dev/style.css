@@ -119,8 +119,8 @@
         }
 
         .ex-header-button-dark:hover {
-          border: 1px solid ;
-          background-color: darkgray;
+          border: 1px solid dimgray;
+          background-color: #222222;
         }
 
     .ex-header-title-wrapper-dark {

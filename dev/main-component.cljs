@@ -131,12 +131,13 @@
   (if (= (count data) 0)
       (do
         (debug ["(load-drawing) create ExcalDATA & title"])
-        (create-block block-uid 0 "{{roam/render: ((ExcalDATA)) {} }}")
-        (reset! drawing {:drawing 
-                         {:appState {:name "Untitled drawing"
-                                     :appearance (:mode @app-settings)}} 
-                         :title {:text "Untitled drawing"
-                                 :block-uid (create-block block-uid 1 "Untitled drawing")}}));
+        (let [default-data {:appState {:name "Untitled drawing"
+                                       :appearance (:mode @app-settings)}]
+          (create-block block-uid 0 (str/join ["{{roam/render: ((ExcalDATA)) "
+                                      (str default-data) " }}"]))
+          (reset! drawing {:drawing default-data} 
+                           :title {:text "Untitled drawing"
+                                   :block-uid (create-block block-uid 1 "Untitled drawing")}})))
       (if (= (count text) 0)
         (do
           (debug ["(load-drawing) create title only"])

@@ -21,6 +21,9 @@
 (defn debug [x]
   (if-not @silent (apply (.-log js/console) x)))
 
+(defn create-block [parent-uid order block-string]
+  (.createBlock js/window.ExcalidrawWrapper parent-uid order block-string))
+
 (defn js-to-clj-str [& x]
   (debug ["(js-to-clj-str): x: " x (str x)])
   (let [res (-> x
@@ -110,8 +113,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Load data from nested block(s)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn create-block [parent-uid order block-string]
-  (.createBlock js/window.ExcalidrawWrapper parent-uid order block-string))
 
 ;;finds the json enclosed in double parentheses and returns it
 (defn get-data-from-block-string [x]

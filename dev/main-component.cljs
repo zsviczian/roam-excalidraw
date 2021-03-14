@@ -131,12 +131,14 @@
 
 (defn create-nested-blocks [block-uid drawing]
   (debug ["(create-nested-blocks)"])
-  (create-block block-uid 0 (str/join ["{{roam/render: ((ExcalDATA)) "
-                              (str default-data) " }}"]))
-  (reset! drawing {:drawing default-data 
-                   :title {:text "Untitled drawing"
-                           :block-uid (create-block block-uid 1 "Untitled drawing")}})
-  (block/update {:block {:uid block-uid :open false}}))
+  (let [default-data {:appState {:name "Untitled drawing"
+                                       :appearance (:mode @app-settings)}}]
+    (create-block block-uid 0 (str/join ["{{roam/render: ((ExcalDATA)) "
+                                (str default-data) " }}"]))
+    (reset! drawing {:drawing default-data 
+                    :title {:text "Untitled drawing"
+                            :block-uid (create-block block-uid 1 "Untitled drawing")}})
+    (block/update {:block {:uid block-uid :open false}})))
 
 (defn load-drawing [block-uid drawing data text] ;drawing is the atom holding the drawing map
   (debug ["(load-drawing) enter"])

@@ -81,8 +81,7 @@ window.ExcalidrawLoader = {
 
     this.createBlockIfNotExists (mainComponentParentUID, this.sketchingUID, '');
     this.createBlockIfNotExists (dataComponentParentUID, this.excalDATAUID, '');
-    if(!this.blockExists(this.settingsUID))
-      this.createBlockWithUID (settingsComponentParentUID,0,this.defaultSetting,this.settingsUID);
+    this.createBlockIfNotExists (settingsComponentParentUID, this.settingsUID, this.defaultSetting);
 
     if(!isParent(this.sketchingUID,this.mainComponentParent))
       window.roamAlphaAPI.moveBlock({"location":

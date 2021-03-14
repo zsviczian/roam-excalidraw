@@ -1,3 +1,5 @@
+const { Console } = require("node:console");
+
 (()=>{
   window.ExcalidrawConfig = {
     rootPath: 'https://roam-excalidraw.com/',
@@ -30,14 +32,17 @@ function getClojureNS(blockUID) {
   if(renderString != null) { 
     ptrn = /\(ns (.*)\s/g;
     let res = ptrn.exec(renderString);
+    if (ExcalidrawConfig.DEBUG) console.log('getClojureNS: ', res);
     if(res == null) return '';
     return res[1];
   }
+  if (ExcalidrawConfig.DEBUG) console.log('getClojureNS: empty');
   return '';
 }
 
 ( async ()=>{
     if (getClojureNS(ExcalidrawConfig.sketchingUID) != ExcalidrawConfig.cljCodeVersion) {
+      if (ExcalidrawConfig.DEBUG) console.log('starting roam-excalidraw-cljs-loader');
       ExcalidrawConfig.addScriptToPage( 'roam-excalidraw-cljs-loader',  ExcalidrawConfig.rootPath + 'get.php?c='+ExcalidrawConfig.channel);
     }
     else {

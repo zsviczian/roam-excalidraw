@@ -208,8 +208,7 @@
        :top top
        :left left
        :width  (str/join ["calc(100% - " (* left 2) "px)"]) 
-       :height (- height (* top 2))
-       :background "white"}
+       :height (- height (* top 2))} ;:background "white"
       {:position "relative"
        :width embed-width
        :height "100%"
@@ -334,7 +333,7 @@
                                                                 app-name
                                                                 @drawing-before-edit
                                                                 (:this-dom-node @cs) )))))}
-                                    (if (is-full-screen cs) "Save" "Edit")]
+                                    (if (is-full-screen cs) "💾" "🖋")]
                                  (if (is-full-screen cs)
                                    [:button.ex-header-button
                                     {:draggable true
@@ -343,7 +342,7 @@
                                                  (debug ["(main) Cancel :on-click"])
                                                  (save-component block-uid (str @drawing-before-edit))
                                                  (get-embed-image @drawing-before-edit (:this-dom-node @cs) app-name))}
-                                    "Cancel"])]
+                                    "❌"])]
                                   [:span.ex-header-title-wrapper
                                     [:input.ex-header-title
                                      {:value (get-in @drawing [:title :text])

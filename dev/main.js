@@ -196,7 +196,6 @@ cssCode = `
 }
 
 .ex-header-wrapper {
-  background: silver; 
   height: 30px;
   display: table;
   width: 100%;
@@ -211,11 +210,15 @@ cssCode = `
     }
 
         .ex-header-button {
+          background-color: transparent;
           height: 30px;
-          border-radius: 5px;
-          border: 1px;
-          box-shadow: inset 0 0 0 1px rgb(16 22 26 / 20%), inset 0 -1px 0 rgb(16 22 26 / 10%);
+          border-radius: 15px;
           margin-right: 3px;
+        }
+
+        .ex-header-button:hover {
+          border: 1px solid ;
+          background-color: rgba(0,0,0,0.1);
         }
 
     .ex-header-title-wrapper {

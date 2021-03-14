@@ -135,7 +135,7 @@
                                        :appearance (:mode @app-settings)}}]
           (create-block block-uid 0 (str/join ["{{roam/render: ((ExcalDATA)) "
                                       (str default-data) " }}"]))
-          (reset! drawing {:drawing default-data} 
+          (reset! drawing {:drawing default-data 
                            :title {:text "Untitled drawing"
                                    :block-uid (create-block block-uid 1 "Untitled drawing")}})))
       (if (= (count text) 0)
@@ -149,7 +149,7 @@
           (reset! drawing {:drawing data
                            :title {:text (get-in text [0 :block/string])
                                    :block-uid  (get-in text [0 :block/uid])}}))))
-    (debug ["(load-drawing) drawing: " @drawing " data: " data " text: " (str text) "appearance " (get-in data [:appState :appearance])]));)
+    (debug ["(load-drawing) drawing: " @drawing " data: " data " text: " (str text) "appearance " (get-in data [:appState :appearance])]))
 
 
 (defn generate-scene [drawing]

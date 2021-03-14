@@ -100,7 +100,7 @@ window['ExcalidrawWrapper'] = class {
     if(o!=null) {
       let appstate = o.excalidrawRef.current.getAppState();
       delete appstate['collaborators'];
-     // delete appstate['fileHandle'];
+      delete appstate['fileHandle'];
       return {elements: 
               o.excalidrawRef.current.getSceneElements(),
               appState: appstate};

@@ -414,5 +414,5 @@
                                  {:id app-name
                                   :style (if (is-full-screen cs)
                                            {:position "relative" :width "100%" :height "calc(100% - 30px)"}
-                                           {:background (if (= (get-in @drawing [:drawing :appState :appearance]) "dark") "black" "white")})}
+                                           {:background (if (= (get-in @drawing [:drawing :appState :appearance]) "dark") "#121212" "white")})}
                                ]])})))))

@@ -35,7 +35,7 @@ else {
 }
 
 ExcalidrawConfig.libs.push (libItem(ExcalidrawConfig.rootPath+ExcalidrawConfig.channel+'/main.js'));
-//ExcalidrawConfig.libs.push (libItem(ExcalidrawConfig.rootPath+ExcalidrawConfig.channel+'/style.css','style','text/css'));
+ExcalidrawConfig.libs.push (libItem(ExcalidrawConfig.rootPath+ExcalidrawConfig.channel+'/style.css','style','text/css'));
 ExcalidrawConfig.libs.push (libItem('https://unpkg.com/react@17/umd/react.production.min.js'));
 ExcalidrawConfig.libs.push (libItem('https://unpkg.com/react-dom@17/umd/react-dom.production.min.js'));
 ExcalidrawConfig.libs.push (libItem('https://unpkg.com/@excalidraw/excalidraw@0.4.3/dist/excalidraw.min.js'));

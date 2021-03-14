@@ -21,7 +21,7 @@
   display: table;
   width: 100%;
   border-radius: 5px;
-  background-color: FloralWhite;
+  background-color: White;
 }
 
     .ex-header-buttons-wrapper-light {
@@ -87,7 +87,7 @@
 /******************/
 
 .excalidraw-host-dark {
-  background-color: black;
+  background-color: #121212;
   border-radius: 5px;
   display: block;
 }
@@ -97,7 +97,7 @@
   display: table;
   width: 100%;
   border-radius: 5px;
-  background-color: black;
+  background-color: #121212;
 }
 
     .ex-header-buttons-wrapper-dark {
@@ -105,7 +105,7 @@
       display: table-cell;
       width: 1px;
       white-space: nowrap;
-      background: black;
+      background: #121212;
       border-radius: 5px;
     }
 
@@ -129,7 +129,7 @@
     }
 
         .ex-header-title-dark {
-          background: black;
+          background: #121212;
           color: lightgray;
           vertical-align: middle;
           height: 30px;
@@ -147,12 +147,14 @@
 
         .ex-header-options-label-dark {
           margin: 0px 8px 0px 0px;
+          color: lightgray;
           vertical-align: middle !important;
           display: inline-block;
           white-space: nowrap;
         }
 
         .ex-header-options-checkbox-dark {
+          color: lightgray;
           margin: 0px 3px 0px 0px !important;
           vertical-align: middle !important;
         }
@@ -189,7 +191,7 @@
 }
 
 kbd {
-  color: black !important;
+  color: #121212 !important;
 }
 
 .popover {

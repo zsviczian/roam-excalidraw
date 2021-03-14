@@ -74,11 +74,6 @@
 .excalidraw-host-light {     
 }*/
 
-.excalidraw-wrapper-light { 
-  height: 100%;
-  margin: 0px;
-  position: relative;
-}
 
 /******************/
 /*   Light mode   */
@@ -148,16 +143,15 @@
 .excalidraw-host-dark {     
 }*/
 
-.excalidraw-wrapper-dark { 
+/*****************/
+/* other settings*/
+/*****************/
+.excalidraw-wrapper { 
   height: 100%;
   margin: 0px;
   position: relative;
 }
 
-
-/*****************/
-/* other settings*/
-/*****************/
 .excalidraw-data {
   border: 1px solid gray;
   border-radius: 5px;

@@ -1,7 +1,7 @@
 window.ExcalidrawLoader = {
   sketchingUID : ExcalidrawConfig.sketchingUID,
   excalDATAUID : ExcalidrawConfig.excalDATAUID,
-  settingsUID  : ExcalidrawLoader.settingsUID,
+  settingsUID  : ExcalidrawConfig.settingsUID,
   pageTitle : 'roam/excalidraw',
   mainComponentParent : 'Main Component',
   dataComponentParent : 'Data Block Component',

@@ -3,7 +3,7 @@
     rootPath: 'https://roam-excalidraw.com/',
     channel: 'beta',
     cljCodeVersion: 'excalidraw.app.beta.v02',
-    DEBUG : true,
+    DEBUG : false,
     sketchingUID : 'sketching',
     excalDATAUID : 'ExcalDATA',
     settingsUID  : 'ExcalSET_',

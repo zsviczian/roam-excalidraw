@@ -128,7 +128,7 @@
 
 (defn load-drawing [block-uid drawing data text] ;drawing is the atom holding the drawing map
   (debug ["(load-drawing) enter"])
-  (if (nil? data)
+  (if (= (count data) 0)
       (do
         (debug ["(load-drawing) create ExcalDATA & title"])
         (create-block block-uid 0 "{{roam/render: ((ExcalDATA)) {} }}")

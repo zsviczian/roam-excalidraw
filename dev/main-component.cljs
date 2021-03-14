@@ -9,6 +9,9 @@
    [roam.util :as util]
    [roam.datascript.reactive :as dr]))
 
+(def app-page "roam/excalidraw")
+(def app-settings "Settings")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Common functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -232,7 +235,7 @@
                                   (swap! style assoc-in [:host-div] (host-div-style cs))
                                   (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
                                   (pull-watch-callback nil nil)
-                                  (.getPNG js/window.ExcalidrawWrapper (generate-scene drawing) (:this-dom-node @cs) app-name)
+                                  (.getSVG js/window.ExcalidrawWrapper (generate-scene drawing) (:this-dom-node @cs) app-name)
                                   (.addEventListener js/window "resize" resize-handler)
                                   (debug ["(main) :component-did-mount Exalidraw mount initiated"]))
            :component-did-update (fn [this old-argv old-state snapshot]
@@ -255,7 +258,7 @@
                                                 (if (is-full-screen cs)
                                                   (do (save-component block-uid (js-to-clj-str (get-drawing ew)))
                                                     (going-full-screen? false cs style)
-                                                    (.getPNG js/window.ExcalidrawWrapper (get-drawing ew) (:this-dom-node @cs) app-name)) ;(generate-scene drawing)
+                                                    (.getSVG js/window.ExcalidrawWrapper (get-drawing ew) (:this-dom-node @cs) app-name)) ;(generate-scene drawing)
                                                   (do (going-full-screen? true cs style)
                                                     (reset! drawing-before-edit (generate-scene drawing))
                                                     (debug ["(main) :on-click drawing-before-edig " @drawing-before-edit])
@@ -271,7 +274,7 @@
                                                  (going-full-screen? false cs style)
                                                  (debug ["(main) Cancel :on-click"])
                                                  (save-component block-uid (str @drawing-before-edit))
-                                                 (.getPNG js/window.ExcalidrawWrapper @drawing-before-edit (:this-dom-node @cs) app-name))}
+                                                 (.getSVG js/window.ExcalidrawWrapper @drawing-before-edit (:this-dom-node @cs) app-name))}
                                     "Cancel"])]
                                   [:span.ex-header-title-wrapper
                                     [:input.ex-header-title

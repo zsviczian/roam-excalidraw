@@ -113,7 +113,11 @@ window['ExcalidrawWrapper'] = class {
       diagram = excalidrawSplashScreen;
     else 
       if (diagram['elements'] == undefined) 
-        diagram = excalidrawSplashScreen;    
+        diagram = excalidrawSplashScreen;   
+    
+    if(diagram.appState.appearance == 'dark')
+      diagram.appState.exportWithDarkMode = true;
+    diagram.appState.exportBackground = true;
     
     hostDIV.appendChild(ExcalidrawUtils.exportToSvg(diagram));
     const svg = hostDIV.querySelector('svg');

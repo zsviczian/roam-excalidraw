@@ -1,9 +1,12 @@
 window.ExcalidrawLoader = {
   sketchingUID : ExcalidrawConfig.sketchingUID,
   excalDATAUID : ExcalidrawConfig.excalDATAUID,
+  settingsUID  : ExcalidrawLoader.settingsUID,
   pageTitle : 'roam/excalidraw',
-  mainComponentParent : "Main Component",
-  dataComponentParent : "Data Block Component",
+  mainComponentParent : 'Main Component',
+  dataComponentParent : 'Data Block Component',
+  settingsComponentParent : 'Settings', 
+  defaultSetting: '{:mode "light", :img "SVG"}',
 
   updateCodeBlock(blockUID, sourceCode) {
     window.roamAlphaAPI.updateBlock({"block": 
@@ -74,8 +77,11 @@ window.ExcalidrawLoader = {
 
     mainComponentParentUID = this.getORcreateBlockBYString (pageUID,0,this.mainComponentParent);
     dataComponentParentUID = this.getORcreateBlockBYString (pageUID,1,this.dataComponentParent);
+    settingsComponentParentUID = this.getORcreateBlockBYString (pageUID,2,this.settingsComponentParent);
+
     this.createBlockIfNotExists (mainComponentParentUID, this.sketchingUID, '');
     this.createBlockIfNotExists (dataComponentParentUID, this.excalDATAUID, '');
+    this.createBlockIfNotExists (settingsComponentParentUID, this.settingsUID, this.defaultSetting);
 
     if(!isParent(this.sketchingUID,this.mainComponentParent))
       window.roamAlphaAPI.moveBlock({"location":
@@ -86,7 +92,12 @@ window.ExcalidrawLoader = {
       window.roamAlphaAPI.moveBlock({"location":
                                       {"parent-uid": dataComponentParentUID, 
                                     "order": 0}, 
-                                      "block": {"uid": this.excalDATAUID}});  
+                                      "block": {"uid": this.excalDATAUID}});
+    
+    window.roamAlphaAPI.updateBlock({"block": {"uid": mainComponentParentUID,
+                                               "open": false}});
+    window.roamAlphaAPI.updateBlock({"block": {"uid": dataComponentParentUID,
+                                               "open": false}});
   }
 }
 
@@ -111,3 +122,4 @@ loadExcalidrawCljs = undefined;
 ExcalidrawLoader = undefined;
 delete ExcalidrawConfig.sketchingUID;
 delete ExcalidrawConfig.excalDATAUID;
+delete ExcalidrawConfig.settingsUID;

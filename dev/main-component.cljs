@@ -11,6 +11,7 @@
 
 (def app-page "roam/excalidraw")
 (def app-settings-block "Settings")
+(def app-setting-uid "Excal_SET")
 (def app-settings (r/atom {:mode "light"
                            :img  "SVG"}))
 
@@ -107,7 +108,7 @@
         (if (nil? (:mode @app-settings)) 
           (swap! app-settings assoc-in [:mode] "light"))
         (if (nil? (:img @app-settings)) 
-          (swap! app-settings assoc-in [:mode] "PNG")))
+          (swap! app-settings assoc-in [:img] "SVG")))
       (save-settings))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -250,9 +251,9 @@
                                                 [?b :block/order ?order]]
 			                             block-uid order))
 (defn get-embed-image [drawing dom-node app-name]
-  (if (= (:img @app-settings) "SVG")
-    (.getSVG js/window.ExcalidrawWrapper drawing dom-node app-name)
+  (if (= (:img @app-settings) "PNG")
     (.getPNG js/window.ExcalidrawWrapper drawing dom-node app-name)
+    (.getSVG js/window.ExcalidrawWrapper drawing dom-node app-name)
   ))
 
 (defn main [{:keys [block-uid]} & args]

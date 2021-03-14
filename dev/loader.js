@@ -5,6 +5,7 @@ window.ExcalidrawConfig = {
   DEBUG : true,
   sketchingUID : 'sketching',
   excalDATAUID : 'ExcalDATA',
+  settingsUID  : 'Excal_SET',
   libs: [],
 }
 

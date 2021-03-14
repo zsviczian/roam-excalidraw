@@ -86,8 +86,9 @@
     ;(debug  ["(save-component)  data-string: " render-string])
     (block/update
       {:block {:uid drawing-block-uid
-               :string render-string}}))
-  (save-settings))
+               :string render-string}})               
+    (swap! app-settings assoc-in [:mode] (get-in (edn/read-string map-string) [:appState :appearance]))
+    (save-settings)))
 
 (defn load-settings []
   (debug ["(load-settings) Enter"])

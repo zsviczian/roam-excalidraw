@@ -208,7 +208,8 @@
        :top top
        :left left
        :width  (str/join ["calc(100% - " (* left 2) "px)"]) 
-       :height (- height (* top 2))} ;:background "white"
+       :height (- height (* top 2))
+       :background "white"} ;
       {:position "relative"
        :width embed-width
        :height "100%"

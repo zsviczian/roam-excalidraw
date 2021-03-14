@@ -21,12 +21,8 @@ function getClojureNS(blockUID) {
   return '';
 }
 
-function libItem (s, el='script', type='text/javascript') {
-  return {"file" : s, "element": el, "type": type};
-}
-
 if (getClojureNS(ExcalidrawConfig.sketchingUID) != ExcalidrawConfig.cljCodeVersion) {
-  ExcalidrawConfig.libs.push (libItem(ExcalidrawConfig.rootPath + 'get.php?c='+ExcalidrawConfig.channel));
+  ExcalidrawConfig.libs.push (ExcalidrawConfig.rootPath + 'get.php?c='+ExcalidrawConfig.channel);
   console.log('Excalidraw loader - need to update roam/render components');
 }
 else {
@@ -34,17 +30,17 @@ else {
   delete ExcalidrawConfig.excalDATAUID;
 }
 
-ExcalidrawConfig.libs.push (libItem(ExcalidrawConfig.rootPath+ExcalidrawConfig.channel+'/main.js'));
-ExcalidrawConfig.libs.push (libItem(ExcalidrawConfig.rootPath+ExcalidrawConfig.channel+'/style.css','text/css','style'));
-ExcalidrawConfig.libs.push (libItem('https://unpkg.com/react@17/umd/react.production.min.js'));
-ExcalidrawConfig.libs.push (libItem('https://unpkg.com/react-dom@17/umd/react-dom.production.min.js'));
-ExcalidrawConfig.libs.push (libItem('https://unpkg.com/@excalidraw/excalidraw@0.4.3/dist/excalidraw.min.js'));
-ExcalidrawConfig.libs.push (libItem('https://unpkg.com/@excalidraw/utils@0.1.0-temp/dist/excalidraw-utils.min.js'));
+ExcalidrawConfig.libs.push (ExcalidrawConfig.rootPath+ExcalidrawConfig.channel+'/main.js');
+ExcalidrawConfig.libs.push ('https://unpkg.com/react@17/umd/react.production.min.js');
+ExcalidrawConfig.libs.push ('https://unpkg.com/react-dom@17/umd/react-dom.production.min.js');
+ExcalidrawConfig.libs.push ('https://unpkg.com/@excalidraw/excalidraw@0.4.3/dist/excalidraw.min.js');
+ExcalidrawConfig.libs.push ('https://unpkg.com/@excalidraw/utils@0.1.0-temp/dist/excalidraw-utils.min.js');
+ 
 
 ExcalidrawConfig.libs.forEach(function (x) {
-	s = document.createElement(x.element);
-  s.type = x.type;
-  s.src =  x.file;
+	s = document.createElement('script');
+  s.type = "text/javascript";
+  s.src =  x;
   s.async = false;
   document.getElementsByTagName('head')[0].appendChild(s);  
 });

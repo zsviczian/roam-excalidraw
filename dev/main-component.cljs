@@ -62,14 +62,14 @@
                                     app-page app-settings-block))]
     (if (nil? @settings-host)
       (do (debug ["(save-settings) settings host does not exist"])
-        (reset! settings-host (util/generate-uid))
-        (block/create {:location {:parent-uid (rd/q '[:find ?uid . 
-                                                      :in $ ?page
-                                                      :where [?p :node/title ?page]
-                                                             [?p :block/uid ?uid]]
-                                                    app-page)}
-                                  :order 2}
-                       :block {:string app-settings-block :uid @settings-host})))
+        (reset! settings-host
+          (create-block 
+            (rd/q '[:find ?uid . 
+                    :in $ ?page
+                    :where [?p :node/title ?page]
+                           [?p :block/uid ?uid]]
+                  app-page)
+            2 app-settings-block))))
     (let [settings-block (r/atom (rd/q '[:find ?uid .
                                          :in $ ?settings-host
                                          :where [?b :block/uid ?settings-host]
@@ -79,8 +79,7 @@
                                         @settings-host))]
       (if (nil? @settings-block)
         (do (debug ["(save-settings) settings-block does not exist"])
-          (block/create {:location {:parent-uid @settings-host :order 0}
-                         :block {:string (str @app-settings)}}))
+          (create-block @settings-host 0 (str @app-settings)))
         (do (debug ["(save-settings) settings-block exists, updating"])
           (block/update {:block {:uid @settings-block 
                                  :string (str @app-settings)}}))))))

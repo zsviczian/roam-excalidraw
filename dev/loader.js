@@ -44,7 +44,7 @@ ExcalidrawConfig.libs.push (libItem('https://unpkg.com/@excalidraw/utils@0.1.0-t
 ExcalidrawConfig.libs.forEach(function (x) {
 	s = document.createElement(x.element);
   s.type = x.type;
-  s.src =  x.file;
+  if (x.element == 'script') s.src =  x.file; else s.href = x.file;
   s.async = false;
   document.getElementsByTagName('head')[0].appendChild(s);  
 });

@@ -1,4 +1,4 @@
-(ns excalidraw.app.beta.v01
+(ns excalidraw.app.beta.v02
   (:require 
    [clojure.set :as s]
    [reagent.core :as r]
@@ -126,22 +126,30 @@
       nil)
     (do
       (let [data-string (get-in (first x) [0 :block/string])]
-        (debug ["(get-data-from-block-string) returning: " (second (re-find #"ExcalDATA\){2}\s*(\{.*\})\s*\}{2}" data-string))])
+        ;(debug ["(get-data-from-block-string) returning: " (second (re-find #"ExcalDATA\){2}\s*(\{.*\})\s*\}{2}" data-string))])
         (edn/read-string (second (re-find #"ExcalDATA\){2}\s*(\{.*\})\s*\}{2}" data-string)))))))
+
+(defn create-nested-blocks [block-uid drawing]
+  (debug ["(create-nested-blocks)"])
+  (let [default-data {:appState {:name "Untitled drawing"
+                                       :appearance (:mode @app-settings)}}]
+    (create-block block-uid 0 (str/join ["{{roam/render: ((ExcalDATA)) "
+                                (str default-data) " }}"]))
+    (reset! drawing {:drawing default-data 
+                    :title {:text "Untitled drawing"
+                            :block-uid (create-block block-uid 1 "Untitled drawing")}})
+    (block/update {:block {:uid block-uid :open false}})))
 
 (defn load-drawing [block-uid drawing data text] ;drawing is the atom holding the drawing map
   (debug ["(load-drawing) enter"])
   (if (= (count data) 0)
       (do
-        (debug ["(load-drawing) create ExcalDATA & title"])
+        (debug ["(load-drawing) no children - creating dummy data"])
         (let [default-data {:appState {:name "Untitled drawing"
                                        :appearance (:mode @app-settings)}}]
-          (create-block block-uid 0 (str/join ["{{roam/render: ((ExcalDATA)) "
-                                      (str default-data) " }}"]))
           (reset! drawing {:drawing default-data 
-                           :title {:text "Untitled drawing"
-                                   :block-uid (create-block block-uid 1 "Untitled drawing")}}))
-          (block/update {:block {:uid block-uid :open false}}))
+                            :title {:text "Untitled drawing"
+                                    :block-uid nil}})))
       (if (= (count text) 0)
         (do
           (debug ["(load-drawing) create title only"])
@@ -285,7 +293,7 @@
            pull-watch-callback (fn [before after]
                                  (let [drawing-data (pull-children block-uid 0)
                                        drawing-text (pull-children block-uid 1)]
-                                  (load-drawing block-uid drawing (get-data-from-block-string drawing-data) (first drawing-text) )
+                                  (load-drawing block-uid drawing (get-data-from-block-string drawing-data) (first drawing-text))
                                  ; (if (is-full-screen cs) (update-scene ew (generate-scene drawing)))
                                   (debug ["(main) :callback drawing-data appearance" (get-in @drawing [:drawing :appState :appearance]) ]) ))]
         (r/create-class
@@ -336,6 +344,8 @@
                                                     (going-full-screen? false cs style)
                                                     (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name)) ;(generate-scene drawing)
                                                   (do (going-full-screen? true cs style)
+                                                    (if (nil? (get-in @drawing [:title :block-uid])) 
+                                                      (create-nested-blocks block-uid drawing))
                                                     (reset! drawing-before-edit (generate-scene drawing))
                                                     (debug ["(main) :on-click drawing-before-edig " @drawing-before-edit])
                                                     (reset! ew (js/ExcalidrawWrapper.
@@ -358,6 +368,8 @@
                                      {:class (get-style "ex-header-title")
                                       :value (get-in @drawing [:title :text])
                                       :on-change (fn [e] 
+                                                   (if (nil? (get-in @drawing [:title :block-uid])) 
+                                                     (create-nested-blocks block-uid drawing))
                                                    (swap! drawing assoc-in [:title :text] (.. e -target -value))
                                                    (block/update
                                                     {:block {:uid (get-in @drawing [:title :block-uid])

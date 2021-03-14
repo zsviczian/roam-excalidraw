@@ -2,7 +2,7 @@
   window.ExcalidrawConfig = {
     rootPath: 'https://roam-excalidraw.com/',
     channel: 'alpha',
-    cljCodeVersion: 'excalidraw.app.alpha.v11',
+    cljCodeVersion: 'excalidraw.app.alpha.v12',
     DEBUG : false,
     sketchingUID : 'sketching',
     excalDATAUID : 'ExcalDATA',

@@ -126,7 +126,7 @@
       nil)
     (do
       (let [data-string (get-in (first x) [0 :block/string])]
-        (debug ["(get-data-from-block-string) returning: " (second (re-find #"ExcalDATA\){2}\s*(\{.*\})\s*\}{2}" data-string))])
+        ;(debug ["(get-data-from-block-string) returning: " (second (re-find #"ExcalDATA\){2}\s*(\{.*\})\s*\}{2}" data-string))])
         (edn/read-string (second (re-find #"ExcalDATA\){2}\s*(\{.*\})\s*\}{2}" data-string)))))))
 
 (defn load-drawing [block-uid drawing data text initializing?] ;drawing is the atom holding the drawing map
@@ -286,7 +286,11 @@
            pull-watch-callback (fn [before after]
                                  (let [drawing-data (pull-children block-uid 0)
                                        drawing-text (pull-children block-uid 1)]
-                                  (load-drawing block-uid drawing (get-data-from-block-string drawing-data) (first drawing-text) false)
+                                  (load-drawing 
+                                    block-uid 
+                                    drawing 
+                                    (get-data-from-block-string drawing-data) 
+                                    (first drawing-text) (and (nil? before) (nil? after)))
                                  ; (if (is-full-screen cs) (update-scene ew (generate-scene drawing)))
                                   (debug ["(main) :callback drawing-data appearance" (get-in @drawing [:drawing :appState :appearance]) ]) ))]
         (r/create-class
@@ -309,8 +313,7 @@
                                   (swap! cs assoc-in [:this-dom-node] (r/dom-node this))
                                   (swap! style assoc-in [:host-div] (host-div-style cs))
                                   (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
-                                  (load-drawing block-uid drawing (get-data-from-block-string drawing-data) (first drawing-text) true)
-                                  ;(pull-watch-callback nil nil)
+                                  (pull-watch-callback nil nil)
                                   (get-embed-image (generate-scene drawing) (:this-dom-node @cs) app-name)
                                   (.addEventListener js/window "resize" resize-handler)
                                   (debug ["(main) :component-did-mount Exalidraw mount initiated"]))

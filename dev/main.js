@@ -120,7 +120,7 @@ window['ExcalidrawWrapper'] = class {
       if (diagram['elements'] == undefined) 
         diagram = excalidrawSplashScreen;   
     
-    if(diagram.appState.appearance == 'dark')
+    if(mode == 'dark')
       diagram.appState.exportWithDarkMode = true;
     else
       diagram.appState.exportWithDarkMode = false;

@@ -190,8 +190,8 @@
 (defn host-div-style [cs]
   (let [width    (.-innerWidth js/window)
         height   (.-innerHeight js/window)
-        top      (int (* height 0.03))
-        left     (int (* width 0.03))
+        top      (int (* height 0.02))
+        left     (int (* width 0.02))
         host-div-width (if (nil? (:this-dom-node @cs)) 500
                          (-> (:this-dom-node @cs)  
                            (.-parentElement)

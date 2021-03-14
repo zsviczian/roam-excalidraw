@@ -83,6 +83,7 @@
   display: table;
   width: 100%;
   border-radius: 5px;
+  background-color: black;
 }
 
     .ex-header-buttons-wrapper-dark {

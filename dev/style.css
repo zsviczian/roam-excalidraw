@@ -21,6 +21,7 @@
   display: table;
   width: 100%;
   border-radius: 5px;
+  background-color: lightgray;
 }
 
     .ex-header-buttons-wrapper-light {

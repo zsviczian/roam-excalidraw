@@ -118,6 +118,8 @@ window['ExcalidrawWrapper'] = class {
     
     if(diagram.appState.appearance == 'dark')
       diagram.appState.exportWithDarkMode = true;
+    else
+      diagram.appState.exportWithDarkMode = false;
     diagram.appState.exportBackground = true;
     
     hostDIV.appendChild(ExcalidrawUtils.exportToSvg(diagram));
@@ -139,6 +141,8 @@ window['ExcalidrawWrapper'] = class {
     
     if(diagram.appState.appearance == 'dark')
       diagram.appState.exportWithDarkMode = true;
+    else
+      diagram.appState.exportWithDarkMode = false;
     diagram.appState.exportBackground = true;
       
     (async () => {

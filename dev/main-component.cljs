@@ -10,10 +10,12 @@
    [roam.datascript.reactive :as dr]))
 
 (def app-page "roam/excalidraw")
-(def app-settings "Settings")
+(def app-settings-block "Settings")
+(def app-settings (r/atom {:mode "light"
+                           :img  "SVG"}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Common functions
+;; util functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def silent (r/atom true))
 (defn debug [x]
@@ -48,6 +50,63 @@
     (block/update
       {:block {:uid drawing-block-uid
                :string render-string}})))
+
+(defn save-settings []
+  (debug ["(save-settings) Enter"])
+  (let [settings-host (r/atom (rd/q '[:find ?uid .
+                                     :in $ ?page ?block
+                                     :where [?p :node/title ?page]
+                                            [?p :block/children ?b]
+                                            [?b :block/string ?block]
+                                            [?b :block/uid ?uid]]
+                                    app-page app-settings-block))]
+    (if (nil? @settings-host)
+      (do (debug ["(save-settings) settings host does not exist"])
+        (reset! settings-host (util/generate-uid))
+        (block/create {:location {:parent-uid (rd/q '[:find ?uid . 
+                                                      :in $ ?page
+                                                      :where [?p :node/title ?page]
+                                                             [?p :block/uid ?uid]]
+                                                    app-page)}
+                                  :order 2}
+                       :block {:string app-settings-block :uid @settings-host})))
+    (let [settings-block (r/atom (rd/q '[:find ?uid .
+                                         :in $ ?settings-host
+                                         :where [?b :block/uid ?settings-host]
+                                                [?b :block/children ?c]
+                                                [?c :block/order 0]
+                                                [?c :block/uid ?uid]]
+                                        @settings-host))]
+      (if (nil? @settings-block)
+        (do (debug ["(save-settings) settings-block does not exist"])
+          (block/create {:location {:parent-uid @settings-host :order 0}
+                         :block {:string (str @app-settings)}}))
+        (do (debug ["(save-settings) settings-block exists, updating"])
+          (block/update {:block {:uid @settings-block 
+                                 :string (str @app-settings)}}))))))
+
+(defn load-settings []
+  (debug ["(load-settings) Enter"])
+  (let [settings-block (rd/q '[:find ?settings .
+                              :in $ ?page ?block
+                              :where [?p :node/title ?page]
+                                     [?p :block/children ?b]
+                                     [?b :block/string ?block]
+                                     [?b :block/children ?c]
+                                     [?c :block/order 0]
+                                     [?c :block/string ?settings]]
+                            app-page app-settings-block)]
+    (if-not (nil? settings-block)
+      (do 
+        (debug ["(load-settings) settings: " settings-block])
+        (reset! app-settings (edn/read-string settings-block))
+        (if (nil? @app-settings)
+          (reset! app-settings {:mode "light" :img  "SVG"}))
+        (if (nil? (:mode @app-settings)) 
+          (swap! app-settings assoc-in [:mode] "light"))
+        (if (nil? (:img @app-settings)) 
+          (swap! app-settings assoc-in [:mode] "PNG")))
+      (save-settings))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Load data from nested block(s)
@@ -231,6 +290,7 @@
  ;                                     (debug ["(main) :should-component-update"]))
            :component-did-mount (fn [this]
                                   (debug ["(main) :component-did-mount"])
+                                  (load-settings)
                                   (swap! cs assoc-in [:this-dom-node] (r/dom-node this))
                                   (swap! style assoc-in [:host-div] (host-div-style cs))
                                   (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)

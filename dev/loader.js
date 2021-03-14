@@ -1,5 +1,3 @@
-const { Console } = require("node:console");
-
 (()=>{
   window.ExcalidrawConfig = {
     rootPath: 'https://roam-excalidraw.com/',

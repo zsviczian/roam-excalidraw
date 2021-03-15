@@ -110,15 +110,21 @@ window['ExcalidrawWrapper'] = class {
   static setImgEventListner(roamRenderNode,imgNode,appName) {
     let blockNode = roamRenderNode;
     const blockUID = appName.slice(-9);
-    while (blockNode.id.indexOf(blockUID)==-1)
-      blockNode = blockNode.parentElement;
-    imgNode.addEventListener('dblclick', function(e) {
-      try{
-        ['mousedown', 'click', 'mouseup'].forEach(mouseEventType =>
-          blockNode.dispatchEvent( new MouseEvent(mouseEventType, { view: window, bubbles: true, cancelable: true, buttons: 1 }) )
-          );
-        } catch(err) {}
-      });
+    //this is workaround wizardy. Somehow when the node is distroyed the render component re-initiates and
+    //creates a ghost, which does not have a parent element...
+    let uidIndex =-1;
+    while ( blockNode!=null && uidIndex ==-1 ) 
+      uidIndex = blockNode.id.indexOf(blockUID)
+      if (uidIndex == -1)
+        blockNode = blockNode.parentElement;
+    if(blockNode!=null)
+      imgNode.addEventListener('dblclick', function(e) {
+        try{
+          ['mousedown', 'click', 'mouseup'].forEach(mouseEventType =>
+            blockNode.dispatchEvent( new MouseEvent(mouseEventType, { view: window, bubbles: true, cancelable: true, buttons: 1 }) )
+            );
+          } catch(err) {}
+        });
   }
 
   static getSVG(diagram,node,appName) {

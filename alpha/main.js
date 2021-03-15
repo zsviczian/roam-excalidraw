@@ -107,6 +107,27 @@ window['ExcalidrawWrapper'] = class {
     }
   }
   
+  static setImgEventListner(roamRenderNode,imgNode,appName) {
+    let blockNode = roamRenderNode;
+    const blockUID = appName.slice(-9);
+    //this is workaround wizardy. Somehow when the node is distroyed the render component re-initiates and
+    //creates a ghost, which does not have a parent element...
+    let uidIndex =-1;
+    while ( (blockNode!=null) && (uidIndex ==-1) ) {
+      uidIndex = blockNode.id.indexOf(blockUID);
+      if (uidIndex == -1)
+        blockNode = blockNode.parentElement;
+    }
+    if(blockNode!=null)
+      imgNode.addEventListener('dblclick', function(e) {
+        try{
+          ['mousedown', 'click', 'mouseup'].forEach(mouseEventType =>
+            blockNode.dispatchEvent( new MouseEvent(mouseEventType, { view: window, bubbles: true, cancelable: true, buttons: 1 }) )
+            );
+          } catch(err) {}
+        });
+  }
+
   static getSVG(diagram,node,appName) {
     const hostDIV = node.querySelector('#'+appName);
     ReactDOM.unmountComponentAtNode(hostDIV);
@@ -128,7 +149,8 @@ window['ExcalidrawWrapper'] = class {
     
     hostDIV.appendChild(ExcalidrawUtils.exportToSvg(diagram));
     const svg = hostDIV.querySelector('svg');
-
+    
+    ExcalidrawWrapper.setImgEventListner(node, svg, appName);
     svg.removeAttribute('width');
     svg.removeAttribute('height');
     svg.classList.add('excalidraw-svg');
@@ -164,6 +186,7 @@ window['ExcalidrawWrapper'] = class {
       img.src = urlCreator.createObjectURL(blob);
       img.style.width = '100%';
       hostDIV.appendChild(img);
+      ExcalidrawWrapper.setImgEventListner(node, img, appName);
     })();
   }
    

@@ -125,11 +125,12 @@
       (debug ["(get-data-from-block-string) returning nil"])
       nil)
     (do
-      (let [data-string (get-in (first x) [0 :block/string])]
-        ;(debug ["(get-data-from-block-string) returning: " (second (re-find #"ExcalDATA\){2}\s*(\{.*\})\s*\}{2}" data-string))])
-        (edn/read-string (second (re-find #"ExcalDATA\){2}\s*(\{.*\})\s*\}{2}" data-string)))))))
+      (let [data-string (get-in (first x) [0 :block/string])
+            return-string (second (re-find #"ExcalDATA\){2}\s*(\{.*\})\s*\}{2}" data-string))]
+        ;(debug ["(get-data-from-block-string) returning: " retrun-string])
+        (edn/read-string return-string)))))
 
-(defn create-nested-blocks [block-uid drawing]
+(defn create-nested-blocks [block-uid drawing fold?]
   (debug ["(create-nested-blocks)"])
   (let [default-data {:appState {:name "Untitled drawing"
                                        :appearance (:mode @app-settings)}}]
@@ -138,7 +139,7 @@
     (reset! drawing {:drawing default-data 
                     :title {:text "Untitled drawing"
                             :block-uid (create-block block-uid 1 "Untitled drawing")}})
-    (block/update {:block {:uid block-uid :open false}})))
+    (if fold? (block/update {:block {:uid block-uid :open false}}))))
 
 (defn load-drawing [block-uid drawing data text] ;drawing is the atom holding the drawing map
   (debug ["(load-drawing) enter"])
@@ -293,6 +294,8 @@
            pull-watch-callback (fn [before after]
                                  (let [drawing-data (pull-children block-uid 0)
                                        drawing-text (pull-children block-uid 1)]
+                                  (if-not (nil? (re-find #"(:block/string \"\")" (str drawing-data)))
+                                    (create-nested-blocks block-uid drawing false))
                                   (load-drawing block-uid drawing (get-data-from-block-string drawing-data) (first drawing-text))
                                   (debug ["(main) :callback drawing-data appearance" (get-in @drawing [:drawing :appState :appearance]) ]) ))]
         (r/create-class
@@ -346,7 +349,7 @@
                                                     (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name)) ;(generate-scene drawing)
                                                   (do (going-full-screen? true cs style)
                                                     (if (nil? (get-in @drawing [:title :block-uid])) 
-                                                      (create-nested-blocks block-uid drawing))
+                                                      (create-nested-blocks block-uid drawing true))
                                                     (reset! drawing-before-edit (generate-scene drawing))
                                                     (debug ["(main) :on-click drawing-before-edig " @drawing-before-edit])
                                                     (reset! ew (js/ExcalidrawWrapper.
@@ -370,7 +373,7 @@
                                       :value (get-in @drawing [:title :text])
                                       :on-change (fn [e] 
                                                    (if (nil? (get-in @drawing [:title :block-uid])) 
-                                                     (create-nested-blocks block-uid drawing))
+                                                     (create-nested-blocks block-uid drawing true))
                                                    (swap! drawing assoc-in [:title :text] (.. e -target -value))
                                                    (block/update
                                                     {:block {:uid (get-in @drawing [:title :block-uid])

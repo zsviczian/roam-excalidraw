@@ -336,7 +336,7 @@
                                      (.removeEventListener js/window "resize" resize-handler))
 ;           :component-did-catch (fn [this error info])
            :reagent-render (fn [{:keys [block-uid]} & args]
-                             (let [clear-checkboxes fn[] (
+                             (let [clear-checkboxes (fn[] 
                                (if (:zen-mode @cs) (swap! cs assoc-in [:zen-mode] false))
                                (if (:grid-mode @cs) (swap! cs assoc-in [:grid-mode] false)))]
                              (debug ["(main) :reagent-render"])

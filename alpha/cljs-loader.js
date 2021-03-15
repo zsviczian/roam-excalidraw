@@ -71,7 +71,8 @@ window.ExcalidrawLoader = {
            "uid": pageUID}});
       firstEverRun = true;                                
     }
-    
+    ExcalidrawConfig.log('cljs-loader.js','buildPage() [[roam/excalidraw]] is present?',!firstEverRun);
+
     function isParent(blockUID, parentUID) {
       q = `[:find ?uid . :where [?b :block/uid "${blockUID}"][?p :block/children ?b][?p :block/uid ?uid]]`;
       uid = window.roamAlphaAPI.q(q);
@@ -84,7 +85,7 @@ window.ExcalidrawLoader = {
 
     this.createBlockIfNotExists (mainComponentParentUID, this.sketchingUID, '');
     this.createBlockIfNotExists (dataComponentParentUID, this.excalDATAUID, '');
-    if(!this.blockExists(this.settingsUID))
+    if(!this.blockExists(this.settingsUID)) 
       this.createBlockWithUID (settingsComponentParentUID,0,this.defaultSetting,this.settingsUID);
 
     if(!isParent(this.sketchingUID,this.mainComponentParent))
@@ -107,6 +108,7 @@ window.ExcalidrawLoader = {
     if (firstEverRun) {
       roamTemplatesUID = window.roamAlphaAPI.q('[:find ?uid . :where [?p :node/title "roam/templates"][?p :block/uid ?uid]]');
       if (roamTemplatesUID == null) {
+        ExcalidrawConfig.log('cljs-loader.js','[[roam/templates]] did not exist. Creating it...');
         roamTemplatesUID = window.roamAlphaAPI.util.generateUID();
         window.roamAlphaAPI.createPage( 
           {"page": 
@@ -131,8 +133,10 @@ window.ExcalidrawLoader = {
 }
 
 function loadExcalidrawCljs() {
+  ExcalidrawConfig.log('cljs-loader.js','loadExcalidrawCljs()','Enter');
   ExcalidrawLoader.buildPage();
   tripple_accent = String.fromCharCode(96,96,96);
+  ExcalidrawConfig.log('cljs-loader.js','loadExcalidrawCljs()','updateCodeBlock');
   ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.sketchingUID,tripple_accent + 
                   'clojure\n' + 
                   ExcalidrawConfig.mainComponent +
@@ -147,6 +151,7 @@ function loadExcalidrawCljs() {
 }
 
 loadExcalidrawCljs();
+ExcalidrawConfig.log('cljs-loader.js','terminating temporary objects');
 loadExcalidrawCljs = undefined;
 ExcalidrawLoader = undefined;
 delete ExcalidrawConfig.sketchingUID;

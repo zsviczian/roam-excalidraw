@@ -177,6 +177,7 @@ window['ExcalidrawWrapper'] = class {
   }
 
   static addPullWatch(blockUID, callback) {
+    if(ExcalidrawConfig.DEBUG) console.log('ExcalidrawWrapper','addPullWatch','roamAlphaAPI: ',typeof window.roamAlphaAPI, blockUID, callback);
     window
       .roamAlphaAPI
       .data
@@ -187,6 +188,7 @@ window['ExcalidrawWrapper'] = class {
   }
   
   static removePullWatch(blockUID, callback) {
+    if(ExcalidrawConfig.DEBUG) console.log('ExcalidrawWrapper','removePullWatch','roamAlphaAPI: ',typeof window.roamAlphaAPI, blockUID, callback);
     window
       .roamAlphaAPI
       .data

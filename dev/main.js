@@ -112,7 +112,13 @@ window['ExcalidrawWrapper'] = class {
     const blockUID = appName.slice(-9);
     while (blockNode.id.indexOf(blockUID)==-1)
       blockNode = blockNode.parentElement;
-    imgNode.addEventListener('click',ExcalidrawWrapper.simulateMouseClick(blockNode));
+    imgNode.addEventListener('click', function(e) {
+      try{
+        ['mousedown', 'click', 'mouseup'].forEach(mouseEventType =>
+          blockNode.dispatchEvent( new MouseEvent(mouseEventType, { view: window, bubbles: true, cancelable: true, buttons: 1 }) )
+          );
+        } catch(err) {}
+      });
   }
 
   static getSVG(diagram,node,appName) {
@@ -206,14 +212,6 @@ window['ExcalidrawWrapper'] = class {
         `[:block/children :block/string :block/order {:block/children ...}]`,
         `[:block/uid "${blockUID}"]`,
          callback);     
-  }
-
-  static simulateMouseClick (element) {
-		try{
-			['mousedown', 'click', 'mouseup'].forEach(mouseEventType =>
-				element.dispatchEvent( new MouseEvent(mouseEventType, { view: window, bubbles: true, cancelable: true, buttons: 1 }) )
-			);
-		} catch(e) {}
   }
 
 }

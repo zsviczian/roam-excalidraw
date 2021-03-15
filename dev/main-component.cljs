@@ -20,7 +20,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def silent (r/atom true))
 (defn debug [x]
-  (if-not @silent (apply (.-log js/console) x)))
+  (if-not @silent (apply (.-log js/console) "<<< Roam-Excalidraw Main cljs >>>" x)))
 
 (defn create-block [parent-uid order block-string]
   (.createBlock js/window.ExcalidrawWrapper parent-uid order block-string))
@@ -294,7 +294,6 @@
                                  (let [drawing-data (pull-children block-uid 0)
                                        drawing-text (pull-children block-uid 1)]
                                   (load-drawing block-uid drawing (get-data-from-block-string drawing-data) (first drawing-text))
-                                 ; (if (is-full-screen cs) (update-scene ew (generate-scene drawing)))
                                   (debug ["(main) :callback drawing-data appearance" (get-in @drawing [:drawing :appState :appearance]) ]) ))]
         (r/create-class
          { :display-name "Excalidraw Roam Beta"

@@ -336,6 +336,9 @@
                                      (.removeEventListener js/window "resize" resize-handler))
 ;           :component-did-catch (fn [this error info])
            :reagent-render (fn [{:keys [block-uid]} & args]
+                             (let [clear-checkboxes fn[] (
+                               (if (:zen-mode @cs) (swap! cs assoc-in [:zen-mode] false))
+                               (if (:grid-mode @cs) (swap! cs assoc-in [:grid-mode] false)))]
                              (debug ["(main) :reagent-render"])
                                [:div
                                 {:class (get-style "excalidraw-host")
@@ -347,7 +350,8 @@
                                     :draggable true
                                     :on-click (fn [e]
                                                 (if (is-full-screen cs)
-                                                  (do (save-component block-uid (js-to-clj-str (get-drawing ew)))
+                                                  (do (clear-checkboxes)
+                                                    (save-component block-uid (js-to-clj-str (get-drawing ew)))
                                                     (going-full-screen? false cs style)
                                                     (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name)) ;(generate-scene drawing)
                                                   (do (going-full-screen? true cs style)
@@ -365,6 +369,7 @@
                                     {:class (get-style "ex-header-button")
                                      :draggable true
                                      :on-click (fn [e]
+                                                 (clear-checkboxes)
                                                  (going-full-screen? false cs style)
                                                  (debug ["(main) Cancel :on-click"])
                                                  (save-component block-uid (str @drawing-before-edit))
@@ -422,4 +427,4 @@
                                   :style (if (is-full-screen cs)
                                            {:position "relative" :width "100%" :height "calc(100% - 30px)"}
                                            {:background (if (= (get-in @drawing [:drawing :appState :appearance]) "dark") "#121212" "white")})}
-                               ]])})))))
+                               ]]))})))))

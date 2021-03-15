@@ -198,7 +198,7 @@ window['ExcalidrawWrapper'] = class {
          callback);     
   }
 
-  static simulateMouseClick = (element)=> {
+  static simulateMouseClick (element) {
 		try{
 			mouseClickEvents.forEach(['mousedown', 'click', 'mouseup'] =>
 				element.dispatchEvent( new MouseEvent(mouseEventType, { view: window, bubbles: true, cancelable: true, buttons: 1 }) )

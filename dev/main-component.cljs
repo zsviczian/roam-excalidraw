@@ -13,7 +13,8 @@
 (def app-settings-block "Settings")
 (def app-setting-uid "Excal_SET")
 (def app-settings (r/atom {:mode "light"
-                           :img  "SVG"}))
+                           :img  "SVG"
+                           :full-screen-margin 0.015}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; util functions
@@ -106,11 +107,13 @@
         (debug ["(load-settings) settings: " settings-block])
         (reset! app-settings (edn/read-string settings-block))
         (if (nil? @app-settings)
-          (reset! app-settings {:mode "light" :img  "SVG"}))
+          (reset! app-settings {:mode "light" :img  "SVG" :full-screen-margin 0.015}))
         (if (nil? (:mode @app-settings)) 
           (swap! app-settings assoc-in [:mode] "light"))
         (if (nil? (:img @app-settings)) 
-          (swap! app-settings assoc-in [:img] "SVG")))
+          (swap! app-settings assoc-in [:img] "SVG"))
+        (if (nil? (:img @app-settings)) 
+          (swap! app-settings assoc-in [:full-screen-margin] 0.015)))
       (save-settings))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -207,8 +210,8 @@
 (defn host-div-style [cs]
   (let [width    (.-innerWidth js/window)
         height   (.-innerHeight js/window)
-        top      (int (* height 0.015))
-        left     (int (* width 0.015))
+        top      (int (* height (:full-screen-margin @app-settings)))
+        left     (int (* width (:full-screen-margin @app-settings)))
         host-div-width (if (nil? (:this-dom-node @cs)) 500
                          (-> (:this-dom-node @cs)  
                            (.-parentElement)

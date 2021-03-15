@@ -113,10 +113,11 @@ window['ExcalidrawWrapper'] = class {
     //this is workaround wizardy. Somehow when the node is distroyed the render component re-initiates and
     //creates a ghost, which does not have a parent element...
     let uidIndex =-1;
-    while ( blockNode!=null && uidIndex ==-1 ) 
-      uidIndex = blockNode.id.indexOf(blockUID)
+    while ( (blockNode!=null) && (uidIndex ==-1) ) {
+      uidIndex = blockNode.id.indexOf(blockUID);
       if (uidIndex == -1)
         blockNode = blockNode.parentElement;
+    }
     if(blockNode!=null)
       imgNode.addEventListener('dblclick', function(e) {
         try{

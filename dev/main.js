@@ -112,7 +112,7 @@ window['ExcalidrawWrapper'] = class {
     const blockUID = appName.slice(-9);
     while (blockNode.id.indexOf(blockUID)==-1)
       blockNode = blockNode.parentElement;
-    imgNode.addEventListener('click', function(e) {
+    imgNode.addEventListener('dblclick', function(e) {
       try{
         ['mousedown', 'click', 'mouseup'].forEach(mouseEventType =>
           blockNode.dispatchEvent( new MouseEvent(mouseEventType, { view: window, bubbles: true, cancelable: true, buttons: 1 }) )

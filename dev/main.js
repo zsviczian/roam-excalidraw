@@ -178,8 +178,8 @@ window['ExcalidrawWrapper'] = class {
       let img = document.createElement('img');
       img.src = urlCreator.createObjectURL(blob);
       img.style.width = '100%';
-      ExcalidrawWrapper.setImgEventListner(node, img, appName);
       hostDIV.appendChild(img);
+      ExcalidrawWrapper.setImgEventListner(node, img, appName);
     })();
   }
    

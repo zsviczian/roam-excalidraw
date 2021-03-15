@@ -112,7 +112,7 @@ window['ExcalidrawWrapper'] = class {
     const blockUID = appName.slice(-9);
     while (blockNode.id.indexOf(blockUID)==-1)
       blockNode = blockNode.parentElement;
-    imgNode.addEventListener('dblclick',ExcalidrawWrapper.simulateMouseClick(blockNode));
+    imgNode.addEventListener('click',ExcalidrawWrapper.simulateMouseClick(blockNode));
   }
 
   static getSVG(diagram,node,appName) {

@@ -42,6 +42,7 @@ if (typeof window.ExcalidrawWrapper == 'undefined') {
   } 
 
   ( async ()=>{
+    ExcalidrawConfig.log(ExcalidrawConfig.rootPath,ExcalidrawConfig.channel,ExcalidrawConfig.DEBUG);
       if (getClojureNS(ExcalidrawConfig.sketchingUID) != ExcalidrawConfig.cljCodeVersion) {
         ExcalidrawConfig.log('Need to update CLJS script. Starting roam-excalidraw-cljs-loader');
         ExcalidrawConfig.addScriptToPage( 'roam-excalidraw-cljs-loader',  ExcalidrawConfig.rootPath + 'get.php?c='+ExcalidrawConfig.channel);

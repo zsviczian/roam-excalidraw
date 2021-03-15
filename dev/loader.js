@@ -1,31 +1,29 @@
 if (typeof window.ExcalidrawWrapper == 'undefined') {
-  ;(()=>{
-    window.ExcalidrawConfig = {
-      rootPath: 'https://roam-excalidraw.com/',
-      channel: 'dev',
-      cljCodeVersion: 'excalidraw.app.alpha.x',
-      DEBUG : true,
-      sketchingUID : 'sketching',
-      excalDATAUID : 'ExcalDATA',
-      settingsUID  : 'ExcalSET_',
-      log (...args) {console.log("<<< Roam-Excalidraw loader >>> ",...args)},
-    }
+  
+  window.ExcalidrawConfig = {
+    rootPath: 'https://roam-excalidraw.com/',
+    channel: 'dev',
+    cljCodeVersion: 'excalidraw.app.alpha.x',
+    DEBUG : true,
+    sketchingUID : 'sketching',
+    excalDATAUID : 'ExcalDATA',
+    settingsUID  : 'ExcalSET_',
+    log (...args) {console.log("<<< Roam-Excalidraw loader >>> ",...args)},
+  }
 
-    const addElementToPage = (element, tagId, typeT )=> {
-      try { document.getElementById(tagId).remove() } catch(e){};  //Delete any existing reference
-      Object.assign(element, { type:typeT, async:false, id:tagId } );
-      document.getElementsByTagName('head')[0].appendChild(element);
-    }
+  const addElementToPage = (element, tagId, typeT )=> {
+    try { document.getElementById(tagId).remove() } catch(e){};  //Delete any existing reference
+    Object.assign(element, { type:typeT, async:false, id:tagId } );
+    document.getElementsByTagName('head')[0].appendChild(element);
+  }
 
-    ExcalidrawConfig.addScriptToPage = (tagId, script)=> {
-      addElementToPage(Object.assign(document.createElement('script'),{src:script}) , tagId, 'text/javascript');
-    }
+  ExcalidrawConfig.addScriptToPage = (tagId, script)=> {
+    addElementToPage(Object.assign(document.createElement('script'),{src:script}) , tagId, 'text/javascript');
+  }
 
-    ExcalidrawConfig.addCSSToPage = (tagId, cssToAdd)=> {
-      addElementToPage(Object.assign(document.createElement('link'),{href:cssToAdd, rel: 'stylesheet'} ) , tagId, 'text/css');
-    }
-
-  })();
+  ExcalidrawConfig.addCSSToPage = (tagId, cssToAdd)=> {
+    addElementToPage(Object.assign(document.createElement('link'),{href:cssToAdd, rel: 'stylesheet'} ) , tagId, 'text/css');
+  }
 
   function getClojureNS(blockUID) {
     q = `[:find ?s . :where [?e :block/uid "${blockUID}"][?e :block/string ?s]]`;
@@ -33,22 +31,22 @@ if (typeof window.ExcalidrawWrapper == 'undefined') {
     if(renderString != null) { 
       ptrn = /\(ns (.*)\s/g;
       let res = ptrn.exec(renderString);
-      ExcalidrawConfig.log('loader.js getClojureNS NS:',res);
+      ExcalidrawConfig.log('loader.js','getClojureNS NS:',res);
       if(res == null) return '';
       return res[1];
     }
-    ExcalidrawConfig.log('loader.js getClojureNS NS is EMPTY');
+    ExcalidrawConfig.log('loader.js','getClojureNS NS is EMPTY');
     return '';
   } 
 
   ( async ()=>{
-    ExcalidrawConfig.log(ExcalidrawConfig.rootPath,ExcalidrawConfig.channel,ExcalidrawConfig.DEBUG);
+    ExcalidrawConfig.log('loader.js','rootPath:',ExcalidrawConfig.rootPath,'channel:',ExcalidrawConfig.channel,'debug?',ExcalidrawConfig.DEBUG);
       if (getClojureNS(ExcalidrawConfig.sketchingUID) != ExcalidrawConfig.cljCodeVersion) {
-        ExcalidrawConfig.log('Need to update CLJS script. Starting roam-excalidraw-cljs-loader');
+        ExcalidrawConfig.log('loader.js','Need to update CLJS script. Starting roam-excalidraw-cljs-loader');
         ExcalidrawConfig.addScriptToPage( 'roam-excalidraw-cljs-loader',  ExcalidrawConfig.rootPath + 'get.php?c='+ExcalidrawConfig.channel);
       }
       else {
-        ExcalidrawConfig.log('cljs NS is up to date');
+        ExcalidrawConfig.log('loader.js',cljs NS is up to date');
         delete ExcalidrawConfig.sketchingUID;
         delete ExcalidrawConfig.excalDATAUID;
       }
@@ -60,7 +58,8 @@ if (typeof window.ExcalidrawWrapper == 'undefined') {
       ExcalidrawConfig.addScriptToPage ('roam-excalidraw-excalidraw-utils','https://unpkg.com/@excalidraw/utils@0.1.0-temp/dist/excalidraw-utils.min.js');
       ExcalidrawConfig.addCSSToPage ('roam-excalidraw-css',ExcalidrawConfig.rootPath+ExcalidrawConfig.channel+'/style.css');
   })();
-
+  
+  ExcalidrawConfig.log('loader.js','Terminating temporary objects variables, rootPath, channel, getClojureNS, cljCodeVersion');
   delete ExcalidrawConfig.rootPath;
   delete ExcalidrawConfig.channel;
   getClojureNS = undefined;

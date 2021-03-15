@@ -150,8 +150,8 @@ function loadExcalidrawCljs() {
   delete ExcalidrawConfig.dataComponent;
 }
 
-ExcalidrawConfig.log('cljs-loader.js','terminating temporary objects');
 loadExcalidrawCljs();
+ExcalidrawConfig.log('cljs-loader.js','terminating temporary objects');
 loadExcalidrawCljs = undefined;
 ExcalidrawLoader = undefined;
 delete ExcalidrawConfig.sketchingUID;

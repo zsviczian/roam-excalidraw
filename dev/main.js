@@ -107,6 +107,14 @@ window['ExcalidrawWrapper'] = class {
     }
   }
   
+  static setImgEventListner(roamRenderNode,imgNode,appName) {
+    let blockNode = roamRenderNode;
+    const blockUID = appName.slide(-9);
+    while (blockNode.id.indexOf(blockUID)==-1)
+      blockNode = blockNode.parentElement;
+    imgNode.addEventListener('dblclick',ExcalidrawWrapper.simulateMouseClick(blockNode));
+  }
+
   static getSVG(diagram,node,appName) {
     const hostDIV = node.querySelector('#'+appName);
     ReactDOM.unmountComponentAtNode(hostDIV);
@@ -128,7 +136,8 @@ window['ExcalidrawWrapper'] = class {
     
     hostDIV.appendChild(ExcalidrawUtils.exportToSvg(diagram));
     const svg = hostDIV.querySelector('svg');
-
+    
+    ExcalidrawWrapper.setImgEventListner(node, svg, appName);
     svg.removeAttribute('width');
     svg.removeAttribute('height');
     svg.classList.add('excalidraw-svg');
@@ -163,6 +172,7 @@ window['ExcalidrawWrapper'] = class {
       let img = document.createElement('img');
       img.src = urlCreator.createObjectURL(blob);
       img.style.width = '100%';
+      ExcalidrawWrapper.setImgEventListner(node, img, appName);
       hostDIV.appendChild(img);
     })();
   }

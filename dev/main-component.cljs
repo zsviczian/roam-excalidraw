@@ -336,95 +336,95 @@
                                      (.removeEventListener js/window "resize" resize-handler))
 ;           :component-did-catch (fn [this error info])
            :reagent-render (fn [{:keys [block-uid]} & args]
-                             (let [clear-checkboxes (fn[] 
+                             (letfn [(clear-checkboxes [] 
                                (if (:zen-mode @cs) (swap! cs assoc-in [:zen-mode] false))
                                (if (:grid-mode @cs) (swap! cs assoc-in [:grid-mode] false)))]
-                             (debug ["(main) :reagent-render"])
-                               [:div
-                                {:class (get-style "excalidraw-host")
-                                 :style (:host-div @style)}
-                                [:div {:class (get-style "ex-header-wrapper")}
-                                 [:span {:class (get-style "ex-header-buttons-wrapper")}
-                                  [:button
-                                   {:class (get-style "ex-header-button")
-                                    :draggable true
-                                    :on-click (fn [e]
-                                                (if (is-full-screen cs)
-                                                  (do (clear-checkboxes)
-                                                    (save-component block-uid (js-to-clj-str (get-drawing ew)))
-                                                    (going-full-screen? false cs style)
-                                                    (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name)) ;(generate-scene drawing)
-                                                  (do (going-full-screen? true cs style)
+                              (debug ["(main) :reagent-render"])
+                                [:div
+                                  {:class (get-style "excalidraw-host")
+                                  :style (:host-div @style)}
+                                  [:div {:class (get-style "ex-header-wrapper")}
+                                  [:span {:class (get-style "ex-header-buttons-wrapper")}
+                                    [:button
+                                    {:class (get-style "ex-header-button")
+                                      :draggable true
+                                      :on-click (fn [e]
+                                                  (if (is-full-screen cs)
+                                                    (do (clear-checkboxes)
+                                                      (save-component block-uid (js-to-clj-str (get-drawing ew)))
+                                                      (going-full-screen? false cs style)
+                                                      (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name)) ;(generate-scene drawing)
+                                                    (do (going-full-screen? true cs style)
+                                                      (if (nil? (get-in @drawing [:title :block-uid])) 
+                                                        (create-nested-blocks block-uid drawing nil))
+                                                      (reset! drawing-before-edit (generate-scene drawing))
+                                                      (debug ["(main) :on-click drawing-before-edig " @drawing-before-edit])
+                                                      (reset! ew (js/ExcalidrawWrapper.
+                                                                  app-name
+                                                                  @drawing-before-edit
+                                                                  (:this-dom-node @cs) )))))}
+                                      (if (is-full-screen cs) "💾" "🖋")]
+                                  (if (is-full-screen cs)
+                                    [:button
+                                      {:class (get-style "ex-header-button")
+                                      :draggable true
+                                      :on-click (fn [e]
+                                                  (clear-checkboxes)
+                                                  (going-full-screen? false cs style)
+                                                  (debug ["(main) Cancel :on-click"])
+                                                  (save-component block-uid (str @drawing-before-edit))
+                                                  (get-embed-image @drawing-before-edit (:this-dom-node @cs) app-name))}
+                                      "❌"])]
+                                    [:span {:class (get-style "ex-header-title-wrapper")}
+                                      [:input
+                                      {:class (get-style "ex-header-title")
+                                        :value (get-in @drawing [:title :text])
+                                        :on-change (fn [e] 
                                                     (if (nil? (get-in @drawing [:title :block-uid])) 
                                                       (create-nested-blocks block-uid drawing nil))
-                                                    (reset! drawing-before-edit (generate-scene drawing))
-                                                    (debug ["(main) :on-click drawing-before-edig " @drawing-before-edit])
-                                                    (reset! ew (js/ExcalidrawWrapper.
-                                                                app-name
-                                                                @drawing-before-edit
-                                                                (:this-dom-node @cs) )))))}
-                                    (if (is-full-screen cs) "💾" "🖋")]
-                                 (if (is-full-screen cs)
-                                   [:button
-                                    {:class (get-style "ex-header-button")
-                                     :draggable true
-                                     :on-click (fn [e]
-                                                 (clear-checkboxes)
-                                                 (going-full-screen? false cs style)
-                                                 (debug ["(main) Cancel :on-click"])
-                                                 (save-component block-uid (str @drawing-before-edit))
-                                                 (get-embed-image @drawing-before-edit (:this-dom-node @cs) app-name))}
-                                    "❌"])]
-                                  [:span {:class (get-style "ex-header-title-wrapper")}
-                                    [:input
-                                     {:class (get-style "ex-header-title")
-                                      :value (get-in @drawing [:title :text])
-                                      :on-change (fn [e] 
-                                                   (if (nil? (get-in @drawing [:title :block-uid])) 
-                                                     (create-nested-blocks block-uid drawing nil))
-                                                   (swap! drawing assoc-in [:title :text] (.. e -target -value))
-                                                   (block/update
-                                                    {:block {:uid (get-in @drawing [:title :block-uid])
-                                                             :string (get-in @drawing [:title :text])}})
-                                                   (if (is-full-screen cs)
-                                                     (do
-                                                       (let [x (edn/read-string
-                                                                (js-to-clj-str
-                                                                 (get-drawing ew)))]
-                                                         (debug ["(main) input.ex-header-title update x:" x])
-                                                         (update-scene 
-                                                          ew 
-                                                          (assoc-in 
-                                                           x 
-                                                           [:appState :name] (get-in @drawing [:title :text]))))))
-                                                   )}]]
-                                 (if (is-full-screen cs)
-                                    [:span {:class (get-style "ex-header-options-wrapper")}
-                                      [:label {:class (get-style "ex-header-options-label")} 
-                                       [:input
+                                                    (swap! drawing assoc-in [:title :text] (.. e -target -value))
+                                                    (block/update
+                                                      {:block {:uid (get-in @drawing [:title :block-uid])
+                                                              :string (get-in @drawing [:title :text])}})
+                                                    (if (is-full-screen cs)
+                                                      (do
+                                                        (let [x (edn/read-string
+                                                                  (js-to-clj-str
+                                                                  (get-drawing ew)))]
+                                                          (debug ["(main) input.ex-header-title update x:" x])
+                                                          (update-scene 
+                                                            ew 
+                                                            (assoc-in 
+                                                            x 
+                                                            [:appState :name] (get-in @drawing [:title :text]))))))
+                                                    )}]]
+                                  (if (is-full-screen cs)
+                                      [:span {:class (get-style "ex-header-options-wrapper")}
+                                        [:label {:class (get-style "ex-header-options-label")} 
+                                        [:input
+                                          {:class (get-style "ex-header-options-checkbox")
+                                          :type "checkbox"
+                                          :checked (:zen-mode @cs)
+                                          :on-change (fn [e]
+                                                        (set-zen-mode-enabled
+                                                        ew
+                                                        cs
+                                                        (not (:zen-mode @cs))))}]
+                                          "Zen Mode"]
+                                      [:label {:class (get-style "ex-header-options-label")}
+                                      [:input
                                         {:class (get-style "ex-header-options-checkbox")
-                                         :type "checkbox"
-                                         :checked (:zen-mode @cs)
-                                         :on-change (fn [e]
-                                                      (set-zen-mode-enabled
-                                                       ew
-                                                       cs
-                                                       (not (:zen-mode @cs))))}]
-                                        "Zen Mode"]
-                                    [:label {:class (get-style "ex-header-options-label")}
-                                     [:input
-                                      {:class (get-style "ex-header-options-checkbox")
-                                       :type "checkbox"
-                                       :checked (:grid-mode @cs)
-                                       :on-change (fn [e]
-                                                    (set-grid-mode-enabled
-                                                     ew
-                                                     cs
-                                                     (not (:grid-mode @cs))))}]
-                                      "Grid Mode"]])];];)]
-                                [:div
-                                 {:id app-name
-                                  :style (if (is-full-screen cs)
-                                           {:position "relative" :width "100%" :height "calc(100% - 30px)"}
-                                           {:background (if (= (get-in @drawing [:drawing :appState :appearance]) "dark") "#121212" "white")})}
-                               ]]))})))))
+                                        :type "checkbox"
+                                        :checked (:grid-mode @cs)
+                                        :on-change (fn [e]
+                                                      (set-grid-mode-enabled
+                                                      ew
+                                                      cs
+                                                      (not (:grid-mode @cs))))}]
+                                        "Grid Mode"]])];];)]
+                                  [:div
+                                  {:id app-name
+                                    :style (if (is-full-screen cs)
+                                            {:position "relative" :width "100%" :height "calc(100% - 30px)"}
+                                            {:background (if (= (get-in @drawing [:drawing :appState :appearance]) "dark") "#121212" "white")})}
+]]))})))))

@@ -109,7 +109,7 @@ window['ExcalidrawWrapper'] = class {
   
   static setImgEventListner(roamRenderNode,imgNode,appName) {
     let blockNode = roamRenderNode;
-    const blockUID = appName.slide(-9);
+    const blockUID = appName.slice(-9);
     while (blockNode.id.indexOf(blockUID)==-1)
       blockNode = blockNode.parentElement;
     imgNode.addEventListener('dblclick',ExcalidrawWrapper.simulateMouseClick(blockNode));

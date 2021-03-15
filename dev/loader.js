@@ -46,7 +46,7 @@ if (typeof window.ExcalidrawWrapper == 'undefined') {
         ExcalidrawConfig.addScriptToPage( 'roam-excalidraw-cljs-loader',  ExcalidrawConfig.rootPath + 'get.php?c='+ExcalidrawConfig.channel);
       }
       else {
-        ExcalidrawConfig.log('loader.js',cljs NS is up to date');
+        ExcalidrawConfig.log('loader.js','cljs NS is up to date');
         delete ExcalidrawConfig.sketchingUID;
         delete ExcalidrawConfig.excalDATAUID;
       }

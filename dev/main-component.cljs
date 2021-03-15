@@ -315,6 +315,7 @@
                                   (load-settings)
                                   (swap! cs assoc-in [:this-dom-node] (r/dom-node this))
                                   (swap! style assoc-in [:host-div] (host-div-style cs))
+                                  (debug ["(main) :component-did-mount addPullWatch"])
                                   (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
                                   (pull-watch-callback nil nil)
                                   (get-embed-image (generate-scene drawing) (:this-dom-node @cs) app-name)
@@ -325,6 +326,7 @@
                                    (if (is-full-screen cs)
                                      (resize ew)))
            :component-will-unmount (fn [this]
+                                     (debug ["(main) :component-will-unmount"])
                                      (.removePullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
                                      (.removeEventListener js/window "resize" resize-handler))
 ;           :component-did-catch (fn [this error info])

@@ -112,7 +112,7 @@
           (swap! app-settings assoc-in [:mode] "light"))
         (if (nil? (:img @app-settings)) 
           (swap! app-settings assoc-in [:img] "SVG"))
-        (if (nil? (:img @app-settings)) 
+        (if (nil? (:full-screen-margin @app-settings)) 
           (swap! app-settings assoc-in [:full-screen-margin] 0.015)))
       (save-settings))))
 

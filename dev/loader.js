@@ -7,11 +7,12 @@
     sketchingUID : 'sketching',
     excalDATAUID : 'ExcalDATA',
     settingsUID  : 'ExcalSET_',
+    log (...args) {console.log("Roam-Excalidraw loader",...args)},
   }
 
   const addElementToPage = (element, tagId, typeT )=> {
     try { document.getElementById(tagId).remove() } catch(e){};  //Delete any existing reference
-    Object.assign(element, { type:typeT, async:false, tagId:tagId } );
+    Object.assign(element, { type:typeT, async:false, id:tagId } );
     document.getElementsByTagName('head')[0].appendChild(element);
   }
 
@@ -30,20 +31,22 @@ function getClojureNS(blockUID) {
   if(renderString != null) { 
     ptrn = /\(ns (.*)\s/g;
     let res = ptrn.exec(renderString);
+    ExcalidrawConfig.log('loader.js getClojureNS NS:',res);
     if (ExcalidrawConfig.DEBUG) console.log('getClojureNS: ', res);
     if(res == null) return '';
     return res[1];
   }
-  if (ExcalidrawConfig.DEBUG) console.log('getClojureNS: empty');
+  ExcalidrawConfig.log('loader.js getClojureNS NS is EMPTY');
   return '';
 }
 
 ( async ()=>{
     if (getClojureNS(ExcalidrawConfig.sketchingUID) != ExcalidrawConfig.cljCodeVersion) {
-      if (ExcalidrawConfig.DEBUG) console.log('starting roam-excalidraw-cljs-loader');
+      ExcalidrawConfig.log('Need to update CLJS script. Starting roam-excalidraw-cljs-loader');
       ExcalidrawConfig.addScriptToPage( 'roam-excalidraw-cljs-loader',  ExcalidrawConfig.rootPath + 'get.php?c='+ExcalidrawConfig.channel);
     }
     else {
+      ExcalidrawConfig.log('cljs NS is up to date');
       delete ExcalidrawConfig.sketchingUID;
       delete ExcalidrawConfig.excalDATAUID;
     }

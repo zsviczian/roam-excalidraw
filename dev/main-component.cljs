@@ -115,11 +115,11 @@
         (if (nil? (:img @app-settings)) 
           (swap! app-settings assoc-in [:img] "SVG"))
         (if (nil? (:full-screen-margin @app-settings)) 
-          (swap! app-settings assoc-in [:full-screen-margin] 0.015)))
+          (swap! app-settings assoc-in [:full-screen-margin] 0.015))
         (if (nil? (:max-embed-width @app-settings)) 
           (swap! app-settings assoc-in [:max-embed-width] 500))
         (if (nil? (:max-embed-height @app-settings)) 
-          (swap! app-settings assoc-in [:max-embed-height] 400))
+          (swap! app-settings assoc-in [:max-embed-height] 400)))
       (save-settings))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

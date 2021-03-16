@@ -12,11 +12,12 @@
 (def app-page "roam/excalidraw")
 (def app-settings-block "Settings")
 (def app-setting-uid "Excal_SET")
-(def app-settings (r/atom {:mode "light"
+(def default-app-settings {:mode "light"
                            :img  "SVG"
                            :full-screen-margin 0.015
                            :max-embed-width 500
-                           :max-embed-height 400}))
+                           :max-embed-height 400})
+(def app-settings (r/atom default-app-settings))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; util functions
@@ -109,18 +110,10 @@
         (debug ["(load-settings) settings: " settings-block])
         (reset! app-settings (edn/read-string settings-block))
         (if (nil? @app-settings)
-          (reset! app-settings {:mode "light" :img  "SVG" :full-screen-margin 0.015 :max-embed-width 500 :max-embed-height 400}))
-        (if (nil? (:mode @app-settings)) 
-          (swap! app-settings assoc-in [:mode] "light"))
-        (if (nil? (:img @app-settings)) 
-          (swap! app-settings assoc-in [:img] "SVG"))
-        (if (nil? (:full-screen-margin @app-settings)) 
-          (swap! app-settings assoc-in [:full-screen-margin] 0.015))
-        (if (nil? (:max-embed-width @app-settings)) 
-          (swap! app-settings assoc-in [:max-embed-width] 500))
-        (if (nil? (:max-embed-height @app-settings)) 
-          (swap! app-settings assoc-in [:max-embed-height] 400)))
-      (save-settings))))
+          (reset! app-settings default-app-settings))
+        (for [key (keys default-app-settings)]
+          (if (nil? (key @app-settings))
+            (swap! app-settings assoc-in [key] (key default-app-settings))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Load data from nested block(s)

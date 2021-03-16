@@ -128,6 +128,12 @@ window['ExcalidrawWrapper'] = class {
         });
   }
 
+  static getAspectRatio(svg) {
+    const w = parseFloat(svg.getAttribute('width'));
+    const h = parseFloat(svg.getAttribute('height'));
+    return w/h;
+  }
+
   static getSVG(diagram,node,appName) {
     const hostDIV = node.querySelector('#'+appName);
     ReactDOM.unmountComponentAtNode(hostDIV);
@@ -149,11 +155,12 @@ window['ExcalidrawWrapper'] = class {
     
     hostDIV.appendChild(ExcalidrawUtils.exportToSvg(diagram));
     const svg = hostDIV.querySelector('svg');
-    
+    const aspectRatio = ExcalidrawWrapper.getAspectRatio(svg);
     ExcalidrawWrapper.setImgEventListner(node, svg, appName);
     svg.removeAttribute('width');
     svg.removeAttribute('height');
     svg.classList.add('excalidraw-svg');
+    return aspectRatio; //aspect ration
   }
   
   static getPNG(diagram,node,appName) {
@@ -188,6 +195,9 @@ window['ExcalidrawWrapper'] = class {
       hostDIV.appendChild(img);
       ExcalidrawWrapper.setImgEventListner(node, img, appName);
     })();
+    let svg = ExcalidrawUtils.exportToSvg(diagram);
+    const aspectRatio = ExcalidrawWrapper.getAspectRatio(svg);
+    return aspectRatio; //aspect ration
   }
    
   static createBlock(parentUID, order, blockString) {

@@ -1,4 +1,4 @@
-(ns excalidraw.app.alpha.v15
+(ns excalidraw.app.alpha.v16
   (:require 
    [clojure.set :as s]
    [reagent.core :as r]
@@ -12,9 +12,12 @@
 (def app-page "roam/excalidraw")
 (def app-settings-block "Settings")
 (def app-setting-uid "Excal_SET")
-(def app-settings (r/atom {:mode "light"
+(def default-app-settings {:mode "light"
                            :img  "SVG"
-                           :full-screen-margin 0.015}))
+                           :full-screen-margin 0.015
+                           :max-embed-width 600
+                           :max-embed-height 600})
+(def app-settings (r/atom default-app-settings))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; util functions
@@ -26,6 +29,12 @@
 (defn create-block [parent-uid order block-string]
   (.createBlock js/window.ExcalidrawWrapper parent-uid order block-string))
 
+(defn pretty-settings [x]
+ (-> (str x)
+      (str/replace "{" "{\n")
+      (str/replace ", " "\n")
+      (str/replace "}" "\n}")))
+ 
 (defn save-settings []
   (debug ["(save-settings) Enter"])
   (let [settings-host (r/atom (rd/q '[:find ?uid .
@@ -54,10 +63,10 @@
                                         @settings-host))]
       (if (nil? @settings-block)
         (do (debug ["(save-settings) settings-block does not exist"])
-          (create-block @settings-host 0 (str @app-settings)))
+          (create-block @settings-host 0 (pretty-settings @app-settings)))
         (do (debug ["(save-settings) settings-block exists, updating"])
           (block/update {:block {:uid @settings-block 
-                                 :string (str @app-settings)}}))))))
+                                 :string (pretty-settings @app-settings)}}))))))
 
 (defn js-to-clj-str [& x]
   (debug ["(js-to-clj-str): x: " x (str x)])
@@ -107,14 +116,10 @@
         (debug ["(load-settings) settings: " settings-block])
         (reset! app-settings (edn/read-string settings-block))
         (if (nil? @app-settings)
-          (reset! app-settings {:mode "light" :img  "SVG" :full-screen-margin 0.015}))
-        (if (nil? (:mode @app-settings)) 
-          (swap! app-settings assoc-in [:mode] "light"))
-        (if (nil? (:img @app-settings)) 
-          (swap! app-settings assoc-in [:img] "SVG"))
-        (if (nil? (:full-screen-margin @app-settings)) 
-          (swap! app-settings assoc-in [:full-screen-margin] 0.015)))
-      (save-settings))))
+          (reset! app-settings default-app-settings))
+        (doseq [key (keys default-app-settings)]
+          (if (nil? (key @app-settings))
+            (swap! app-settings assoc-in [key] (key default-app-settings))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Load data from nested block(s)
@@ -212,14 +217,22 @@
         height   (.-innerHeight js/window)
         top      (int (* height (:full-screen-margin @app-settings)))
         left     (int (* width (:full-screen-margin @app-settings)))
-        host-div-width (if (nil? (:this-dom-node @cs)) 500
+        host-div-width (if (nil? (:this-dom-node @cs)) (:max-embed-width @app-settings)
                          (-> (:this-dom-node @cs)  
                            (.-parentElement)
                            (.-parentElement)
                            (.-parentElement)
                            (.-clientWidth)))
-        embed-width (if (> host-div-width 500) 500 host-div-width)]
-    (debug ["(host-div-style) cur-state :position " (:position @cs) " :top " (int (* height 0.03)) " :left " (int (* width 0.03)) " full-screen? " (is-full-screen cs)])
+        embed-width (if (> host-div-width (:max-embed-width @app-settings)) 
+                      (:max-embed-width @app-settings) host-div-width)
+        embed-height (* (:max-embed-height @app-settings) (/ embed-width (:max-embed-width @app-settings)))
+        ar (:aspect-ratio @cs)
+        w (if (nil? ar) embed-width 
+            (if (> ar 1.0) embed-width
+              (* ar embed-height)))
+        h (if (nil? ar @cs) "100%" 
+            (if (> ar 1.0) "100%" 
+              (+ embed-height (:header-height @cs) )))]
     (if (is-full-screen cs)
       {:position "fixed"
        :z-index 1000
@@ -229,8 +242,8 @@
        :height (- height (* top 2))
        :resize "none"} 
       {:position "relative"
-       :width embed-width
-       :height "100%"
+       :width w
+       :height h
        :resize "both"
        :overflow "hidden"})))
 
@@ -287,7 +300,9 @@
             cs (r/atom {:position embedded-view  ;;component-state
                         :zen-mode false
                         :grid-mode false
-                        :this-dom-node nil})
+                        :this-dom-node nil
+                        :header-height 30
+                        :aspect-ratio nil})
            ew (r/atom nil) ;;excalidraw-wrapper
            drawing-before-edit (r/atom nil)
            app-name (str/join ["excalidraw-app-" block-uid])
@@ -322,11 +337,15 @@
                                   (debug ["(main) :component-did-mount"])
                                   (load-settings)
                                   (swap! cs assoc-in [:this-dom-node] (r/dom-node this))
-                                  (swap! style assoc-in [:host-div] (host-div-style cs))
+                                  (swap! cs assoc-in [:header-height]
+                                    (-> (:this-dom-node @cs)  
+                                          (.querySelector "[class^=\"ex-header-wrapper\"]")
+                                          (.-clientHeight)))
                                   (debug ["(main) :component-did-mount addPullWatch"])
                                   (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
                                   (pull-watch-callback nil nil)
-                                  (get-embed-image (generate-scene drawing) (:this-dom-node @cs) app-name)
+                                  (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene drawing) (:this-dom-node @cs) app-name))
+                                  (swap! style assoc-in [:host-div] (host-div-style cs))
                                   (.addEventListener js/window "resize" resize-handler)
                                   (debug ["(main) :component-did-mount Exalidraw mount initiated"]))
            :component-did-update (fn [this old-argv old-state snapshot]
@@ -355,8 +374,8 @@
                                                   (if (is-full-screen cs)
                                                     (do (clear-checkboxes)
                                                       (save-component block-uid (js-to-clj-str (get-drawing ew)))
-                                                      (going-full-screen? false cs style)
-                                                      (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name)) ;(generate-scene drawing)
+                                                      (swap! cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
+                                                      (going-full-screen? false cs style)) 
                                                     (do (going-full-screen? true cs style)
                                                       (if (nil? (get-in @drawing [:title :block-uid])) 
                                                         (create-nested-blocks block-uid drawing nil))
@@ -373,10 +392,10 @@
                                       :draggable true
                                       :on-click (fn [e]
                                                   (clear-checkboxes)
-                                                  (going-full-screen? false cs style)
                                                   (debug ["(main) Cancel :on-click"])
                                                   (save-component block-uid (str @drawing-before-edit))
-                                                  (get-embed-image @drawing-before-edit (:this-dom-node @cs) app-name))}
+                                                  (swap! cs assoc-in [:aspect-ratio] (get-embed-image @drawing-before-edit (:this-dom-node @cs) app-name))
+                                                  (going-full-screen? false cs style))}
                                       "❌"])]
                                     [:span {:class (get-style "ex-header-title-wrapper")}
                                       [:input
@@ -428,6 +447,6 @@
                                   [:div
                                   {:id app-name
                                     :style (if (is-full-screen cs)
-                                            {:position "relative" :width "100%" :height "calc(100% - 30px)"}
+                                            {:position "relative" :width "100%" :height (str/join ["calc(100% - " (:header-height @cs) "px"])}
                                             {:background (if (= (get-in @drawing [:drawing :appState :appearance]) "dark") "#121212" "white")})}
 ]]))})))))

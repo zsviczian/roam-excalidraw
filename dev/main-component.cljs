@@ -14,7 +14,9 @@
 (def app-setting-uid "Excal_SET")
 (def app-settings (r/atom {:mode "light"
                            :img  "SVG"
-                           :full-screen-margin 0.015}))
+                           :full-screen-margin 0.015
+                           :max-embed-width 500
+                           :max-embed-height 400}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; util functions
@@ -114,6 +116,10 @@
           (swap! app-settings assoc-in [:img] "SVG"))
         (if (nil? (:full-screen-margin @app-settings)) 
           (swap! app-settings assoc-in [:full-screen-margin] 0.015)))
+        (if (nil? (:max-embed-width @app-settings)) 
+          (swap! app-settings assoc-in [:max-embed-width] 500))
+        (if (nil? (:max-embed-height @app-settings)) 
+          (swap! app-settings assoc-in [:max-embed-height] 400))
       (save-settings))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -212,13 +218,15 @@
         height   (.-innerHeight js/window)
         top      (int (* height (:full-screen-margin @app-settings)))
         left     (int (* width (:full-screen-margin @app-settings)))
-        host-div-width (if (nil? (:this-dom-node @cs)) 500
+        host-div-width (if (nil? (:this-dom-node @cs)) (:max-embed-width @app-settings)
                          (-> (:this-dom-node @cs)  
                            (.-parentElement)
                            (.-parentElement)
                            (.-parentElement)
                            (.-clientWidth)))
-        embed-width (if (> host-div-width 500) 500 host-div-width)]
+        embed-width (if (> host-div-width 
+                      (:max-embed-width @app-settings)) 
+                      (:max-embed-width @app-settings) host-div-width)]
     (debug ["(host-div-style) cur-state :position " (:position @cs) " :top " (int (* height 0.03)) " :left " (int (* width 0.03)) " full-screen? " (is-full-screen cs)])
     (if (is-full-screen cs)
       {:position "fixed"

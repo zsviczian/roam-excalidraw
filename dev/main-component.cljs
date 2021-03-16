@@ -30,7 +30,7 @@
   (.createBlock js/window.ExcalidrawWrapper parent-uid order block-string))
 
 (defn pretty-settings [x]
- (->> (str x)
+ (-> (str x)
       (str/replace "{" "{\n")
       (str/replace ", " "\n")
       (str/replace "}" "\n}")))
@@ -227,6 +227,16 @@
                       (:max-embed-width @app-settings) host-div-width)
         embed-height (* (:max-embed-height @app-settings) (/ embed-width (:max-embed-width @app-settings)))]
     (debug ["(host-div-style) cur-state :position " (:position @cs) " :top " (int (* height 0.03)) " :left " (int (* width 0.03)) " full-screen? " (is-full-screen cs)])
+    (debug ["(host-div-style) embed-width " embed-width "max-width" (:max-embed-width @app-settings) "embed-height" embed-height])
+    (debug ["width " (if (nil? (:aspect-ratio @cs)) 
+                embed-width 
+                (if (> (:aspect-ratio @app-settings) 1) 
+                  embed-width
+                  (* (:aspect-ratio @cs) embed-height))) "height " (if (nil? (:aspect-ratio @cs)) 
+                 "100%" 
+                 (if (> (:aspect-ratio @cs) 1) 
+                   "100%" 
+                   (+ embed-height (:header-height @cs) )))])
     (if (is-full-screen cs)
       {:position "fixed"
        :z-index 1000

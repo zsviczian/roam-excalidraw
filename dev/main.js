@@ -127,7 +127,8 @@ window['ExcalidrawWrapper'] = class {
           } catch(err) {}
         });
   }
-  static getAspcetRatio(svg) {
+
+  static getAspectRatio(svg) {
     const w = parseFloat(svg.getAttribute('width'));
     const h = parseFloat(svg.getAttribute('height'));
     return w/h;

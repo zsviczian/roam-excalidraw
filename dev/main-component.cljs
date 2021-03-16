@@ -109,7 +109,7 @@
         (debug ["(load-settings) settings: " settings-block])
         (reset! app-settings (edn/read-string settings-block))
         (if (nil? @app-settings)
-          (reset! app-settings {:mode "light" :img  "SVG" :full-screen-margin 0.015}))
+          (reset! app-settings {:mode "light" :img  "SVG" :full-screen-margin 0.015 :max-embed-width 500 :max-embed-height 400}))
         (if (nil? (:mode @app-settings)) 
           (swap! app-settings assoc-in [:mode] "light"))
         (if (nil? (:img @app-settings)) 
@@ -224,8 +224,7 @@
                            (.-parentElement)
                            (.-parentElement)
                            (.-clientWidth)))
-        embed-width (if (> host-div-width 
-                      (:max-embed-width @app-settings)) 
+        embed-width (if (> host-div-width (:max-embed-width @app-settings)) 
                       (:max-embed-width @app-settings) host-div-width)]
     (debug ["(host-div-style) cur-state :position " (:position @cs) " :top " (int (* height 0.03)) " :left " (int (* width 0.03)) " full-screen? " (is-full-screen cs)])
     (if (is-full-screen cs)

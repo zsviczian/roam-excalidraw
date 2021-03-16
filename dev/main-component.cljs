@@ -111,7 +111,7 @@
         (reset! app-settings (edn/read-string settings-block))
         (if (nil? @app-settings)
           (reset! app-settings default-app-settings))
-        (for [key (keys default-app-settings)]
+        (doseq [key (keys default-app-settings)]
           (if (nil? (key @app-settings))
             (swap! app-settings assoc-in [key] (key default-app-settings))))))))
 
@@ -218,7 +218,8 @@
                            (.-parentElement)
                            (.-clientWidth)))
         embed-width (if (> host-div-width (:max-embed-width @app-settings)) 
-                      (:max-embed-width @app-settings) host-div-width)]
+                      (:max-embed-width @app-settings) host-div-width)
+        embed-height (* (+ (:max-embed-height @app-settings)) (/ embed-width (:max-embed-width @app-settings))) ]
     (debug ["(host-div-style) cur-state :position " (:position @cs) " :top " (int (* height 0.03)) " :left " (int (* width 0.03)) " full-screen? " (is-full-screen cs)])
     (if (is-full-screen cs)
       {:position "fixed"
@@ -229,8 +230,16 @@
        :height (- height (* top 2))
        :resize "none"} 
       {:position "relative"
-       :width embed-width
-       :height "100%";
+       :width (if (nil? (:aspect-ratio @cs)) 
+                embed-width 
+                (if (> (:aspect-ratio @app-settings) 1) 
+                  embed-width
+                  (* (:aspect-ratio @cs) embed-height)))
+       :height (if (nil? (:aspect-ratio @cs)) 
+                 "100%" 
+                 (if (> (:aspect-ratio @cs) 1) 
+                   "100%" 
+                   embed-height))
        :resize "both"
        :overflow "hidden"})))
 

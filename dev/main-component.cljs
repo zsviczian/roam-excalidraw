@@ -225,18 +225,14 @@
                            (.-clientWidth)))
         embed-width (if (> host-div-width (:max-embed-width @app-settings)) 
                       (:max-embed-width @app-settings) host-div-width)
-        embed-height (* (:max-embed-height @app-settings) (/ embed-width (:max-embed-width @app-settings)))]
-    (debug ["(host-div-style) cur-state :position " (:position @cs) " :top " (int (* height 0.03)) " :left " (int (* width 0.03)) " full-screen? " (is-full-screen cs)])
-    (debug ["(host-div-style) embed-width " embed-width "max-width" (:max-embed-width @app-settings) "embed-height" embed-height])
-    (debug ["width " (if (nil? (:aspect-ratio @cs)) 
-                embed-width 
-                (if (> (:aspect-ratio @app-settings) 1) 
-                  embed-width
-                  (* (:aspect-ratio @cs) embed-height))) "height " (if (nil? (:aspect-ratio @cs)) 
-                 "100%" 
-                 (if (> (:aspect-ratio @cs) 1) 
-                   "100%" 
-                   (+ embed-height (:header-height @cs) )))])
+        embed-height (* (:max-embed-height @app-settings) (/ embed-width (:max-embed-width @app-settings)))
+        ar (:aspect-ratio @cs)
+        w (if (nil? ar) embed-width 
+            (if (> ar 1.0) embed-width
+              (* ar embed-height)))
+        h (if (nil? ar @cs) "100%" 
+            (if (> ar 1.0) "100%" 
+              (+ embed-height (:header-height @cs) )))]
     (if (is-full-screen cs)
       {:position "fixed"
        :z-index 1000
@@ -246,16 +242,8 @@
        :height (- height (* top 2))
        :resize "none"} 
       {:position "relative"
-       :width (if (nil? (:aspect-ratio @cs)) 
-                embed-width 
-                (if (> (:aspect-ratio @app-settings) 1) 
-                  embed-width
-                  (* (:aspect-ratio @cs) embed-height)))
-       :height (if (nil? (:aspect-ratio @cs)) 
-                 "100%" 
-                 (if (> (:aspect-ratio @cs) 1) 
-                   "100%" 
-                   (+ embed-height (:header-height @cs) )))
+       :width w
+       :height h
        :resize "both"
        :overflow "hidden"})))
 

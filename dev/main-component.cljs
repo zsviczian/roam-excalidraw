@@ -230,7 +230,7 @@
        :resize "none"} 
       {:position "relative"
        :width embed-width
-       :height "100%"
+       :height "100%";
        :resize "both"
        :overflow "hidden"})))
 
@@ -287,7 +287,8 @@
             cs (r/atom {:position embedded-view  ;;component-state
                         :zen-mode false
                         :grid-mode false
-                        :this-dom-node nil})
+                        :this-dom-node nil
+                        :aspect-ratio nil})
            ew (r/atom nil) ;;excalidraw-wrapper
            drawing-before-edit (r/atom nil)
            app-name (str/join ["excalidraw-app-" block-uid])
@@ -322,11 +323,11 @@
                                   (debug ["(main) :component-did-mount"])
                                   (load-settings)
                                   (swap! cs assoc-in [:this-dom-node] (r/dom-node this))
-                                  (swap! style assoc-in [:host-div] (host-div-style cs))
                                   (debug ["(main) :component-did-mount addPullWatch"])
                                   (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
                                   (pull-watch-callback nil nil)
-                                  (get-embed-image (generate-scene drawing) (:this-dom-node @cs) app-name)
+                                  (swap cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene drawing) (:this-dom-node @cs) app-name))
+                                  (swap! style assoc-in [:host-div] (host-div-style cs))
                                   (.addEventListener js/window "resize" resize-handler)
                                   (debug ["(main) :component-did-mount Exalidraw mount initiated"]))
            :component-did-update (fn [this old-argv old-state snapshot]
@@ -355,8 +356,8 @@
                                                   (if (is-full-screen cs)
                                                     (do (clear-checkboxes)
                                                       (save-component block-uid (js-to-clj-str (get-drawing ew)))
-                                                      (going-full-screen? false cs style)
-                                                      (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name)) ;(generate-scene drawing)
+                                                      (swap cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
+                                                      (going-full-screen? false cs style)) 
                                                     (do (going-full-screen? true cs style)
                                                       (if (nil? (get-in @drawing [:title :block-uid])) 
                                                         (create-nested-blocks block-uid drawing nil))
@@ -373,10 +374,10 @@
                                       :draggable true
                                       :on-click (fn [e]
                                                   (clear-checkboxes)
-                                                  (going-full-screen? false cs style)
                                                   (debug ["(main) Cancel :on-click"])
                                                   (save-component block-uid (str @drawing-before-edit))
-                                                  (get-embed-image @drawing-before-edit (:this-dom-node @cs) app-name))}
+                                                  (swap cs assoc-in [:aspect-ratio] (get-embed-image @drawing-before-edit (:this-dom-node @cs) app-name))
+                                                  (going-full-screen? false cs style))}
                                       "❌"])]
                                     [:span {:class (get-style "ex-header-title-wrapper")}
                                       [:input

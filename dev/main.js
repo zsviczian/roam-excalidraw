@@ -154,6 +154,7 @@ window['ExcalidrawWrapper'] = class {
     svg.removeAttribute('width');
     svg.removeAttribute('height');
     svg.classList.add('excalidraw-svg');
+    return svg.width.baseVal.value/svg.height.baseVal.value; //aspect ration
   }
   
   static getPNG(diagram,node,appName) {
@@ -188,6 +189,8 @@ window['ExcalidrawWrapper'] = class {
       hostDIV.appendChild(img);
       ExcalidrawWrapper.setImgEventListner(node, img, appName);
     })();
+    let svg = ExcalidrawUtils.exportToSvg(diagram);
+    return svg.width.baseVal.value/svg.height.baseVal.value; //aspect ration
   }
    
   static createBlock(parentUID, order, blockString) {

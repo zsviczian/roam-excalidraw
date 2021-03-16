@@ -326,7 +326,7 @@
                                   (debug ["(main) :component-did-mount addPullWatch"])
                                   (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
                                   (pull-watch-callback nil nil)
-                                  (swap cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene drawing) (:this-dom-node @cs) app-name))
+                                  (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene drawing) (:this-dom-node @cs) app-name))
                                   (swap! style assoc-in [:host-div] (host-div-style cs))
                                   (.addEventListener js/window "resize" resize-handler)
                                   (debug ["(main) :component-did-mount Exalidraw mount initiated"]))
@@ -356,7 +356,7 @@
                                                   (if (is-full-screen cs)
                                                     (do (clear-checkboxes)
                                                       (save-component block-uid (js-to-clj-str (get-drawing ew)))
-                                                      (swap cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
+                                                      (swap! cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
                                                       (going-full-screen? false cs style)) 
                                                     (do (going-full-screen? true cs style)
                                                       (if (nil? (get-in @drawing [:title :block-uid])) 
@@ -376,7 +376,7 @@
                                                   (clear-checkboxes)
                                                   (debug ["(main) Cancel :on-click"])
                                                   (save-component block-uid (str @drawing-before-edit))
-                                                  (swap cs assoc-in [:aspect-ratio] (get-embed-image @drawing-before-edit (:this-dom-node @cs) app-name))
+                                                  (swap! cs assoc-in [:aspect-ratio] (get-embed-image @drawing-before-edit (:this-dom-node @cs) app-name))
                                                   (going-full-screen? false cs style))}
                                       "❌"])]
                                     [:span {:class (get-style "ex-header-title-wrapper")}

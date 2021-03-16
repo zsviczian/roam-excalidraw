@@ -29,6 +29,12 @@
 (defn create-block [parent-uid order block-string]
   (.createBlock js/window.ExcalidrawWrapper parent-uid order block-string))
 
+(defn pretty-settings [x]
+ (->> (str x)
+      (str/replace "{" "{\n")
+      (str/replace ", " "\n")
+      (str/replace "}" "\n}")))
+ 
 (defn save-settings []
   (debug ["(save-settings) Enter"])
   (let [settings-host (r/atom (rd/q '[:find ?uid .
@@ -57,10 +63,10 @@
                                         @settings-host))]
       (if (nil? @settings-block)
         (do (debug ["(save-settings) settings-block does not exist"])
-          (create-block @settings-host 0 (str @app-settings)))
+          (create-block @settings-host 0 (pretty-settings @app-settings)))
         (do (debug ["(save-settings) settings-block exists, updating"])
           (block/update {:block {:uid @settings-block 
-                                 :string (str @app-settings)}}))))))
+                                 :string (pretty-settings @app-settings)}}))))))
 
 (defn js-to-clj-str [& x]
   (debug ["(js-to-clj-str): x: " x (str x)])
@@ -232,7 +238,7 @@
       {:position "relative"
        :width (if (nil? (:aspect-ratio @cs)) 
                 embed-width 
-                (if (> (:aspect-ratio @app-settings) 1) 
+                (if (< (:aspect-ratio @app-settings) 1) 
                   embed-width
                   (* (:aspect-ratio @cs) embed-height)))
        :height (if (nil? (:aspect-ratio @cs)) 

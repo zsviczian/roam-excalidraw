@@ -225,7 +225,7 @@
                            (.-clientWidth)))
         embed-width (if (> host-div-width (:max-embed-width @app-settings)) 
                       (:max-embed-width @app-settings) host-div-width)
-        embed-height (* (+ (:max-embed-height @app-settings)) (/ embed-width (:max-embed-width @app-settings))) ]
+        embed-height (* (:max-embed-height @app-settings) (/ embed-width (:max-embed-width @app-settings)))]
     (debug ["(host-div-style) cur-state :position " (:position @cs) " :top " (int (* height 0.03)) " :left " (int (* width 0.03)) " full-screen? " (is-full-screen cs)])
     (if (is-full-screen cs)
       {:position "fixed"
@@ -238,7 +238,7 @@
       {:position "relative"
        :width (if (nil? (:aspect-ratio @cs)) 
                 embed-width 
-                (if (< (:aspect-ratio @app-settings) 1) 
+                (if (> (:aspect-ratio @app-settings) 1) 
                   embed-width
                   (* (:aspect-ratio @cs) embed-height)))
        :height (if (nil? (:aspect-ratio @cs)) 

@@ -50,7 +50,7 @@ window['ExcalidrawWrapper'] = class {
       }, [excalidrawWrapperRef]);
 
       this.updateScene = (scene) => {
-        excalidrawRef.current.resetScene();
+        //excalidrawRef.current.resetScene();
         excalidrawRef.current.updateScene(scene);
       }
       

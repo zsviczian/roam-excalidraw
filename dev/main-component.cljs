@@ -409,16 +409,17 @@
                                                       {:block {:uid (get-in @drawing [:title :block-uid])
                                                               :string (get-in @drawing [:title :text])}})
                                                     (if (is-full-screen cs)
-                                                      (do
-                                                        (let [x (edn/read-string
-                                                                  (js-to-clj-str
-                                                                  (get-drawing ew)))]
-                                                          (debug ["(main) input.ex-header-title update x:" x])
+;                                                      (do
+;                                                        (let [x (edn/read-string
+;                                                                  (js-to-clj-str
+;                                                                  (get-drawing ew)))]
+;                                                          (debug ["(main) input.ex-header-title update x:" x])
                                                           (update-scene 
                                                             ew 
-                                                            (assoc-in 
-                                                            x 
-                                                            [:appState :name] (get-in @drawing [:title :text]))))))
+                                                            {:appState {:name (.. e -target -value)}}))
+;                                                            (assoc-in 
+;                                                            x 
+;                                                            [:appState :name] (get-in @drawing [:title :text]))))))
                                                     )}]]
                                   (if (is-full-screen cs)
                                       [:span {:class (get-style "ex-header-options-wrapper")}

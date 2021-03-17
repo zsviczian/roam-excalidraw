@@ -7,11 +7,19 @@
   src: url("https://excalidraw.com/Cascadia.woff2");
 }
 
+:root {
+  --bg-ex-dark: 	#121212;
+  --cl-ex-dark: 	lightgray;
+  --bg-ex-light:	white;
+  --cl-ex-light:	rgb(68, 68, 68);
+}
+
+
 /******************/
 /*   Light mode   */
 /******************/
-.excalidraw-host-dark {
-  background-color: white;
+.excalidraw-host-light {
+  background-color: var(--bg-ex-light);
   border-radius: 5px;
   display: block;
 }
@@ -21,7 +29,7 @@
   display: table;
   width: 100%;
   border-radius: 5px;
-  background-color: White;
+  background-color: var(--bg-ex-light);
 }
 
     .ex-header-buttons-wrapper-light {
@@ -33,6 +41,7 @@
 
         .ex-header-button-light {
           background-color: transparent;
+          color: var(--cl-ex-light);
           height: 30px;
           border-radius: 15px;
           margin-right: 3px;
@@ -50,7 +59,8 @@
     }
 
         .ex-header-title-light {
-          background: transparent;
+          background: var(--bg-ex-light);
+          color: var(--cl-ex-light);
           vertical-align: middle;
           height: 30px;
           border: 0px;
@@ -69,12 +79,14 @@
           margin: 0px 8px 0px 0px;
           vertical-align: middle !important;
           display: inline-block;
+          color: var(--cl-ex-light);
           white-space: nowrap;
         }
 
         .ex-header-options-checkbox-light {
           margin: 0px 3px 0px 0px !important;
           vertical-align: middle !important;
+          color: var(--cl-ex-light);
         }
 
 /*
@@ -87,7 +99,7 @@
 /******************/
 
 .excalidraw-host-dark {
-  background-color: #121212;
+  background-color: var(--bg-ex-dark);
   border-radius: 5px;
   display: block;
 }
@@ -97,7 +109,7 @@
   display: table;
   width: 100%;
   border-radius: 5px;
-  background-color: #121212;
+  background-color: var(--bg-ex-dark);
 }
 
     .ex-header-buttons-wrapper-dark {
@@ -105,13 +117,13 @@
       display: table-cell;
       width: 1px;
       white-space: nowrap;
-      background: #121212;
+      background: var(--bg-ex-dark);
       border-radius: 5px;
     }
 
         .ex-header-button-dark {
           background-color: transparent;
-          color: lightgray;
+          color: var(--cl-ex-dark);
           height: 30px;
           border-radius: 15px;
           margin-right: 3px;
@@ -129,8 +141,8 @@
     }
 
         .ex-header-title-dark {
-          background: #121212;
-          color: lightgray;
+          background: var(--bg-ex-dark);
+          color: var(--cl-ex-dark);
           vertical-align: middle;
           height: 30px;
           border: 0px;
@@ -147,14 +159,14 @@
 
         .ex-header-options-label-dark {
           margin: 0px 8px 0px 0px;
-          color: lightgray;
+          color: var(--cl-ex-dark);
           vertical-align: middle !important;
           display: inline-block;
           white-space: nowrap;
         }
 
         .ex-header-options-checkbox-dark {
-          color: lightgray;
+          color: var(--cl-ex-dark);
           margin: 0px 3px 0px 0px !important;
           vertical-align: middle !important;
         }

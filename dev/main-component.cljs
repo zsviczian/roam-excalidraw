@@ -141,7 +141,11 @@
         ;(debug ["(get-data-from-block-string) returning: " retrun-string])
         (edn/read-string return-string)))))
 
-(defn create-nested-blocks [block-uid drawing empty-block-uid]
+(defn create-nested-blocks [block-uid drawing empty-block-uid] 
+;;block uid is the block of the roam/render component
+;;empty block is the block created by the user by trying to nest text under 
+;;a new drawing that hasn't been edited yet (i.e. the data and title children
+;;are missing)
   (debug ["(create-nested-blocks)"])
   (let [default-data {:appState {:name "Untitled drawing"
                                        :appearance (:mode @app-settings)}}]
@@ -154,7 +158,11 @@
                                          empty-block-uid)}})
     (if (nil? empty-block-uid) (block/update {:block {:uid block-uid :open false}}))))
 
-(defn load-drawing [block-uid drawing data text] ;drawing is the atom holding the drawing map
+(defn load-drawing [block-uid drawing data text] 
+;drawing is the atom holding the drawing map
+;block uid is the block with the roam/render component
+;data are the drawing objects
+;text are the nested text blocks
   (debug ["(load-drawing) enter"])
   (if (= (count data) 0)
       (do

@@ -253,6 +253,7 @@
 (defn going-full-screen? [x cs style]
   (if (= x true)
     (do
+      (load-settings)
       (.fullScreenKeyboardEventRedirect js/window.ExcalidrawWrapper true)
       (swap! cs assoc-in [:position] full-screen-view)
       (swap! style assoc-in [:host-div] (host-div-style cs)))

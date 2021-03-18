@@ -419,7 +419,7 @@
                                                           (debug ["(main) input.ex-header-title update x:" x])
                                                             (assoc-in 
                                                             x 
-                                                            [:appState :name] (get-in @drawing [:title :text]))))))
+                                                            [:appState :name] (get-in @drawing [:title :text])))))
                                                     )}]]
                                   (if (is-full-screen cs)
                                       [:span {:class (get-style "ex-header-options-wrapper")}

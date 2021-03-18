@@ -1,4 +1,4 @@
-(ns excalidraw.app.alpha.v17
+(ns excalidraw.app.beta.v02
   (:require 
    [clojure.set :as s]
    [reagent.core :as r]

@@ -92,12 +92,15 @@
                                          [(clojure.string/starts-with? ?s "{{roam/render: ((ExcalDATA)) ")]
                                          [?c :block/uid ?drawing-uid]]
                                 block-uid)
-        render-string (str/join ["{{roam/render: ((ExcalDATA)) " (fix-double-bracket map-string) " }}"])]
+        edn-map (edn/read-string map-string)
+        app-state (into {} (filter (comp some? val) (:appState edn-map))) ;;remove nil elements from appState
+        out-string (fix-double-bracket (str (assoc-in edn-map [:appState] app-state)))
+        render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
     ;(debug  ["(save-component)  data-string: " render-string])
     (block/update
       {:block {:uid drawing-block-uid
                :string render-string}})               
-    (swap! app-settings assoc-in [:mode] (get-in (edn/read-string map-string) [:appState :appearance]))
+    (swap! app-settings assoc-in [:mode] (get-in app-state [:appearance]))
     (save-settings)))
 
 (defn load-settings []
@@ -409,17 +412,14 @@
                                                       {:block {:uid (get-in @drawing [:title :block-uid])
                                                               :string (get-in @drawing [:title :text])}})
                                                     (if (is-full-screen cs)
-;                                                      (do
-;                                                        (let [x (edn/read-string
-;                                                                  (js-to-clj-str
-;                                                                  (get-drawing ew)))]
-;                                                          (debug ["(main) input.ex-header-title update x:" x])
-                                                          (update-scene 
-                                                            ew 
-                                                            {:appState {:name (.. e -target -value)}}))
-;                                                            (assoc-in 
-;                                                            x 
-;                                                            [:appState :name] (get-in @drawing [:title :text]))))))
+                                                      (do
+                                                        (let [x (edn/read-string
+                                                                  (js-to-clj-str
+                                                                  (get-drawing ew)))]
+                                                          (debug ["(main) input.ex-header-title update x:" x])
+                                                            (assoc-in 
+                                                            x 
+                                                            [:appState :name] (get-in @drawing [:title :text]))))))
                                                     )}]]
                                   (if (is-full-screen cs)
                                       [:span {:class (get-style "ex-header-options-wrapper")}

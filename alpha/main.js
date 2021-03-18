@@ -1,5 +1,4 @@
 function myKeyboardListner(ev) {
-  console.log(ev);
   if (ev.ctrlKey && (ev.code=='z' || ev.key=='z') ) 
     ev.preventDefault();
 }
@@ -86,11 +85,11 @@ window['ExcalidrawWrapper'] = class {
   static fullScreenKeyboardEventRedirect(isFullScreen) {
     if (isFullScreen) {
       document.addEventListener('keydown',myKeyboardListner);
-      console.log("keyboard listener added");
+      if (ExcalidrawConfig.DEBUG) console.log("keyboard listener added");
     }
     else {
       document.removeEventListener('keydown',myKeyboardListner);
-      console.log("keyboard listner removed");
+      if (ExcalidrawConfig.DEBUG) console.log("keyboard listner removed");
     }
   }
  

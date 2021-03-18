@@ -1,4 +1,4 @@
-(ns excalidraw.app.alpha.v16
+(ns excalidraw.app.alpha.v17
   (:require 
    [clojure.set :as s]
    [reagent.core :as r]
@@ -16,7 +16,7 @@
                            :img  "SVG"
                            :full-screen-margin 0.015
                            :max-embed-width 600
-                           :max-embed-height 600})
+                           :max-embed-height 400})
 (def app-settings (r/atom default-app-settings))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -92,12 +92,15 @@
                                          [(clojure.string/starts-with? ?s "{{roam/render: ((ExcalDATA)) ")]
                                          [?c :block/uid ?drawing-uid]]
                                 block-uid)
-        render-string (str/join ["{{roam/render: ((ExcalDATA)) " (fix-double-bracket map-string) " }}"])]
+        edn-map (edn/read-string map-string)
+        app-state (into {} (filter (comp some? val) (:appState edn-map))) ;;remove nil elements from appState
+        out-string (fix-double-bracket (str (assoc-in edn-map [:appState] app-state)))
+        render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
     ;(debug  ["(save-component)  data-string: " render-string])
     (block/update
       {:block {:uid drawing-block-uid
                :string render-string}})               
-    (swap! app-settings assoc-in [:mode] (get-in (edn/read-string map-string) [:appState :appearance]))
+    (swap! app-settings assoc-in [:mode] (get-in app-state [:appearance]))
     (save-settings)))
 
 (defn load-settings []
@@ -138,7 +141,11 @@
         ;(debug ["(get-data-from-block-string) returning: " retrun-string])
         (edn/read-string return-string)))))
 
-(defn create-nested-blocks [block-uid drawing empty-block-uid]
+(defn create-nested-blocks [block-uid drawing empty-block-uid] 
+;;block uid is the block of the roam/render component
+;;empty block is the block created by the user by trying to nest text under 
+;;a new drawing that hasn't been edited yet (i.e. the data and title children
+;;are missing)
   (debug ["(create-nested-blocks)"])
   (let [default-data {:appState {:name "Untitled drawing"
                                        :appearance (:mode @app-settings)}}]
@@ -151,7 +158,11 @@
                                          empty-block-uid)}})
     (if (nil? empty-block-uid) (block/update {:block {:uid block-uid :open false}}))))
 
-(defn load-drawing [block-uid drawing data text] ;drawing is the atom holding the drawing map
+(defn load-drawing [block-uid drawing data text] 
+;drawing is the atom holding the drawing map
+;block uid is the block with the roam/render component
+;data are the drawing objects
+;text are the nested text blocks
   (debug ["(load-drawing) enter"])
   (if (= (count data) 0)
       (do
@@ -250,6 +261,7 @@
 (defn going-full-screen? [x cs style]
   (if (= x true)
     (do
+      (load-settings)
       (.fullScreenKeyboardEventRedirect js/window.ExcalidrawWrapper true)
       (swap! cs assoc-in [:position] full-screen-view)
       (swap! style assoc-in [:host-div] (host-div-style cs)))
@@ -414,11 +426,9 @@
                                                                   (js-to-clj-str
                                                                   (get-drawing ew)))]
                                                           (debug ["(main) input.ex-header-title update x:" x])
-                                                          (update-scene 
-                                                            ew 
                                                             (assoc-in 
                                                             x 
-                                                            [:appState :name] (get-in @drawing [:title :text]))))))
+                                                            [:appState :name] (get-in @drawing [:title :text])))))
                                                     )}]]
                                   (if (is-full-screen cs)
                                       [:span {:class (get-style "ex-header-options-wrapper")}

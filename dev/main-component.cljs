@@ -16,7 +16,7 @@
                            :img  "SVG"
                            :full-screen-margin 0.015
                            :max-embed-width 600
-                           :max-embed-height 600})
+                           :max-embed-height 400})
 (def app-settings (r/atom default-app-settings))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

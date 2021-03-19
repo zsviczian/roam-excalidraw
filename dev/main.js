@@ -140,6 +140,7 @@ window['ExcalidrawWrapper'] = class {
         if (clipboardText.startsWith('<svg version')) {
           clipboardText = clipboardText.replaceAll('"','\'');
           clipboardText = clipboardText.replaceAll('\n','');
+          if(ExcalidrawConfig.DEBUG) console.log ("setClipbloard", clipboardText);
           await navigator.clipboard.writeText('{{roam/render: ((ExcalSVG_)) "' + clipboardText +'"}}');
         }
       }, 1000);

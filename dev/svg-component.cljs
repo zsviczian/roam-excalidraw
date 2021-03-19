@@ -78,7 +78,8 @@
   (if (= @deps-available false)
     [:div "Libraries have not yet loaded. Please refresh the block in a moment."]
     (fn []
-      (let [cs (r/atom {:tdn nil}) ;this-dom-node
+      (let [cs (r/atom {:tdn nil ;this-dom-node
+                        :aspect-ratio nil}) 
             style (r/atom {})
             app-name (str/join ["excalidraw-svg-" block-uid])] 
         (r/create-class 
@@ -87,7 +88,7 @@
                                   (load-settings)
                                   (swap! cs assoc-in [:tdn] (r/dom-node this))
                                   (reset! style (host-div-style cs))
-                                  (.setSVG js/ExcalidrawWrapper (:tdn @cs) (first args) app-name))
+                                  (swap! cs assoc-in [:aspect-ratio] (.setSVG js/ExcalidrawWrapper (:tdn @cs) (first args) app-name)))
           :reagent-render (fn [{:keys [block-uid]} & args] 
                             [:div {:style @style}
                               [:div {:id app-name} ]]

@@ -30,10 +30,9 @@ window.ExcalidrawLoader = {
     return blockUID;
   },
 
-  getBlockUIDByStringANDOrder (pageUID, order, blockString) {
+  getBlockUIDByString (pageUID, blockString) {
     q = `[:find ?uid . :where [?p :block/uid "${pageUID}"]
                             [?p :block/children ?b]
-                            [?b :block/order ${order}]
                             [?b :block/string ?s]
                             [(= ?s "${blockString}")]
                             [?b :block/uid ?uid]]`;
@@ -41,7 +40,7 @@ window.ExcalidrawLoader = {
   },
 
   getORcreateBlockBYString (pageUID, order, blockString) {
-    uid = this.getBlockUIDByStringANDOrder (pageUID, order, blockString);
+    uid = this.getBlockUIDByString (pageUID, blockString);
     if (uid == null)
       uid = this.createBlock(pageUID,order, blockString);
     return uid;

@@ -88,7 +88,7 @@ window.ExcalidrawLoader = {
 
     this.createBlockIfNotExists (mainComponentParentUID, this.sketchingUID, '');
     this.createBlockIfNotExists (dataComponentParentUID, this.excalDATAUID, '');
-    this.createBlockIfNotExists (this.svgComponentParentUID, this.excalSVGUID,'');
+    this.createBlockIfNotExists (svgComponentParentUID, this.excalSVGUID,'');
     if(!this.blockExists(this.settingsUID)) 
       this.createBlockWithUID (settingsComponentParentUID,0,this.defaultSetting,this.settingsUID);
 
@@ -151,18 +151,22 @@ function loadExcalidrawCljs() {
   ExcalidrawLoader.buildPage();
   tripple_accent = String.fromCharCode(96,96,96);
   ExcalidrawConfig.log('cljs-loader.js','loadExcalidrawCljs()','updateCodeBlock');
+  
+  //update main-component
   ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.sketchingUID,tripple_accent + 
                   'clojure\n' + 
                   ExcalidrawConfig.mainComponent +
                   tripple_accent);
   delete ExcalidrawConfig.mainComponent;
 
+  //update data-component
   ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalDATAUID,tripple_accent + 
                   'clojure\n' + 
                   ExcalidrawConfig.dataComponent +
                   tripple_accent);
   delete ExcalidrawConfig.dataComponent;
 
+  //update svg-component
   ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalSVGUID,tripple_accent + 
                                     'clojure\n' + 
                                     ExcalidrawConfig.svgComponent +

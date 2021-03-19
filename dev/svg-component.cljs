@@ -54,7 +54,7 @@
             (* ar embed-height)))
       h (if (nil? ar @cs) "100%" 
           (if (> ar 1.0) "100%" 
-            (+ embed-height (:header-height @cs) )))]
+            embed-height ))]
     {:position "relative"
      :width w
      :height h
@@ -87,8 +87,8 @@
           :component-did-mount (fn [this]
                                   (load-settings)
                                   (swap! cs assoc-in [:tdn] (r/dom-node this))
-                                  (reset! style (host-div-style cs))
-                                  (swap! cs assoc-in [:aspect-ratio] (.setSVG js/ExcalidrawWrapper (:tdn @cs) (first args) app-name)))
+                                  (swap! cs assoc-in [:aspect-ratio] (.setSVG js/ExcalidrawWrapper (:tdn @cs) (first args) app-name))
+                                  (reset! style (host-div-style cs)))
           :reagent-render (fn [{:keys [block-uid]} & args] 
                             [:div {:style @style}
                               [:div {:id app-name} ]]

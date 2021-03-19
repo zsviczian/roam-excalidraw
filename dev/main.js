@@ -132,6 +132,15 @@ window['ExcalidrawWrapper'] = class {
     return w/h;
   }
 
+  static svgClipboard() {
+    let clipboardText = navigator.clipboard.readText();
+    if (clipboardText.startsWith('<svg version')) {
+      clipboardText = clipboardText.replace('"','\'');
+      clipboardText = clipboardText.replace('\n','');
+      navigator.clipboard.writeText('{{roam/render: ((ExcalSVG_)) "' + clipboardText +'"}}');
+    }
+  }
+
   static setSVG(node,svgString,appName) {
     const hostDIV = node.querySelector('#'+appName);
     hostDIV.innerHTML = svgString;

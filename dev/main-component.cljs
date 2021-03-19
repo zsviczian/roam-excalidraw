@@ -386,6 +386,7 @@
                                       :on-click (fn [e]
                                                   (if (is-full-screen cs)
                                                     (do (clear-checkboxes)
+                                                      (.svgClipboard js/ExcalidrawWrapper)
                                                       (save-component block-uid (js-to-clj-str (get-drawing ew)))
                                                       (swap! cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
                                                       (going-full-screen? false cs style)) 
@@ -405,6 +406,7 @@
                                       :draggable true
                                       :on-click (fn [e]
                                                   (clear-checkboxes)
+                                                  (.svgClipboard js/ExcalidrawWrapper)
                                                   (debug ["(main) Cancel :on-click"])
                                                   (save-component block-uid (str @drawing-before-edit))
                                                   (swap! cs assoc-in [:aspect-ratio] (get-embed-image @drawing-before-edit (:this-dom-node @cs) app-name))

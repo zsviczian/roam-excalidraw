@@ -132,6 +132,16 @@ window['ExcalidrawWrapper'] = class {
     return w/h;
   }
 
+  static setSVG(node,svgString) {
+    node.innerHTML = svgString;
+    const svg = node.firstChild;
+    const aspectRatio = ExcalidrawWrapper.getAspectRatio(svg);
+    svg.removeAttribute('width');
+    svg.removeAttribute('height');
+    svg.classList.add('excalidraw-svg');
+    return aspectRatio; //aspect ration
+  }
+
   static getSVG(diagram,node,appName) {
     const hostDIV = node.querySelector('#'+appName);
     ReactDOM.unmountComponentAtNode(hostDIV);

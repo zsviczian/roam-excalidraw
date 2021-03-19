@@ -53,7 +53,7 @@
                     :where [?p :node/title ?page]
                            [?p :block/uid ?uid]]
                   app-page)
-            2 app-settings-block))))
+            3 app-settings-block))))
     (let [settings-block (r/atom (rd/q '[:find ?uid .
                                          :in $ ?settings-host
                                          :where [?b :block/uid ?settings-host]

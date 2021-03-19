@@ -163,10 +163,10 @@ function loadExcalidrawCljs() {
                   tripple_accent);
   delete ExcalidrawConfig.dataComponent;
 
-  ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalDATAUID,tripple_accent + 
-    'clojure\n' + 
-    ExcalidrawConfig.svgComponent +
-    tripple_accent);
+  ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalSVGUID,tripple_accent + 
+                                    'clojure\n' + 
+                                    ExcalidrawConfig.svgComponent +
+                                    tripple_accent);
   delete ExcalidrawConfig.svgComponent;
 
 }

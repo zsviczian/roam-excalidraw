@@ -8,7 +8,7 @@ window.ExcalidrawLoader = {
   dataComponentParent : 'Data Block Component',
   svgComponentParent : 'SVG Component',
   settingsComponentParent : 'Settings', 
-  defaultSetting: '{:mode "light", :img "SVG"}',
+  defaultSetting: '{\n:mode "light"\n:img "SVG"\n:max-embed-width 600\n:max-embed-height 400\n:full-screen-margin 0.015\n}',
 
   updateCodeBlock(blockUID, sourceCode) {
     window.roamAlphaAPI.updateBlock({"block": 

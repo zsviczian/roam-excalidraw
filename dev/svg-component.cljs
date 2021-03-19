@@ -57,20 +57,34 @@
      :resize "both"
      :overflow "hidden"}))
 
+;;state to capture when callback confirms React libraries have loaded
+(def deps-available (r/atom false))
+
+(defn check-js-dependencies []
+  (if (and (not= (str (type js/ExcalidrawWrapper)) "")
+       (not= (str (type js/ExcalidrawConfig)) ""))
+    (reset! deps-available true)
+    (js/setTimeout check-js-dependencies 1000)
+  ))
+
+
 (defn main [{:keys [block-uid]} & args]
-  (fn []
-    (let [cs (r/atom {:tdn nil}) ;this-dom-node
-          style (r/atom {})
-          app-name (str/join ["excalidraw-svg-" block-uid])] 
-      (r/create-class 
-       { :display-name "debug name" 
-         :component-did-mount (fn [this]
-                                (load-settings)
-                                (swap! cs assoc-in [:tdn] (r/dom-node this))
-                                (reset! style (host-div-style cs))
-                                (.setSVG js/ExcalidrawWrapper (:tdn @cs) (first args) app-name))
-         :reagent-render (fn [{:keys [block-uid]} & args] 
-                           [:div {:style @style}
-                            [:div {:id app-name} ]]
-                           )}))))
+  (check-js-dependencies)
+  (if (= @deps-available false)
+    [:div "Libraries have not yet loaded. Please refresh the block in a moment."]
+    (fn []
+      (let [cs (r/atom {:tdn nil}) ;this-dom-node
+            style (r/atom {})
+            app-name (str/join ["excalidraw-svg-" block-uid])] 
+        (r/create-class 
+        { :display-name "debug name" 
+          :component-did-mount (fn [this]
+                                  (load-settings)
+                                  (swap! cs assoc-in [:tdn] (r/dom-node this))
+                                  (reset! style (host-div-style cs))
+                                  (.setSVG js/ExcalidrawWrapper (:tdn @cs) (first args) app-name))
+          :reagent-render (fn [{:keys [block-uid]} & args] 
+                            [:div {:style @style}
+                              [:div {:id app-name} ]]
+                            )}))))
 

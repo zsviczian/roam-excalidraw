@@ -7,6 +7,7 @@ if (typeof window.ExcalidrawWrapper == 'undefined') {
     DEBUG : true,
     sketchingUID : 'sketching',
     excalDATAUID : 'ExcalDATA',
+    excalSVGUID  : 'ExcalSVG_',
     settingsUID  : 'ExcalSET_',
     log (...args) {console.log("<<< Roam-Excalidraw loader >>> ",...args)},
   }
@@ -43,7 +44,7 @@ if (typeof window.ExcalidrawWrapper == 'undefined') {
     ExcalidrawConfig.log('loader.js','rootPath:',ExcalidrawConfig.rootPath,'channel:',ExcalidrawConfig.channel,'debug?',ExcalidrawConfig.DEBUG);
       if (getClojureNS(ExcalidrawConfig.sketchingUID) != ExcalidrawConfig.cljCodeVersion) {
         ExcalidrawConfig.log('loader.js','Need to update CLJS script. Starting roam-excalidraw-cljs-loader');
-        ExcalidrawConfig.addScriptToPage( 'roam-excalidraw-cljs-loader',  ExcalidrawConfig.rootPath + 'get.php?c='+ExcalidrawConfig.channel);
+        ExcalidrawConfig.addScriptToPage( 'roam-excalidraw-cljs-loader',  ExcalidrawConfig.rootPath + 'get_dev.php?c='+ExcalidrawConfig.channel);
       }
       else {
         ExcalidrawConfig.log('loader.js','cljs NS is up to date');

@@ -1,0 +1,76 @@
+(ns excalidraw.svg.v01
+  (:require
+   [reagent.core :as r]
+   [clojure.string :as str]
+   [roam.datascript :as rd]
+   [clojure.edn :as edn]))
+
+(def app-page "roam/excalidraw")
+(def app-settings-block "Settings")
+(def app-setting-uid "Excal_SET")
+(def default-app-settings {:mode "light"
+                           :img  "SVG"
+                           :full-screen-margin 0.015
+                           :max-embed-width 600
+                           :max-embed-height 400})
+(def app-settings (r/atom default-app-settings))
+
+(defn load-settings []
+  (let [settings-block (rd/q '[:find ?settings .
+                              :in $ ?page ?block
+                              :where [?p :node/title ?page]
+                                     [?p :block/children ?b]
+                                     [?b :block/string ?block]
+                                     [?b :block/children ?c]
+                                     [?c :block/order 0]
+                                     [?c :block/string ?settings]]
+                            app-page app-settings-block)]
+    (if-not (nil? settings-block)
+      (do 
+        (reset! app-settings (edn/read-string settings-block))
+        (if (nil? @app-settings)
+          (reset! app-settings default-app-settings))
+        (doseq [key (keys default-app-settings)]
+          (if (nil? (key @app-settings))
+            (swap! app-settings assoc-in [key] (key default-app-settings))))))))
+
+(defn host-div-style [cs]
+  (let [host-div-width (if (nil? (:tdn @cs)) (:max-embed-width @app-settings)
+                       (-> (:tdn @cs)  
+                         (.-parentElement)
+                         (.-parentElement)
+                         (.-parentElement)
+                         (.-clientWidth)))
+      embed-width (if (> host-div-width (:max-embed-width @app-settings)) 
+                    (:max-embed-width @app-settings) host-div-width)
+      embed-height (* (:max-embed-height @app-settings) (/ embed-width (:max-embed-width @app-settings)))
+      ar (:aspect-ratio @cs)
+      w (if (nil? ar) embed-width 
+          (if (> ar 1.0) embed-width
+            (* ar embed-height)))
+      h (if (nil? ar @cs) "100%" 
+          (if (> ar 1.0) "100%" 
+            (+ embed-height (:header-height @cs) )))]
+    {:position "relative"
+     :width w
+     :height h
+     :resize "both"
+     :overflow "hidden"}))
+
+(defn main [{:keys [block-uid]} & args]
+  (fn []
+    (let [cs (r/atom {:tdn nil}) ;this-dom-node
+          style (r/atom {})
+          app-name (str/join ["excalidraw-svg-" block-uid])] 
+      (r/create-class 
+       { :display-name "debug name" 
+         :component-did-mount (fn [this]
+                                (load-settings)
+                                (swap! cs assoc-in [:tdn] (r/dom-node this))
+                                (reset! style (host-div-style cs))
+                                (.setSVG js/ExcalidrawWrapper (:tdn @cs) (first args) app-name))
+         :reagent-render (fn [{:keys [block-uid]} & args] 
+                           [:div {:style @style}
+                            [:div {:id app-name} ]]
+                           )}))))
+

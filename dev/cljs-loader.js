@@ -1,10 +1,12 @@
 window.ExcalidrawLoader = {
   sketchingUID : ExcalidrawConfig.sketchingUID,
   excalDATAUID : ExcalidrawConfig.excalDATAUID,
+  excalSVGUID  : ExcalidrawConfig.excalSVGUID,
   settingsUID  : ExcalidrawConfig.settingsUID,
   pageTitle : 'roam/excalidraw',
   mainComponentParent : 'Main Component',
   dataComponentParent : 'Data Block Component',
+  svgComponentParent : 'SVG Component',
   settingsComponentParent : 'Settings', 
   defaultSetting: '{:mode "light", :img "SVG"}',
 
@@ -81,10 +83,12 @@ window.ExcalidrawLoader = {
 
     mainComponentParentUID = this.getORcreateBlockBYString (pageUID,0,this.mainComponentParent);
     dataComponentParentUID = this.getORcreateBlockBYString (pageUID,1,this.dataComponentParent);
-    settingsComponentParentUID = this.getORcreateBlockBYString (pageUID,2,this.settingsComponentParent);
+    svgComponentparentUID  = this.getORcreateBlockBYString (pageUID,2,this.svgComponentParent);
+    settingsComponentParentUID = this.getORcreateBlockBYString (pageUID,3,this.settingsComponentParent);
 
     this.createBlockIfNotExists (mainComponentParentUID, this.sketchingUID, '');
     this.createBlockIfNotExists (dataComponentParentUID, this.excalDATAUID, '');
+    this.createBlockIfNotExists (this.svgComponentparentUID, this.excalSVGUID,'');
     if(!this.blockExists(this.settingsUID)) 
       this.createBlockWithUID (settingsComponentParentUID,0,this.defaultSetting,this.settingsUID);
 
@@ -98,11 +102,21 @@ window.ExcalidrawLoader = {
                                       {"parent-uid": dataComponentParentUID, 
                                     "order": 0}, 
                                       "block": {"uid": this.excalDATAUID}});
+
+    if(!isParent(this.excalSVGUID,this.svgComponentParent))                                    
+    window.roamAlphaAPI.moveBlock({"location":
+                                    {"parent-uid": svgComponentParentUID, 
+                                  "order": 0}, 
+                                    "block": {"uid": this.excalSVGUID}});
+                                
     
     window.roamAlphaAPI.updateBlock({"block": {"uid": mainComponentParentUID,
                                                "open": false}});
     window.roamAlphaAPI.updateBlock({"block": {"uid": dataComponentParentUID,
                                                "open": false}});
+    window.roamAlphaAPI.updateBlock({"block": {"uid": svgComponentParentUID,
+    "open": false}});
+
     
     //create template
     if (firstEverRun) {

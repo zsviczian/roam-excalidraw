@@ -5,6 +5,10 @@
    [roam.datascript :as rd]
    [clojure.edn :as edn]))
 
+(def silent (r/atom true))
+(defn debug [x]
+  (if-not @silent (apply (.-log js/console) "<<< Roam-Excalidraw SVG cljs >>>" x)))
+
 (def app-page "roam/excalidraw")
 (def app-settings-block "Settings")
 (def app-setting-uid "Excal_SET")
@@ -63,7 +67,8 @@
 (defn check-js-dependencies []
   (if (and (not= (str (type js/ExcalidrawWrapper)) "")
        (not= (str (type js/ExcalidrawConfig)) ""))
-    (reset! deps-available true)
+    (do (reset! silent (not (.-DEBUG js/ExcalidrawConfig)))
+      (reset! deps-available true))
     (js/setTimeout check-js-dependencies 1000)
   ))
 
@@ -86,5 +91,5 @@
           :reagent-render (fn [{:keys [block-uid]} & args] 
                             [:div {:style @style}
                               [:div {:id app-name} ]]
-                            )}))))
+                            )})))))
 

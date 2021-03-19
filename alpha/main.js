@@ -132,6 +132,33 @@ window['ExcalidrawWrapper'] = class {
     return w/h;
   }
 
+  static svgClipboard() {
+    setTimeout (
+      async function() {
+        let clipboardText = await navigator.clipboard.readText();
+        if(ExcalidrawConfig.DEBUG) console.log ("setClipbloard", clipboardText);
+        if (clipboardText.startsWith('<svg version')) {
+          clipboardText = clipboardText.replaceAll('"','\'');
+          clipboardText = clipboardText.replace(/(\n\s*)/gs,'');
+          clipboardText = clipboardText.replace(/(\r\n|\n|\r)/gm,'');
+          if(ExcalidrawConfig.DEBUG) console.log ("setClipbloard", clipboardText);
+          await navigator.clipboard.writeText('{{roam/render: ((ExcalSVG_)) "' + clipboardText +'"}}');
+        }
+      }, 1000);
+  }
+
+  static setSVG(node,svgString,appName) {
+    const hostDIV = node.querySelector('#'+appName);
+    hostDIV.innerHTML = svgString;
+    const svg = hostDIV.firstChild;
+    const aspectRatio = ExcalidrawWrapper.getAspectRatio(svg);
+    ExcalidrawWrapper.setImgEventListner(node, svg, appName);
+    svg.removeAttribute('width');
+    svg.removeAttribute('height');
+    svg.classList.add('excalidraw-svg');
+    return aspectRatio; //aspect ration
+  }
+
   static getSVG(diagram,node,appName) {
     const hostDIV = node.querySelector('#'+appName);
     ReactDOM.unmountComponentAtNode(hostDIV);

@@ -1,4 +1,4 @@
-(ns excalidraw.app.beta.v02
+(ns excalidraw.app.alpha.v18
   (:require 
    [clojure.set :as s]
    [reagent.core :as r]
@@ -53,7 +53,7 @@
                     :where [?p :node/title ?page]
                            [?p :block/uid ?uid]]
                   app-page)
-            2 app-settings-block))))
+            3 app-settings-block))))
     (let [settings-block (r/atom (rd/q '[:find ?uid .
                                          :in $ ?settings-host
                                          :where [?b :block/uid ?settings-host]
@@ -279,7 +279,8 @@
        (not= (str (type js/Excalidraw)) "")
        (not= (str (type js/ReactDOM)) "")
        (not= (str (type js/React)) "")
-       (not= (str (type js/ExcalidrawConfig)) ""))
+       (not= (str (type js/ExcalidrawConfig)) "")
+       (not= (str (type js/ExcalidrawWrapper)) ""))
     (do (reset! silent (not (.-DEBUG js/ExcalidrawConfig)))
       (reset! deps-available true))
     (js/setTimeout check-js-dependencies 1000)
@@ -385,6 +386,7 @@
                                       :on-click (fn [e]
                                                   (if (is-full-screen cs)
                                                     (do (clear-checkboxes)
+                                                      (.svgClipboard js/ExcalidrawWrapper)
                                                       (save-component block-uid (js-to-clj-str (get-drawing ew)))
                                                       (swap! cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
                                                       (going-full-screen? false cs style)) 
@@ -404,6 +406,7 @@
                                       :draggable true
                                       :on-click (fn [e]
                                                   (clear-checkboxes)
+                                                  (.svgClipboard js/ExcalidrawWrapper)
                                                   (debug ["(main) Cancel :on-click"])
                                                   (save-component block-uid (str @drawing-before-edit))
                                                   (swap! cs assoc-in [:aspect-ratio] (get-embed-image @drawing-before-edit (:this-dom-node @cs) app-name))

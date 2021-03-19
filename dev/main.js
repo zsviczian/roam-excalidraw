@@ -133,7 +133,8 @@ window['ExcalidrawWrapper'] = class {
   }
 
   static setSVG(node,svgString,appName) {
-    node.innerHTML = svgString;
+    const hostDIV = node.querySelector('#'+appName);
+    hostDIV.innerHTML = svgString;
     const svg = node.firstChild;
     const aspectRatio = ExcalidrawWrapper.getAspectRatio(svg);
     ExcalidrawWrapper.setImgEventListner(node, svg, appName);

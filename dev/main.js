@@ -133,12 +133,14 @@ window['ExcalidrawWrapper'] = class {
   }
 
   static svgClipboard() {
-    let clipboardText = navigator.clipboard.readText();
-    if (clipboardText.startsWith('<svg version')) {
-      clipboardText = clipboardText.replace('"','\'');
-      clipboardText = clipboardText.replace('\n','');
-      navigator.clipboard.writeText('{{roam/render: ((ExcalSVG_)) "' + clipboardText +'"}}');
-    }
+    (async () => {
+      let clipboardText = await navigator.clipboard.readText();
+      if (clipboardText.startsWith('<svg version')) {
+        clipboardText = clipboardText.replace('"','\'');
+        clipboardText = clipboardText.replace('\n','');
+        await navigator.clipboard.writeText('{{roam/render: ((ExcalSVG_)) "' + clipboardText +'"}}');
+      }
+    })();
   }
 
   static setSVG(node,svgString,appName) {

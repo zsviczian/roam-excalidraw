@@ -243,7 +243,8 @@
 ;;are missing)
   (debug ["(create-nested-blocks)"])
   (let [default-data {:appState {:name "Untitled drawing"
-                                       :appearance (:mode @app-settings)}}]
+                                       :appearance (:mode @app-settings)}
+                      :roamExcalidraw {:version 1}}]
     (create-block (:block-uid x) 0 (str/join ["{{roam/render: ((ExcalDATA)) "
                                 (str default-data) " }}"]))
     (reset! (:drawing x) {:drawing default-data 
@@ -266,7 +267,8 @@
       (do
         (debug ["(load-drawing) no children - creating dummy data"])
         (let [default-data {:appState {:name "Untitled drawing"
-                                       :appearance (:mode @app-settings)}}]
+                                       :appearance (:mode @app-settings)}
+                            :roamExcalidraw {:version 1}}]
           (reset! (:drawing x) {:drawing default-data 
                             :title {:text "Untitled drawing"
                                     :block-uid nil}})

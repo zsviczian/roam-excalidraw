@@ -114,7 +114,7 @@ window['ExcalidrawWrapper'] = class {
     const baseline = span.offsetTop + span.offsetHeight;
     document.body.removeChild(line);
   
-    return { width, height, baseline };
+    return {width: width, height: height, baseline: baseline };
   };
 
   //this is a workaround because Roam catches some of the keys (e.g. CTRL+Z) before 

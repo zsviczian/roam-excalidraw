@@ -142,7 +142,7 @@ window['ExcalidrawWrapper'] = class {
           clipboardText = clipboardText.replace(/(\n\s*)/gs,'');
           clipboardText = clipboardText.replace(/(\r\n|\n|\r)/gm,'');
           if(ExcalidrawConfig.DEBUG) console.log ("setClipbloard", clipboardText);
-          await navigator.clipboard.writeText('{{roam/render: ((ExcalSVG_)) "' + clipboardText +'"}}');
+          await navigator.clipboard.writeText('{{roam/render: ((ExcalSVG_)) "' + clipboardText +'"}}\n');
         }
       }, 1000);
   }

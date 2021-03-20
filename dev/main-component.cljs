@@ -311,12 +311,11 @@
         ;;update elements on drawing based on changes to nested text
         (doseq [y (get-text-elements (:elements x))]
           (let [block-uid (get-block-uid-from-text-element y)
-                block-text (:block/string (first (filter (comp #{block-uid} :block/uid) (:nested-text x))))
-                text-measures (js->clj (.measureText js/ExcalidrawWrapper block-text y))]
+                block-text (:block/string (first (filter (comp #{block-uid} :block/uid) (:nested-text x))))]
             (if (or
                   (not (= 0 (count (filter (comp #{block-uid} :block/uid) (:nested-text x))))) ;;remove item is nested block is deleted
                   (< (get-in x [:roamExcalidraw :version]) 1)) ;;to prevent text being deleted from drawings saved with the earlier version
-              (do
+              (text-measures (js->clj (.measureText js/ExcalidrawWrapper block-text y))
                 (if-not (= block-text (:text y))  
                   (reset! text-elements 
                             (conj @text-elements 

@@ -165,7 +165,7 @@
 ;data are the drawing objects
 ;text are the nested text blocks
   (debug ["(load-drawing) enter"])
-  (if (= (count data) 0)
+  (if (= (count (:data x)) 0)
       (do
         (debug ["(load-drawing) no children - creating dummy data"])
         (let [default-data {:appState {:name "Untitled drawing"

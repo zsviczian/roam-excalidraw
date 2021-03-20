@@ -202,7 +202,6 @@ window['ExcalidrawWrapper'] = class {
     while (hostDIV.firstChild) {
       hostDIV.removeChild(hostDIV.lastChild);
     }
-
   }
 
   static getSVG(diagram,node,appName) {

@@ -280,29 +280,33 @@
 
 ;;check if text in nested block has changed compared to drawing and updated text in drawing element including size
 (defn update-drawing-based-on-nested-blocks [x] ;{:elements [] :appState {} :nested-text [:block/uid "BlockUID" :block/string "text"]}
-  (let [text-elements (r/atom nil)]
-    (doseq [y (get-text-elements (:elements x))]
-      (let [block-uid (get-block-uid-from-text-element y)
-            block-text (first (filter (comp #{block-uid} :block/uid) (:nested-text x)))
-            text-measures (.measureText js/ExcalidrawWrapper block-text y)]
-        (if-not (= block-text (:text y))  
-          (reset! text-elements 
-                    (conj @text-elements 
-                            (-> y 
-                              (assoc-in [:text] block-text)
-                              (assoc-in [:baseline] (:baseline text-measures))
-                              (assoc-in [:width] (:width text-measures))
-                              (assoc-in [:height] (:height text-measures)))))
-          (reset! text-elements (conj @text-elements y))
-    )))
-    {:elements (update-elements-with-parts {:raw-elements (:elements x) :text-elements @text-elements})
-     :appState (:appState x)}
+  (if-not (nil? (:nested-text x)) 
+    (do
+      (let [text-elements (r/atom nil)]
+        (doseq [y (get-text-elements (:elements x))]
+          (let [block-uid (get-block-uid-from-text-element y)
+                block-text (:block/string (first (filter (comp #{block-uid} :block/uid) (:nested-text x))))
+                text-measures (.measureText js/ExcalidrawWrapper block-text y)]
+            (if-not (= block-text (:text y))  
+              (reset! text-elements 
+                        (conj @text-elements 
+                                (-> y 
+                                  (assoc-in [:text] block-text)
+                                  (assoc-in [:baseline] (:baseline text-measures))
+                                  (assoc-in [:width] (:width text-measures))
+                                  (assoc-in [:height] (:height text-measures)))))
+              (reset! text-elements (conj @text-elements y))
+        )))
+        {:elements (update-elements-with-parts {:raw-elements (:elements x) :text-elements @text-elements})
+        :appState (:appState x)}
+    ))
+    {:elements (:elements x) :appState (:appState x)}
 ))
 
 (defn generate-scene [x] ;{:drawing atom}]
   (let [scene (update-drawing-based-on-nested-blocks {:elements (:elements (:drawing @(:drawing x)))
                                                       :appState (:appState (:drawing @(:drawing x)))
-                                                      :nested-text (:text (:drawing @(:drawing x)))})]
+                                                      :nested-text (:text @(:drawing x))})]
     (debug ["(generate-scene)" scene])
     (assoc-in scene [:appState :name] (get-in @(:drawing x) [:title :text]))))
 

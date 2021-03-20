@@ -83,26 +83,62 @@
 
 (defn get-data-block-uid [x]
   (rd/q '[:find ?drawing-uid .
-                                  :in $ ?uid
-                                  :where [?e :block/uid ?uid]
-                                         [?e :block/children ?c]
-                                         [?c :block/order 0]
-                                         [?c :block/string ?s]
-                                         [(clojure.string/starts-with? ?s "{{roam/render: ((ExcalDATA)) ")]
-                                         [?c :block/uid ?drawing-uid]]
-                                (:block-uid x)))
+          :in $ ?uid
+          :where [?e :block/uid ?uid]
+                  [?e :block/children ?c]
+                  [?c :block/order 0]
+                  [?c :block/string ?s]
+                  [(clojure.string/starts-with? ?s "{{roam/render: ((ExcalDATA)) ")]
+                  [?c :block/uid ?drawing-uid]]
+        x))
 
-(defn save-component [x] ;;{:block-uid "BlockUID" map-string: "String"}
+(defn get-text-blocks [x]
+  (:block/children (rd/q '[:find (pull ?e [:block/children {:block/children [:block/uid :block/string]}])
+          :in $ ?title-uid
+          :where [?e :block/uid ?title-uid]]
+        x)))
+
+(defn save-component [x] ;;{:block-uid "BlockUID" :map-string "String" :cs atom :drawing atom}
+  (swap! cs assoc-in [:saving] true) ;;used to disable the pullWatch while blocks are edited
   (debug ["(save-component) Enter"])
   (let [data-block-uid (get-data-block-uid (:block-uid x))
         edn-map (edn/read-string (:map-string x))
-        app-state (into {} (filter (comp some? val) (:appState edn-map))) ;;remove nil elements from appState
-        out-string (fix-double-bracket (str (assoc-in edn-map [:appState] app-state)))
-        render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
-    ;(debug  ["(save-component)  data-string: " render-string])
-    (block/update
-      {:block {:uid data-block-uid
-               :string render-string}})               
+        text-elements (r/atom nil)
+        ;;get text blocks nested under title
+        title-block-uid (get-in @(:drawing x) [:title :block-uid])
+        nested-text-blocks (get-text-blocks title-block-uid) 
+        app-state (into {} (filter (comp some? val) (:appState edn-map)))] ;;remove nil elements from appState
+    (doseq [y (filter (comp #{"text"} :type) (:elements edn-map))]
+      (if (str/starts-with? (:id y) "ROAM_")
+        (do ;;block with text should already exist, update text, but double check that the block is there...
+          (debug ["(save-component) nested block should exist text:" (:text y) "block-id" (re-find #"ROAM_(.*)_ROAM" (:id y))])
+          (let text-block-uid (re-find #"ROAM_(.*)_ROAM" (:id y)))
+            (if-not (nil? (filter (comp #{text-block-uid} :block/uid) nested-text-blocks))
+              (do ;;block exists
+                (debug ["(save-component) block exists, updateing"])
+                (block/update {:block {:uid text-block-uid :string (:text y)}}))
+                (reset! text-elements (conj @text-elements y))
+              (do ;block no-longer exists, create new one
+                (debug ["(save-component) block should, but does not exist, creating..."])
+                (let [new-block-uid (.createBlock js/ExcalidrawWrapper title-block-uid 1000 (:text y))]
+                  (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM___"]))))))))
+        (do ;;block with text does not exist as nested block, create new
+          (debug ["(save-component) block does not exists, creating"])
+          (let [new-block-uid (.createBlock js/ExcalidrawWrapper title-block-uid 1000 (:text y))]
+            (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM___"]))))))))
+      ;(debug ["(save-component) filter-text text:" (:text y) "id" (:id y)]))
+    (debug ["(save-component) text-blocks with updated IDs" (str @text-elements)])
+    ;;updating the data block is the final piece in saving the component
+    ;;this update will trigger pullwatch to load the updated drawing 
+    ;;to display as SVG or PNG (depending on setting)
+    ;;I enable pullwatch event handler actions before updating the data block
+    (swap! cs assoc-in [:saving] false)
+    (let elements (conj (remove (comp #{"text"} :type) (:elements edn-map)) @text-elements)
+         [out-string (fix-double-bracket (str {:elements elements :appState app-state}))
+          render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
+      (block/update
+        {:block {:uid data-block-uid
+                :string render-string}}))
     (swap! app-settings assoc-in [:mode] (get-in app-state [:appearance]))
     (save-settings)))
 
@@ -319,7 +355,8 @@
                         :grid-mode false
                         :this-dom-node nil
                         :header-height 30
-                        :aspect-ratio nil})
+                        :aspect-ratio nil
+                        :saving false})
            ew (r/atom nil) ;;excalidraw-wrapper
            drawing-before-edit (r/atom nil)
            app-name (str/join ["excalidraw-app-" block-uid])
@@ -329,18 +366,20 @@
                                    (if-not (nil? (:this-dom-node @cs)) 
                                      (swap! style assoc-in [:host-div] (host-div-style cs)))))
            pull-watch-callback (fn [before after]
-                                 (let [drawing-data (pull-children block-uid 0)
-                                       drawing-text (pull-children block-uid 1)
-                                       empty-block-uid (re-find #":block/uid \"(.*)\", (:block/string \"\")" (str drawing-data))]
-                                  (if-not (nil? empty-block-uid)
-                                    (create-nested-blocks {:block-uid block-uid 
-                                                           :drawing drawing 
-                                                           :empty-block-uid (second empty-block-uid)}))
-                                  (load-drawing {:block-uid block-uid 
-                                                 :drawing drawing 
-                                                 :data (get-data-from-block-string drawing-data) 
-                                                 :text (first drawing-text)})
-                                  (debug ["(main) :callback drawing-data appearance" (get-in @drawing [:drawing :appState :appearance]) ]) ))]
+                                 (if-not (:saving @cs)
+                                   (do 
+                                     (let [drawing-data (pull-children block-uid 0)
+                                           drawing-text (pull-children block-uid 1)
+                                           empty-block-uid (re-find #":block/uid \"(.*)\", (:block/string \"\")" (str drawing-data))] ;check if user has nested a block under a new drawing
+                                       (if-not (nil? empty-block-uid)
+                                       (create-nested-blocks {:block-uid block-uid 
+                                                              :drawing drawing 
+                                                              :empty-block-uid (second empty-block-uid)}))
+                                       (load-drawing {:block-uid block-uid 
+                                                      :drawing drawing 
+                                                      :data (get-data-from-block-string drawing-data) 
+                                                      :text (first drawing-text)})
+                                       (debug ["(main) :callback drawing-data appearance" (get-in @drawing [:drawing :appState :appearance]) ]) ))))]
         (r/create-class
          { :display-name "Excalidraw Roam Beta"
            ;; Constructor
@@ -397,7 +436,9 @@
                                                     (do (clear-checkboxes)
                                                       (.svgClipboard js/ExcalidrawWrapper)
                                                       (save-component {:block-uid block-uid 
-                                                                       :map-string (js-to-clj-str (get-drawing ew))})
+                                                                       :map-string (js-to-clj-str (get-drawing ew))
+                                                                       :cs cs
+                                                                       :drawing drawing})
                                                       (swap! cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
                                                       (going-full-screen? false cs style)) 
                                                     (do (going-full-screen? true cs style)
@@ -421,7 +462,9 @@
                                                   (.svgClipboard js/ExcalidrawWrapper)
                                                   (debug ["(main) Cancel :on-click"])
                                                   (save-component {:block-uid block-uid 
-                                                                   :map-string (str @drawing-before-edit)})
+                                                                   :map-string (str @drawing-before-edit)
+                                                                   :cs cs
+                                                                   :drawing drawing})
                                                   (swap! cs assoc-in [:aspect-ratio] (get-embed-image @drawing-before-edit (:this-dom-node @cs) app-name))
                                                   (going-full-screen? false cs style))}
                                       "❌"])]

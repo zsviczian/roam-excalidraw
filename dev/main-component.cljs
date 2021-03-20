@@ -273,7 +273,7 @@
           (reset! (:drawing x) {:drawing (:data x)
                                 :title {:text (get-in (:text x) [0 :block/string])
                                         :block-uid  (get-in (:text x) [0 :block/uid])}
-                                :text (get-in (:text x [0 :block/children]))})
+                                :text (get-in (:text x) [0 :block/children])})
   )))
   (debug ["(load-drawing) drawing: " @(:drawing x) " data: " (:data x) " text: " (str (:text x)) "appearance " (get-in (:data x) [:appState :appearance])])
 )

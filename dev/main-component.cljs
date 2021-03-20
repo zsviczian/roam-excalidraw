@@ -112,7 +112,7 @@
       (if (str/starts-with? (:id y) "ROAM_")
         (do ;;block with text should already exist, update text, but double check that the block is there...
           (debug ["(save-component) nested block should exist text:" (:text y) "block-id" (re-find #"ROAM_(.*)_ROAM" (:id y))])
-          (let text-block-uid (re-find #"ROAM_(.*)_ROAM" (:id y)))
+          (let text-block-uid (second (re-find #"ROAM_(.*)_ROAM" (:id y))))
             (if-not (nil? (filter (comp #{text-block-uid} :block/uid) nested-text-blocks))
               (do ;;block exists
                 (debug ["(save-component) block exists, updateing"])

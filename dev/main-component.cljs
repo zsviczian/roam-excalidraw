@@ -111,9 +111,12 @@
       (.createBlock js/ExcalidrawWrapper x 3 "Orphans")
       uid)))
 
-(defn save-component [x] ;;{:block-uid "BlockUID" :map-string "String" :cs atom :drawing atom}
-  (swap! (:cs x) assoc-in [:saving] true) ;;used to disable the pullWatch while blocks are edited
+;;{:block-uid "BlockUID" :map-string "String" :cs atom :drawing atom}
+(defn save-component [x] 
+  ;;Disable the pullWatch while blocks are edited
+  (swap! (:cs x) assoc-in [:saving] true) 
   (debug ["(save-component) Enter"])
+
   (let [data-block-uid (get-data-block-uid (:block-uid x))
         edn-map (edn/read-string (:map-string x))
         text-elements (r/atom nil)
@@ -122,6 +125,7 @@
         nested-text-blocks (get-text-blocks title-block-uid) 
         app-state (into {} (filter (comp some? val) (:appState edn-map))) ;;remove nil elements from appState
         orphans-block-uid (r/atom nil)] 
+    
     ;;process text on drawing
     (doseq [y (filter (comp #{"text"} :type) (:elements edn-map))]
       (if (str/starts-with? (:id y) "ROAM_")
@@ -132,23 +136,28 @@
               (do ;;block exists
                 (debug ["(save-component) block exists, updateing"])
                 (block/update {:block {:uid text-block-uid :string (:text y)}})
-                (reset! text-elements (conj @text-elements y)))
+                (reset! text-elements (conj @text-elements y))
+              )
               (do ;block no-longer exists, create new one
                 (debug ["(save-component) block should, but does not exist, creating..."])
                 (let [new-block-uid (.createBlock js/ExcalidrawWrapper title-block-uid 1000 (:text y))]
-                  (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"])))))))))
+                  (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
+        )))))
         (do ;;block with text does not exist as nested block, create new
           (debug ["(save-component) block does not exists, creating"])
           (let [new-block-uid (.createBlock js/ExcalidrawWrapper title-block-uid 1000 (:text y))]
-            (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))))))
-    ;;process nested text - move to orphans blocks no longer on drawing
+            (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
+    ))))
     
+    ;;process nested text - move to orphans blocks no longer on drawing    
     (doseq [y nested-text-blocks]
       (if (= 0 (count (filter (comp #{(str/join ["ROAM_" (:block/uid y) "_ROAM"])} :id) @text-elements)))
         (do (if (nil? @orphans-block-uid) (reset! orphans-block-uid (get-or-create-orphans-block-uid (:block-uid x))))
           (block/move {:location {:parent-uid @orphans-block-uid :order 1000}
-                       :block {:uid (:block/uid y)}}))))
+                       :block {:uid (:block/uid y)}})
+    )))
     (debug ["(save-component) text-blocks with updated IDs" (str @text-elements)])
+    
     ;;updating the data block is the final piece in saving the component
     ;;this update will trigger pullwatch to load the updated drawing 
     ;;to display as SVG or PNG (depending on setting)
@@ -159,9 +168,11 @@
           render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
       (block/update
         {:block {:uid data-block-uid
-                :string render-string}}))
+                :string render-string}})
+    )
     (swap! app-settings assoc-in [:mode] (get-in app-state [:appearance]))
-    (save-settings)))
+    (save-settings)
+))
 
 (defn load-settings []
   (debug ["(load-settings) Enter"])

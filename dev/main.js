@@ -79,6 +79,44 @@ window['ExcalidrawWrapper'] = class {
     if (ExcalidrawConfig.DEBUG) console.log("js: ExcalidrawWrapper.constructor() ReactDOM.render() initiated") ;
   }
     
+  static getFontFamily(id) {
+    switch (id) {
+      case 1: return "Virgil, Segoe UI Emoji";
+      case 2: return "Helvetica, Segoe UI Emoji";
+      case 3: return "Cascadia, Segoe UI Emoji"; 
+    }
+  }
+
+  static measureText (newText, textElement) {
+    const line = document.createElement("div");
+    const body = document.body;
+    line.style.position = "absolute";
+    line.style.whiteSpace = "pre";
+    line.style.font = textElement.fontSize.toString()+'px '+this.getFontFamily(textElement.fontFamily);
+    body.appendChild(line);
+    line.innerText = newText
+      .split("\n")
+      // replace empty lines with single space because leading/trailing empty
+      // lines would be stripped from computation
+      .map((x) => x || " ")
+      .join("\n");
+    const width = line.offsetWidth;
+    const height = line.offsetHeight;
+    // Now creating 1px sized item that will be aligned to baseline
+    // to calculate baseline shift
+    const span = document.createElement("span");
+    span.style.display = "inline-block";
+    span.style.overflow = "hidden";
+    span.style.width = "1px";
+    span.style.height = "1px";
+    line.appendChild(span);
+    // Baseline is important for positioning text on canvas
+    const baseline = span.offsetTop + span.offsetHeight;
+    document.body.removeChild(line);
+  
+    return { width, height, baseline };
+  };
+
   //this is a workaround because Roam catches some of the keys (e.g. CTRL+Z) before 
   //Exalidraw. When the application is in edit mode / full screen, sink all keyboar events and retrigger
   //to Excalidraw main div

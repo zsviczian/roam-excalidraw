@@ -93,10 +93,10 @@
         x))
 
 (defn get-text-blocks [x]
-  (:block/children (rd/q '[:find (pull ?e [:block/children {:block/children [:block/uid :block/string]}])
+  (:block/children (first (first (rd/q '[:find (pull ?e [:block/children {:block/children [:block/uid :block/string]}])
           :in $ ?title-uid
           :where [?e :block/uid ?title-uid]]
-        x)))
+        x)))))
 
 (defn get-or-create-orphans-block-uid [x]
   (let [uid (rd/q '[:find ?orphan-uid .
@@ -144,7 +144,7 @@
     ;;process nested text - move to orphans blocks no longer on drawing
     
     (doseq [y nested-text-blocks]
-      (if (nil? (filter (comp #{(str/join ["ROAM_" (:block/uid y) "_ROAM"])} :id) @text-elements))
+      (if (= 0 (count (filter (comp #{(str/join ["ROAM_" (:block/uid y) "_ROAM"])} :id) @text-elements)))
         (do (if (nil? @orphans-block-uid) (reset! orphans-block-uid (get-or-create-orphans-block-uid (:block-uid x))))
           (block/move {:location {:parent-uid @orphans-block-uid :order 1000}
                        :block {:uid (:block/uid y)}}))))

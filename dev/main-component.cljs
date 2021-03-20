@@ -133,8 +133,8 @@
     ;;to display as SVG or PNG (depending on setting)
     ;;I enable pullwatch event handler actions before updating the data block
     (swap! (:cs x) assoc-in [:saving] false)
-    (let elements (conj (remove (comp #{"text"} :type) (:elements edn-map)) @text-elements)
-         [out-string (fix-double-bracket (str {:elements elements :appState app-state}))
+    (let [elements (conj (remove (comp #{"text"} :type) (:elements edn-map)) @text-elements)
+          out-string (fix-double-bracket (str {:elements elements :appState app-state}))
           render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
       (block/update
         {:block {:uid data-block-uid

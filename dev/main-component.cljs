@@ -81,9 +81,8 @@
 (defn fix-double-bracket [x]
   (str/replace x #"\[{2}" "[ ["))
 
-(defn save-component [x] ;;{:block-uid "BlockUID" map-string: "String"}
-  (debug ["(save-component) Enter"])
-  (let [drawing-block-uid (rd/q '[:find ?drawing-uid .
+(defn get-data-block-uid [x]
+  (rd/q '[:find ?drawing-uid .
                                   :in $ ?uid
                                   :where [?e :block/uid ?uid]
                                          [?e :block/children ?c]
@@ -91,14 +90,18 @@
                                          [?c :block/string ?s]
                                          [(clojure.string/starts-with? ?s "{{roam/render: ((ExcalDATA)) ")]
                                          [?c :block/uid ?drawing-uid]]
-                                (:block-uid x))
+                                (:block-uid x)))
+
+(defn save-component [x] ;;{:block-uid "BlockUID" map-string: "String"}
+  (debug ["(save-component) Enter"])
+  (let [data-block-uid (get-data-block-uid (:block-uid x))
         edn-map (edn/read-string (:map-string x))
         app-state (into {} (filter (comp some? val) (:appState edn-map))) ;;remove nil elements from appState
         out-string (fix-double-bracket (str (assoc-in edn-map [:appState] app-state)))
         render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
     ;(debug  ["(save-component)  data-string: " render-string])
     (block/update
-      {:block {:uid drawing-block-uid
+      {:block {:uid data-block-uid
                :string render-string}})               
     (swap! app-settings assoc-in [:mode] (get-in app-state [:appearance]))
     (save-settings)))

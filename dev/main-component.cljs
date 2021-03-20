@@ -99,7 +99,7 @@
         x)))
 
 (defn save-component [x] ;;{:block-uid "BlockUID" :map-string "String" :cs atom :drawing atom}
-  (swap! cs assoc-in [:saving] true) ;;used to disable the pullWatch while blocks are edited
+  (swap! (:cs x) assoc-in [:saving] true) ;;used to disable the pullWatch while blocks are edited
   (debug ["(save-component) Enter"])
   (let [data-block-uid (get-data-block-uid (:block-uid x))
         edn-map (edn/read-string (:map-string x))
@@ -132,7 +132,7 @@
     ;;this update will trigger pullwatch to load the updated drawing 
     ;;to display as SVG or PNG (depending on setting)
     ;;I enable pullwatch event handler actions before updating the data block
-    (swap! cs assoc-in [:saving] false)
+    (swap! (:cs x) assoc-in [:saving] false)
     (let elements (conj (remove (comp #{"text"} :type) (:elements edn-map)) @text-elements)
          [out-string (fix-double-bracket (str {:elements elements :appState app-state}))
           render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]

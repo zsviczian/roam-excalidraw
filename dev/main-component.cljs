@@ -315,7 +315,7 @@
             (if (or
                   (not (= 0 (count (filter (comp #{block-uid} :block/uid) (:nested-text x))))) ;;remove item is nested block is deleted
                   (< (get-in x [:roamExcalidraw :version]) 1)) ;;to prevent text being deleted from drawings saved with the earlier version
-              (text-measures (js->clj (.measureText js/ExcalidrawWrapper block-text y))
+              (let [text-measures (js->clj (.measureText js/ExcalidrawWrapper block-text y))]
                 (if-not (= block-text (:text y))  
                   (reset! text-elements 
                             (conj @text-elements 

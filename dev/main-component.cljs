@@ -17,7 +17,14 @@
                            :img  "SVG"
                            :full-screen-margin 0.015
                            :max-embed-width 600
-                           :max-embed-height 400})
+                           :max-embed-height 400
+                           :nested-text-rows 5
+                           :nested-text-row-height 50
+                           :nested-text-col-width 400
+                           :nested-text-start-top 50
+                           :nested-text-start-left 50
+                           :nested-text-font-size 20
+                           :nested-text-font-family 1})
 (def app-settings (r/atom default-app-settings))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -104,6 +111,7 @@
         x))
 
 (defn get-text-blocks [x]
+  (debug ["(get-text-blocks" x])
   (:block/children (first (first (rd/q '[:find (pull ?e [:block/children {:block/children [:block/uid :block/string]}])
           :in $ ?title-uid
           :where [?e :block/uid ?title-uid]]
@@ -151,6 +159,7 @@
         orphans-block-uid (r/atom nil)] 
     
     ;;process text on drawing
+    (debug ["(save-component) start processing text"])
     (doseq [y (get-text-elements (:elements edn-map))]
       (if (str/starts-with? (:id y) "ROAM_")
         (do ;;block with text should already exist, update text, but double check that the block is there...
@@ -294,9 +303,11 @@
 
 ;;check if text in nested block has changed compared to drawing and updated text in drawing element including size
 (defn update-drawing-based-on-nested-blocks [x] ;{:elements [] :appState {} :nested-text [:block/uid "BlockUID" :block/string "text"]}
+  (debug ["(update-drawing-based-on-nested-blocks) Enter x:" x])
   (if-not (nil? (:nested-text x)) 
     (do
       (let [text-elements (r/atom nil)]
+      (debug ["(update-drawing-based-on-nested-blocks) processing nested text - apply changes to existing blocks, omit deleted ones"])
         ;;update elements on drawing based on changes to nested text
         (doseq [y (get-text-elements (:elements x))]
           (let [block-uid (get-block-uid-from-text-element y)
@@ -318,18 +329,21 @@
                   (reset! text-elements (conj @text-elements y))
         )))))
         
+        (debug ["(update-drawing-based-on-nested-blocks) processing nested text - add new nested blocks"])
         ;;add text for newly nested blocks
         (doseq [y (:nested-text x)]
           (let [text (:block/string y)
-                dummy {:fontFamily 1 :fontSize 20}
+                dummy {:fontFamily (:nested-text-font-family @app-settings) 
+                       :fontSize (:nested-text-font-size @app-settings)}
                 order (:block/order y)
                 id (:block/uid y)]
             (if (= 0 (count (filter (comp #{(str/join ["ROAM_" (:block/uid y) "_ROAM"])} :id) @text-elements)))
-              (let [col (int (/ order 5))
-                    row (mod order 5)
-                    x (+ 50 (* col 400))
-                    y (+ 50 (* row 50))  
+              (let [col (int (/ order (:nested-text-rows @app-settings)))
+                    row (mod order (:nested-text-rows @app-settings))
+                    x (+ (:nested-text-start-left @app-settings) (* col (:nested-text-col-width @app-settings)))
+                    y (+ (:nested-text-start-top @app-settings) (* row (:nested-text-row-height @app-settings)))  
                     text-measures (js->clj (.measureText js/ExcalidrawWrapper text dummy))]
+                (debug ["(update-drawing-based-on-nested-blocks) add new: text" text "id" id])
                 (reset! text-elements 
                           (conj @text-elements 
                                 {:y y
@@ -343,7 +357,7 @@
                                   :angle 0
                                   :groupIds []
                                   :seed 1
-                                  :fontFamily 1
+                                  :fontFamily (:nested-text-font-family @app-settings)
                                   :boundElementIds []
                                   :strokeWidth 1
                                   :opacity 100
@@ -352,7 +366,7 @@
                                   :strokeColor "#000000"
                                   :textAlign "left"
                                   :x x
-                                  :fontSize 20
+                                  :fontSize (:nested-text-font-size @app-settings)
                                   :version 1
                                   :backgroundColor "transparent"
                                   :versionNonce 1
@@ -368,6 +382,7 @@
 ))
 
 (defn generate-scene [x] ;{:drawing atom}]
+  (debug ["(generate-scene) enter" x])
   (let [scene (update-drawing-based-on-nested-blocks {:elements (:elements (:drawing @(:drawing x)))
                                                       :appState (:appState (:drawing @(:drawing x)))
                                                       :nested-text (:text @(:drawing x))

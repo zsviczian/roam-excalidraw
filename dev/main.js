@@ -199,8 +199,8 @@ window['ExcalidrawWrapper'] = class {
 
   static cleanupDOMTree (hostDIV) {
     ReactDOM.unmountComponentAtNode(hostDIV);
-    while (this.hostDIV.firstChild) {
-      this.hostDIV.removeChild(this.hostDIV.lastChild);
+    while (hostDIV.firstChild) {
+      hostDIV.removeChild(hostDIV.lastChild);
     }
 
   }

@@ -308,43 +308,44 @@
         
         ;;add text for newly nested blocks
         (doseq [y (:nested-text x)]
-          (if (= 0 (count (filter (comp #{(str/join ["ROAM_" (:block/uid y) "_ROAM"])} :id) @text-elements)))
-            (let [row (int (/ (:block/order y) 5))
-                  col (mod (:block/order y) 5)
-                  x (+ 50 (* col 100))
-                  y (+ 50 (* row 50))
-                  text (:block/string y)
-                  id (:block/uid y)
-                  text-measures (js->clj (.measureText js/ExcalidrawWrapper (:block/string y) {:fontFamily 1 :fontSize 20}))]
-              (reset! text-elements 
-                        (conj @text-elements 
-                               {:y y
-                                :baseline (get text-measures "baseline")
-                                :isDeleted false
-                                :strokeStyle "solid":roughness 1
-                                :width (get text-measures "width")
-                                :type "text"
-                                :strokeSharpness "sharp"
-                                :fillStyle "hachure"
-                                :angle 0
-                                :groupIds []
-                                :seed 1
-                                :fontFamily 1
-                                :boundElementIds []
-                                :strokeWidth 1
-                                :opacity 100
-                                :id id
-                                :verticalAlign "top"
-                                :strokeColor "#000000"
-                                :textAlign "left"
-                                :x x
-                                :fontSize 20
-                                :version 1
-                                :backgroundColor "transparent"
-                                :versionNonce 1
-                                :height (get text-measures "height")
-                                :text text}))                                
-        )))
+          (let [text (:block/string y)
+                dummy {:fontFamily 1 :fontSize 20}]
+            (if (= 0 (count (filter (comp #{(str/join ["ROAM_" (:block/uid y) "_ROAM"])} :id) @text-elements)))
+              (let [row (int (/ (:block/order y) 5))
+                    col (mod (:block/order y) 5)
+                    x (+ 50 (* col 100))
+                    y (+ 50 (* row 50))  
+                    id (:block/uid y)
+                    text-measures (js->clj (.measureText js/ExcalidrawWrapper text dummy))]
+                (reset! text-elements 
+                          (conj @text-elements 
+                                {:y y
+                                  :baseline (get text-measures "baseline")
+                                  :isDeleted false
+                                  :strokeStyle "solid":roughness 1
+                                  :width (get text-measures "width")
+                                  :type "text"
+                                  :strokeSharpness "sharp"
+                                  :fillStyle "hachure"
+                                  :angle 0
+                                  :groupIds []
+                                  :seed 1
+                                  :fontFamily 1
+                                  :boundElementIds []
+                                  :strokeWidth 1
+                                  :opacity 100
+                                  :id id
+                                  :verticalAlign "top"
+                                  :strokeColor "#000000"
+                                  :textAlign "left"
+                                  :x x
+                                  :fontSize 20
+                                  :version 1
+                                  :backgroundColor "transparent"
+                                  :versionNonce 1
+                                  :height (get text-measures "height")
+                                  :text text}))                                
+        ))))
 
 
         {:elements (update-elements-with-parts {:raw-elements (:elements x) :text-elements @text-elements})

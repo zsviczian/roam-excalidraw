@@ -458,6 +458,8 @@
                                                         :drawing drawing 
                                                         :data (get-data-from-block-string drawing-data) 
                                                         :text (first drawing-text)})
+                                         (if-not (is-full-screen cs)
+                                           (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name)))
                                          (debug ["(main) :callback drawing-data appearance" (get-in @drawing [:drawing :appState :appearance]) ])
            ))))]
         (r/create-class
@@ -485,7 +487,7 @@
                                   (debug ["(main) :component-did-mount addPullWatch"])
                                   (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
                                   (pull-watch-callback nil nil)
-                                  (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
+                                  ;(swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
                                   (swap! style assoc-in [:host-div] (host-div-style cs))
                                   (.addEventListener js/window "resize" resize-handler)
                                   (debug ["(main) :component-did-mount Exalidraw mount initiated"]))

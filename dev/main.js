@@ -197,9 +197,18 @@ window['ExcalidrawWrapper'] = class {
     return aspectRatio; //aspect ration
   }
 
+  static cleanupDOMTree (hostDIV) {
+    ReactDOM.unmountComponentAtNode(hostDIV);
+    while (this.hostDIV.firstChild) {
+      this.hostDIV.removeChild(this.hostDIV.lastChild);
+    }
+
+  }
+
   static getSVG(diagram,node,appName) {
     const hostDIV = node.querySelector('#'+appName);
-    ReactDOM.unmountComponentAtNode(hostDIV);
+    //ReactDOM.unmountComponentAtNode(hostDIV);
+    this.cleanupDOMTree(hostDIV);
     let mode = 'light';
     if (diagram != null) 
       if(diagram.appState != null)
@@ -228,7 +237,8 @@ window['ExcalidrawWrapper'] = class {
   
   static getPNG(diagram,node,appName) {
     const hostDIV = node.querySelector('#'+appName);
-    ReactDOM.unmountComponentAtNode(hostDIV);
+    //ReactDOM.unmountComponentAtNode(hostDIV);
+    this.cleanupDOMTree(hostDIV);
     let mode = 'light';
     if (diagram != null) 
       if(diagram.appState != null)

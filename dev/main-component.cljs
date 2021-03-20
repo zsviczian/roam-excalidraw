@@ -325,7 +325,7 @@
             (if (= 0 (count (filter (comp #{(str/join ["ROAM_" (:block/uid y) "_ROAM"])} :id) @text-elements)))
               (let [col (int (/ order 5))
                     row (mod order 5)
-                    x (+ 50 (* col 200))
+                    x (+ 50 (* col 400))
                     y (+ 50 (* row 50))  
                     text-measures (js->clj (.measureText js/ExcalidrawWrapper text dummy))]
                 (reset! text-elements 

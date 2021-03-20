@@ -319,13 +319,14 @@
         ;;add text for newly nested blocks
         (doseq [y (:nested-text x)]
           (let [text (:block/string y)
-                dummy {:fontFamily 1 :fontSize 20}]
+                dummy {:fontFamily 1 :fontSize 20}
+                order (:block/order y)
+                id (:block/uid y)]
             (if (= 0 (count (filter (comp #{(str/join ["ROAM_" (:block/uid y) "_ROAM"])} :id) @text-elements)))
-              (let [row (int (/ (:block/order y) 5))
-                    col (mod (:block/order y) 5)
-                    x (+ 50 (* col 100))
+              (let [col (int (/ order 5))
+                    row (mod order 5)
+                    x (+ 50 (* col 200))
                     y (+ 50 (* row 50))  
-                    id (:block/uid y)
                     text-measures (js->clj (.measureText js/ExcalidrawWrapper text dummy))]
                 (reset! text-elements 
                           (conj @text-elements 

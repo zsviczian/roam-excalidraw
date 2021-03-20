@@ -132,15 +132,15 @@
               (do ;;block exists
                 (debug ["(save-component) block exists, updateing"])
                 (block/update {:block {:uid text-block-uid :string (:text y)}})
-                (reset! text-elements (concat @text-elements y)))
+                (reset! text-elements (conj @text-elements y)))
               (do ;block no-longer exists, create new one
                 (debug ["(save-component) block should, but does not exist, creating..."])
                 (let [new-block-uid (.createBlock js/ExcalidrawWrapper title-block-uid 1000 (:text y))]
-                  (reset! text-elements (concat @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM___"])))))))))
+                  (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM___"])))))))))
         (do ;;block with text does not exist as nested block, create new
           (debug ["(save-component) block does not exists, creating"])
           (let [new-block-uid (.createBlock js/ExcalidrawWrapper title-block-uid 1000 (:text y))]
-            (reset! text-elements (concat @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM___"]))))))))
+            (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM___"]))))))))
     ;;process nested text - move to orphans blocks no longer on drawing
     
     (doseq [y nested-text-blocks]

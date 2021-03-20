@@ -112,16 +112,16 @@
       (if (str/starts-with? (:id y) "ROAM_")
         (do ;;block with text should already exist, update text, but double check that the block is there...
           (debug ["(save-component) nested block should exist text:" (:text y) "block-id" (re-find #"ROAM_(.*)_ROAM" (:id y))])
-          (let [text-block-uid (second (re-find #"ROAM_(.*)_ROAM" (:id y))))]
+          (let [text-block-uid (second (re-find #"ROAM_(.*)_ROAM" (:id y)))]
             (if-not (nil? (filter (comp #{text-block-uid} :block/uid) nested-text-blocks))
               (do ;;block exists
                 (debug ["(save-component) block exists, updateing"])
-                (block/update {:block {:uid text-block-uid :string (:text y)}}))
-                (reset! text-elements (conj @text-elements y))
+                (block/update {:block {:uid text-block-uid :string (:text y)}})
+                (reset! text-elements (conj @text-elements y)))
               (do ;block no-longer exists, create new one
                 (debug ["(save-component) block should, but does not exist, creating..."])
                 (let [new-block-uid (.createBlock js/ExcalidrawWrapper title-block-uid 1000 (:text y))]
-                  (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM___"]))))))))
+                  (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM___"])))))))))
         (do ;;block with text does not exist as nested block, create new
           (debug ["(save-component) block does not exists, creating"])
           (let [new-block-uid (.createBlock js/ExcalidrawWrapper title-block-uid 1000 (:text y))]

@@ -81,7 +81,7 @@
 (defn fix-double-bracket [x]
   (str/replace x #"\[{2}" "[ ["))
 
-(defn save-component [block-uid map-string]
+(defn save-component [x] ;;{:block-uid "BlockUID" map-string: "String"}
   (debug ["(save-component) Enter"])
   (let [drawing-block-uid (rd/q '[:find ?drawing-uid .
                                   :in $ ?uid
@@ -91,8 +91,8 @@
                                          [?c :block/string ?s]
                                          [(clojure.string/starts-with? ?s "{{roam/render: ((ExcalDATA)) ")]
                                          [?c :block/uid ?drawing-uid]]
-                                block-uid)
-        edn-map (edn/read-string map-string)
+                                (:block-uid x))
+        edn-map (edn/read-string (:map-string x))
         app-state (into {} (filter (comp some? val) (:appState edn-map))) ;;remove nil elements from appState
         out-string (fix-double-bracket (str (assoc-in edn-map [:appState] app-state)))
         render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
@@ -141,7 +141,7 @@
         ;(debug ["(get-data-from-block-string) returning: " retrun-string])
         (edn/read-string return-string)))))
 
-(defn create-nested-blocks [block-uid drawing empty-block-uid] 
+(defn create-nested-blocks [x]; {:block-uid "BlockUID" :drawing atom :empty-block-uid "BlockUID"}
 ;;block uid is the block of the roam/render component
 ;;empty block is the block created by the user by trying to nest text under 
 ;;a new drawing that hasn't been edited yet (i.e. the data and title children
@@ -149,16 +149,17 @@
   (debug ["(create-nested-blocks)"])
   (let [default-data {:appState {:name "Untitled drawing"
                                        :appearance (:mode @app-settings)}}]
-    (create-block block-uid 0 (str/join ["{{roam/render: ((ExcalDATA)) "
+    (create-block (:block-uid x) 0 (str/join ["{{roam/render: ((ExcalDATA)) "
                                 (str default-data) " }}"]))
-    (reset! drawing {:drawing default-data 
-                    :title {:text (if (nil? empty-block-uid) "Untitled drawing" "")
-                            :block-uid (if (nil? empty-block-uid) 
-                                         (create-block block-uid 1 "Untitled drawing")
-                                         empty-block-uid)}})
-    (if (nil? empty-block-uid) (block/update {:block {:uid block-uid :open false}}))))
+    (reset! (:drawing x) {:drawing default-data 
+                          :title {:text (if (nil? (:empty-block-uid x)) "Untitled drawing" "")
+                                  :block-uid (if (nil? (:empty-block-uid x)) 
+                                               (create-block (:block-uid x) 1 "Untitled drawing")
+                                               (:empty-block-uid x))}})
+    (if (nil? (:empty-block-uid x)) 
+      (block/update {:block {:uid (:block-uid x) :open false}}))))
 
-(defn load-drawing [block-uid drawing data text] 
+(defn load-drawing [x] ;{:block-uid "BlockUID" :drawing atom :data objects :text "text"} 
 ;drawing is the atom holding the drawing map
 ;block uid is the block with the roam/render component
 ;data are the drawing objects
@@ -169,28 +170,28 @@
         (debug ["(load-drawing) no children - creating dummy data"])
         (let [default-data {:appState {:name "Untitled drawing"
                                        :appearance (:mode @app-settings)}}]
-          (reset! drawing {:drawing default-data 
+          (reset! (:drawing x) {:drawing default-data 
                             :title {:text "Untitled drawing"
                                     :block-uid nil}})))
-      (if (= (count text) 0)
+      (if (= (count (:text x)) 0)
         (do
           (debug ["(load-drawing) create title only"])
-          (reset! drawing {:drawing data
+          (reset! (:drawing x) {:drawing (:data x)
                            :title {:text "Untitled drawing"
-                                   :block-uid (create-block block-uid 1 "Untitled drawing")}})
-          (block/update {:block {:uid block-uid :open false}}))
+                                   :block-uid (create-block (:block-uid x) 1 "Untitled drawing")}})
+          (block/update {:block {:uid (:block-uid x) :open false}}))
         (do
           (debug ["(load-drawing) ExcalDATA & title already exist"])
-          (reset! drawing {:drawing data
-                           :title {:text (get-in text [0 :block/string])
-                                   :block-uid  (get-in text [0 :block/uid])}}))))
-    (debug ["(load-drawing) drawing: " @drawing " data: " data " text: " (str text) "appearance " (get-in data [:appState :appearance])]))
+          (reset! (:drawing x) {:drawing (:data x)
+                           :title {:text (get-in (:text x) [0 :block/string])
+                                   :block-uid  (get-in (:text x) [0 :block/uid])}}))))
+    (debug ["(load-drawing) drawing: " @(:drawing x) " data: " (:data x) " text: " (str (:text x)) "appearance " (get-in (:data x) [:appState :appearance])]))
 
 
-(defn generate-scene [drawing]
-  (let [scene (:drawing @drawing)]
+(defn generate-scene [x] ;{:drawing atom}]
+  (let [scene (:drawing @(:drawing x))]
     (debug ["(generate-scene)"])
-    (assoc-in scene [:appState :name] (get-in @drawing [:title :text]))))
+    (assoc-in scene [:appState :name] (get-in @(:drawing x) [:title :text]))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Main Function Form-3
@@ -329,8 +330,13 @@
                                        drawing-text (pull-children block-uid 1)
                                        empty-block-uid (re-find #":block/uid \"(.*)\", (:block/string \"\")" (str drawing-data))]
                                   (if-not (nil? empty-block-uid)
-                                    (create-nested-blocks block-uid drawing (second empty-block-uid)))
-                                  (load-drawing block-uid drawing (get-data-from-block-string drawing-data) (first drawing-text))
+                                    (create-nested-blocks {:block-uid block-uid 
+                                                           :drawing drawing 
+                                                           :empty-block-uid (second empty-block-uid)}))
+                                  (load-drawing {:block-uid block-uid 
+                                                 :drawing drawing 
+                                                 :data (get-data-from-block-string drawing-data) 
+                                                 :text (first drawing-text)})
                                   (debug ["(main) :callback drawing-data appearance" (get-in @drawing [:drawing :appState :appearance]) ]) ))]
         (r/create-class
          { :display-name "Excalidraw Roam Beta"
@@ -357,7 +363,7 @@
                                   (debug ["(main) :component-did-mount addPullWatch"])
                                   (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
                                   (pull-watch-callback nil nil)
-                                  (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene drawing) (:this-dom-node @cs) app-name))
+                                  (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
                                   (swap! style assoc-in [:host-div] (host-div-style cs))
                                   (.addEventListener js/window "resize" resize-handler)
                                   (debug ["(main) :component-did-mount Exalidraw mount initiated"]))
@@ -387,13 +393,16 @@
                                                   (if (is-full-screen cs)
                                                     (do (clear-checkboxes)
                                                       (.svgClipboard js/ExcalidrawWrapper)
-                                                      (save-component block-uid (js-to-clj-str (get-drawing ew)))
+                                                      (save-component {:block-uid block-uid 
+                                                                       :map-string (js-to-clj-str (get-drawing ew))})
                                                       (swap! cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
                                                       (going-full-screen? false cs style)) 
                                                     (do (going-full-screen? true cs style)
                                                       (if (nil? (get-in @drawing [:title :block-uid])) 
-                                                        (create-nested-blocks block-uid drawing nil))
-                                                      (reset! drawing-before-edit (generate-scene drawing))
+                                                        (create-nested-blocks {:block-uid block-uid 
+                                                                               :drawing drawing 
+                                                                               :empty-block-uid nil}))
+                                                      (reset! drawing-before-edit (generate-scene {:drawing drawing}))
                                                       (debug ["(main) :on-click drawing-before-edig " @drawing-before-edit])
                                                       (reset! ew (js/ExcalidrawWrapper.
                                                                   app-name
@@ -408,7 +417,8 @@
                                                   (clear-checkboxes)
                                                   (.svgClipboard js/ExcalidrawWrapper)
                                                   (debug ["(main) Cancel :on-click"])
-                                                  (save-component block-uid (str @drawing-before-edit))
+                                                  (save-component {:block-uid block-uid 
+                                                                   :map-string (str @drawing-before-edit)})
                                                   (swap! cs assoc-in [:aspect-ratio] (get-embed-image @drawing-before-edit (:this-dom-node @cs) app-name))
                                                   (going-full-screen? false cs style))}
                                       "❌"])]
@@ -418,7 +428,9 @@
                                         :value (get-in @drawing [:title :text])
                                         :on-change (fn [e] 
                                                     (if (nil? (get-in @drawing [:title :block-uid])) 
-                                                      (create-nested-blocks block-uid drawing nil))
+                                                      (create-nested-blocks {:block-uid block-uid 
+                                                                             :drawing drawing 
+                                                                             :empty-block-uid nil}))
                                                     (swap! drawing assoc-in [:title :text] (.. e -target -value))
                                                     (block/update
                                                       {:block {:uid (get-in @drawing [:title :block-uid])

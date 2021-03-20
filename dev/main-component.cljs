@@ -121,7 +121,7 @@
 
 ;;updates the :elements value of the drawing with nested text and updated object groups
 (defn update-elements-with-parts [x] {:raw-elements [] :text-elements [] :groups []}
-  (concat (into [] (remove (comp #{"text"} :type) (:raw-elements x)))  (:text-elements x))
+  (into [] (concat (into [] (remove (comp #{"text"} :type) (:raw-elements x)))  (:text-elements x)))
 )
 
 ;;{:block-uid "BlockUID" :map-string "String" :cs atom :drawing atom}

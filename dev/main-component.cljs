@@ -279,35 +279,6 @@
   (debug ["(load-drawing) drawing: " @(:drawing x) " data: " (:data x) " text: " (str (:text x)) "appearance " (get-in (:data x) [:appState :appearance])])
 )
 
-(def default-text-element 
-  {:y 100
-   :baseline 18
-  :isDeleted false
-  :strokeStyle "solid":roughness 1
-  :width 50
-  :type "text"
-  :strokeSharpness "sharp"
-  :fillStyle "hachure"
-  :angle 0
-  :groupIds []
-  :seed 1
-  :fontFamily 1
-  :boundElementIds []
-  :strokeWidth 1
-  :opacity 100
-  :id nil
-  :verticalAlign "top"
-  :strokeColor "#000000"
-  :textAlign "left"
-  :x 100
-  :fontSize 20
-  :version 1
-  :backgroundColor
-  "transparent"
-  :versionNonce 1
-  :height 25
-  :text "Text"})  
-
 ;;check if text in nested block has changed compared to drawing and updated text in drawing element including size
 (defn update-drawing-based-on-nested-blocks [x] ;{:elements [] :appState {} :nested-text [:block/uid "BlockUID" :block/string "text"]}
   (if-not (nil? (:nested-text x)) 
@@ -318,9 +289,9 @@
           (let [block-uid (get-block-uid-from-text-element y)
                 block-text (:block/string (first (filter (comp #{block-uid} :block/uid) (:nested-text x))))
                 text-measures (js->clj (.measureText js/ExcalidrawWrapper block-text y))]
-            (if (and
+            (if (or
                   (not (= 0 (count (filter (comp #{block-uid} :block/uid) (:nested-text x))))) ;;remove item is nested block is deleted
-                  (>= (get-in x [:roamExcalidraw :version]) 1)) ;;to prevent text being deleted from drawings saved with the earlier version
+                  (< (get-in x [:roamExcalidraw :version]) 1)) ;;to prevent text being deleted from drawings saved with the earlier version
               (do
                 (if-not (= block-text (:text y))  
                   (reset! text-elements 
@@ -341,18 +312,38 @@
                   col (mod (:block/order y) 5)
                   x (+ 50 (* col 100))
                   y (+ 50 (* row 50))
+                  text (:block/string y)
+                  id (:block/uid y)
                   text-measures (js->clj (.measureText js/ExcalidrawWrapper (:block/string y) default-text-element))]
               (reset! text-elements 
                         (conj @text-elements 
-                                (-> default-text-element 
-                                  (assoc-in [:text] (:block/string y))
-                                  (assoc-in [:baseline] (get text-measures "baseline"))
-                                  (assoc-in [:width] (get text-measures "width"))
-                                  (assoc-in [:height] (get text-measures "height"))
-                                  (assoc-in [:id] (:block/uid y))
-                                  (assoc-in [:x] x)
-                                  (assoc-in [:y] y)
-        ))))))
+                               {:y y
+                                :baseline (get text-measures "baseline")
+                                :isDeleted false
+                                :strokeStyle "solid":roughness 1
+                                :width (get text-measures "width")
+                                :type "text"
+                                :strokeSharpness "sharp"
+                                :fillStyle "hachure"
+                                :angle 0
+                                :groupIds []
+                                :seed 1
+                                :fontFamily 1
+                                :boundElementIds []
+                                :strokeWidth 1
+                                :opacity 100
+                                :id id
+                                :verticalAlign "top"
+                                :strokeColor "#000000"
+                                :textAlign "left"
+                                :x x
+                                :fontSize 20
+                                :version 1
+                                :backgroundColor "transparent"
+                                :versionNonce 1
+                                :height (get text-measures "height")
+                                :text text}))                                
+        )))
 
 
         {:elements (update-elements-with-parts {:raw-elements (:elements x) :text-elements @text-elements})

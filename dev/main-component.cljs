@@ -35,7 +35,17 @@
       (str/replace "{" "{\n")
       (str/replace ", " "\n")
       (str/replace "}" "\n}")))
- 
+
+(defn get-next-block-order [x]
+  (let [o (rd/q '[:find (max ?o) . 
+                  :in $ ?uid
+                  :where [?b :block/uid ?uid]
+                         [?b :block/children ?c]
+                         [?c :block/order ?o]]
+                x)]
+    (if (nil? o) 0 (+ 1 o))
+))
+
 (defn save-settings []
   (debug ["(save-settings) Enter"])
   (let [settings-host (r/atom (rd/q '[:find ?uid .
@@ -154,12 +164,12 @@
               )
               (do ;block no-longer exists, create new one
                 (debug ["(save-component) block should, but does not exist, creating..."])
-                (let [new-block-uid (.createBlock js/ExcalidrawWrapper title-block-uid 1000 (:text y))]
+                (let [new-block-uid (.createBlock js/ExcalidrawWrapper title-block-uid (get-next-block-order title-block-uid) (:text y))]
                   (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
         )))))
         (do ;;block with text does not exist as nested block, create new
           (debug ["(save-component) block does not exists, creating"])
-          (let [new-block-uid (.createBlock js/ExcalidrawWrapper title-block-uid 1000 (:text y))]
+          (let [new-block-uid (.createBlock js/ExcalidrawWrapper title-block-uid (get-next-block-order title-block-uid) (:text y))]
             (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
     ))))
     
@@ -167,7 +177,7 @@
     (doseq [y nested-text-blocks]
       (if (= 0 (count (filter (comp #{(str/join ["ROAM_" (:block/uid y) "_ROAM"])} :id) @text-elements)))
         (do (if (nil? @orphans-block-uid) (reset! orphans-block-uid (get-or-create-orphans-block-uid (:block-uid x))))
-          (block/move {:location {:parent-uid @orphans-block-uid :order 1000}
+          (block/move {:location {:parent-uid @orphans-block-uid :order (get-next-block-order @orphans-block-uid)}
                        :block {:uid (:block/uid y)}})
     )))
     (debug ["(save-component) text-blocks with updated IDs" (str @text-elements)])

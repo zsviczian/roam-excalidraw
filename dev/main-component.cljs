@@ -347,7 +347,7 @@
                                   :boundElementIds []
                                   :strokeWidth 1
                                   :opacity 100
-                                  :id id
+                                  :id (str/join ["ROAM_" id "_ROAM"])
                                   :verticalAlign "top"
                                   :strokeColor "#000000"
                                   :textAlign "left"

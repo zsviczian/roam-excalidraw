@@ -286,15 +286,16 @@
         (doseq [y (get-text-elements (:elements x))]
           (let [block-uid (get-block-uid-from-text-element y)
                 block-text (:block/string (first (filter (comp #{block-uid} :block/uid) (:nested-text x))))
-                text-measures (.measureText js/ExcalidrawWrapper block-text y)]
+                text-measures (js->clj (.measureText js/ExcalidrawWrapper block-text y))]
             (if-not (= block-text (:text y))  
               (reset! text-elements 
                         (conj @text-elements 
                                 (-> y 
                                   (assoc-in [:text] block-text)
-                                  (assoc-in [:baseline] (:baseline text-measures))
-                                  (assoc-in [:width] (:width text-measures))
-                                  (assoc-in [:height] (:height text-measures)))))
+                                  (assoc-in [:baseline] (get text-measures "baseline"))
+                                  (assoc-in [:width] (get text-measures "width"))
+                                  (assoc-in [:height] (get text-measures "height"))
+              )))
               (reset! text-elements (conj @text-elements y))
         )))
         {:elements (update-elements-with-parts {:raw-elements (:elements x) :text-elements @text-elements})

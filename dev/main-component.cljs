@@ -279,6 +279,7 @@
   (debug ["(load-drawing) drawing: " @(:drawing x) " data: " (:data x) " text: " (str (:text x)) "appearance " (get-in (:data x) [:appState :appearance])])
 )
 
+
 ;;check if text in nested block has changed compared to drawing and updated text in drawing element including size
 (defn update-drawing-based-on-nested-blocks [x] ;{:elements [] :appState {} :nested-text [:block/uid "BlockUID" :block/string "text"]}
   (if-not (nil? (:nested-text x)) 
@@ -314,7 +315,7 @@
                   y (+ 50 (* row 50))
                   text (:block/string y)
                   id (:block/uid y)
-                  text-measures (js->clj (.measureText js/ExcalidrawWrapper (:block/string y) default-text-element))]
+                  text-measures (js->clj (.measureText js/ExcalidrawWrapper (:block/string y) {:fontFamily 1 :fontSize 20}))]
               (reset! text-elements 
                         (conj @text-elements 
                                {:y y

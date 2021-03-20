@@ -111,6 +111,19 @@
       (.createBlock js/ExcalidrawWrapper x 3 "Orphans")
       uid)))
 
+(defn get-text-elements [x]
+  (filter (comp #{"text"} :type) x)
+)
+
+(defn get-block-uid-from-text-element [x]
+  (second (re-find #"ROAM_(.*)_ROAM" (:id x)))
+)
+
+;;updates the :elements value of the drawing with nested text and updated object groups
+(defn update-elements-with-parts [x] {:raw-elements [] :text-elements [] :groups []}
+  (concat (into [] (remove (comp #{"text"} :type) (:raw-elements x)))  (:text-elements x) (:groups x))
+)
+
 ;;{:block-uid "BlockUID" :map-string "String" :cs atom :drawing atom}
 (defn save-component [x] 
   ;;Disable the pullWatch while blocks are edited
@@ -127,12 +140,12 @@
         orphans-block-uid (r/atom nil)] 
     
     ;;process text on drawing
-    (doseq [y (filter (comp #{"text"} :type) (:elements edn-map))]
+    (doseq [y (get-text-elements (:elements edn-map))]
       (if (str/starts-with? (:id y) "ROAM_")
         (do ;;block with text should already exist, update text, but double check that the block is there...
-          (debug ["(save-component) nested block should exist text:" (:text y) "block-id" (re-find #"ROAM_(.*)_ROAM" (:id y))])
-          (let [text-block-uid (second (re-find #"ROAM_(.*)_ROAM" (:id y)))]
-            (if-not (nil? (filter (comp #{text-block-uid} :block/uid) nested-text-blocks))
+          (debug ["(save-component) nested block should exist text:" (:text y) "block-id" (get-block-uid-from-text-element y)])
+          (let [text-block-uid (get-block-uid-from-text-element y)]
+            (if-not (= 0 (count (filter (comp #{text-block-uid} :block/uid) nested-text-blocks)))
               (do ;;block exists
                 (debug ["(save-component) block exists, updateing"])
                 (block/update {:block {:uid text-block-uid :string (:text y)}})
@@ -163,7 +176,7 @@
     ;;to display as SVG or PNG (depending on setting)
     ;;I enable pullwatch event handler actions before updating the data block
     (swap! (:cs x) assoc-in [:saving] false)
-    (let [elements (concat (into [] (remove (comp #{"text"} :type) (:elements edn-map)))  @text-elements)
+    (let [elements (update-elements-with-parts {:raw-elements (:elements edn-map) :text-elements @text-elements})  
           out-string (fix-double-bracket (str {:elements elements :appState app-state}))
           render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
       (block/update
@@ -230,6 +243,8 @@
     (if (nil? (:empty-block-uid x)) 
       (block/update {:block {:uid (:block-uid x) :open false}}))))
 
+
+
 (defn load-drawing [x] ;{:block-uid "BlockUID" :drawing atom :data objects :text "text"} 
 ;drawing is the atom holding the drawing map
 ;block uid is the block with the roam/render component
@@ -243,21 +258,29 @@
                                        :appearance (:mode @app-settings)}}]
           (reset! (:drawing x) {:drawing default-data 
                             :title {:text "Untitled drawing"
-                                    :block-uid nil}})))
+                                    :block-uid nil}})
+      ))
       (if (= (count (:text x)) 0)
         (do
           (debug ["(load-drawing) create title only"])
           (reset! (:drawing x) {:drawing (:data x)
                            :title {:text "Untitled drawing"
                                    :block-uid (create-block (:block-uid x) 1 "Untitled drawing")}})
-          (block/update {:block {:uid (:block-uid x) :open false}}))
+          (block/update {:block {:uid (:block-uid x) :open false}})
+        )
         (do
           (debug ["(load-drawing) ExcalDATA & title already exist"])
           (reset! (:drawing x) {:drawing (:data x)
-                           :title {:text (get-in (:text x) [0 :block/string])
-                                   :block-uid  (get-in (:text x) [0 :block/uid])}}))))
-    (debug ["(load-drawing) drawing: " @(:drawing x) " data: " (:data x) " text: " (str (:text x)) "appearance " (get-in (:data x) [:appState :appearance])]))
+                                :title {:text (get-in (:text x) [0 :block/string])
+                                        :block-uid  (get-in (:text x) [0 :block/uid])}
+                                :text (get-in (:text x [0 :block/children]))})
+  )))
+  (debug ["(load-drawing) drawing: " @(:drawing x) " data: " (:data x) " text: " (str (:text x)) "appearance " (get-in (:data x) [:appState :appearance])])
+)
 
+(defn update-drawing-text-based-on-nested-blocks [x] ;{:elements [] :appState {} :nested-text [:block/uid "BlockUID" :block/string "text"]}
+  
+)
 
 (defn generate-scene [x] ;{:drawing atom}]
   (let [scene (:drawing @(:drawing x))]
@@ -404,14 +427,15 @@
                                            drawing-text (pull-children block-uid 1)
                                            empty-block-uid (re-find #":block/uid \"(.*)\", (:block/string \"\")" (str drawing-data))] ;check if user has nested a block under a new drawing
                                        (if-not (nil? empty-block-uid)
-                                       (create-nested-blocks {:block-uid block-uid 
-                                                              :drawing drawing 
-                                                              :empty-block-uid (second empty-block-uid)}))
-                                       (load-drawing {:block-uid block-uid 
-                                                      :drawing drawing 
-                                                      :data (get-data-from-block-string drawing-data) 
-                                                      :text (first drawing-text)})
-                                       (debug ["(main) :callback drawing-data appearance" (get-in @drawing [:drawing :appState :appearance]) ]) ))))]
+                                         (create-nested-blocks {:block-uid block-uid 
+                                                                :drawing drawing 
+                                                                :empty-block-uid (second empty-block-uid)}))
+                                         (load-drawing {:block-uid block-uid 
+                                                        :drawing drawing 
+                                                        :data (get-data-from-block-string drawing-data) 
+                                                        :text (first drawing-text)})
+                                         (debug ["(main) :callback drawing-data appearance" (get-in @drawing [:drawing :appState :appearance]) ])
+           ))))]
         (r/create-class
          { :display-name "Excalidraw Roam Beta"
            ;; Constructor

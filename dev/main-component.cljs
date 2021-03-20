@@ -98,6 +98,19 @@
           :where [?e :block/uid ?title-uid]]
         x)))
 
+(defn get-or-create-orphans-block-uid [x]
+  (let [uid (rd/q '[:find ?orphan-uid .
+                   :in $ ?uid
+                   :where [?b :block/uid ?uid]
+                          [?b :block/children ?c]
+                          [?c :block/string ?s]
+                          [(= ?s "Orphans")]
+                          [?c :block/uid ?orphan-uid]]
+                  x)]
+    (if (nil? uid)
+      (.createBlock js/ExcalidrawWrapper x 3 "Orphans")
+      uid)))
+
 (defn save-component [x] ;;{:block-uid "BlockUID" :map-string "String" :cs atom :drawing atom}
   (swap! (:cs x) assoc-in [:saving] true) ;;used to disable the pullWatch while blocks are edited
   (debug ["(save-component) Enter"])
@@ -107,7 +120,9 @@
         ;;get text blocks nested under title
         title-block-uid (get-in @(:drawing x) [:title :block-uid])
         nested-text-blocks (get-text-blocks title-block-uid) 
-        app-state (into {} (filter (comp some? val) (:appState edn-map)))] ;;remove nil elements from appState
+        app-state (into {} (filter (comp some? val) (:appState edn-map)))
+        orphans-block-uid (r/atom nil)] ;;remove nil elements from appState
+    ;;process text on drawing
     (doseq [y (filter (comp #{"text"} :type) (:elements edn-map))]
       (if (str/starts-with? (:id y) "ROAM_")
         (do ;;block with text should already exist, update text, but double check that the block is there...
@@ -117,23 +132,29 @@
               (do ;;block exists
                 (debug ["(save-component) block exists, updateing"])
                 (block/update {:block {:uid text-block-uid :string (:text y)}})
-                (reset! text-elements (conj @text-elements y)))
+                (reset! text-elements (concat @text-elements y)))
               (do ;block no-longer exists, create new one
                 (debug ["(save-component) block should, but does not exist, creating..."])
                 (let [new-block-uid (.createBlock js/ExcalidrawWrapper title-block-uid 1000 (:text y))]
-                  (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM___"])))))))))
+                  (reset! text-elements (concat @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM___"])))))))))
         (do ;;block with text does not exist as nested block, create new
           (debug ["(save-component) block does not exists, creating"])
           (let [new-block-uid (.createBlock js/ExcalidrawWrapper title-block-uid 1000 (:text y))]
-            (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM___"]))))))))
-      ;(debug ["(save-component) filter-text text:" (:text y) "id" (:id y)]))
+            (reset! text-elements (concat @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM___"]))))))))
+    ;;process nested text - move to orphans blocks no longer on drawing
+    
+    (doseq [y nested-text-blocks]
+      (if (nil? (filter (comp #{(str/join ["ROAM_" (:block/uid y) "_ROAM___"])} :id) @text-elements))
+        (do (if (nil? @orphans-block-uid) (reset! orphans-block-uid (get-or-create-orphans-block-uid (:block-uid x))))
+          (block/move {:location {:parent-uid @orphans-block-uid :order 1000}
+                       :block {:uid (:block/uid y)}}))))
     (debug ["(save-component) text-blocks with updated IDs" (str @text-elements)])
     ;;updating the data block is the final piece in saving the component
     ;;this update will trigger pullwatch to load the updated drawing 
     ;;to display as SVG or PNG (depending on setting)
     ;;I enable pullwatch event handler actions before updating the data block
     (swap! (:cs x) assoc-in [:saving] false)
-    (let [elements (conj (into [] (remove (comp #{"text"} :type) (:elements edn-map))) (into [] @text-elements))
+    (let [elements (concat (into [] (remove (comp #{"text"} :type) (:elements edn-map)))  @text-elements)
           out-string (fix-double-bracket (str {:elements elements :appState app-state}))
           render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
       (block/update

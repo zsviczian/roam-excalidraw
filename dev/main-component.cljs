@@ -545,7 +545,9 @@
                                                         :data (get-data-from-block-string drawing-data) 
                                                         :text (first drawing-text)})
                                          (if-not (is-full-screen cs)
-                                           (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name)))
+                                           (do
+                                             (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
+                                             (swap! style assoc-in [:host-div] (host-div-style cs))))
                                          (debug ["(main) :callback drawing-data appearance" (get-in @drawing [:drawing :appState :appearance]) ])
            ))))]
         (r/create-class

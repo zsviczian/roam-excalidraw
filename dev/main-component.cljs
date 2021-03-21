@@ -530,6 +530,7 @@
                                    (swap! style assoc-in [:host-div] (host-div-style cs))
                                    (if-not (nil? (:this-dom-node @cs)) 
                                      (swap! style assoc-in [:host-div] (host-div-style cs)))))
+           clear-saving-semaphore (fn [] (swap! cs assoc-in [:saving] false))
            pull-watch-callback (fn [before after]
                                  (if-not (:saving @cs)
                                    (do 
@@ -542,7 +543,7 @@
                                            (create-nested-blocks {:block-uid block-uid 
                                                                    :drawing drawing 
                                                                    :empty-block-uid (second empty-block-uid)}))
-                                           (js/setTimeout (fn [] (swap! cs assoc-in [:saving] false) ) 1000)) ;;to avoid double entry
+                                           (js/setTimeout clear-saving-semaphore 1000)) ;;to avoid double entry
                                          (load-drawing {:block-uid block-uid 
                                                         :drawing drawing 
                                                         :data (get-data-from-block-string drawing-data) 

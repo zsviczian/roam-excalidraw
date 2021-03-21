@@ -521,7 +521,8 @@
                         :this-dom-node nil
                         :header-height 30
                         :aspect-ratio nil
-                        :saving false})
+                        :saving false
+                        :prev-empty-block nil}) ;; this is a semaphore system to avoid creating double nested blocks when manually creating the first nested element
            ew (r/atom nil) ;;excalidraw-wrapper
            drawing-before-edit (r/atom nil)
            app-name (str/join ["excalidraw-app-" block-uid])
@@ -530,29 +531,29 @@
                                    (swap! style assoc-in [:host-div] (host-div-style cs))
                                    (if-not (nil? (:this-dom-node @cs)) 
                                      (swap! style assoc-in [:host-div] (host-div-style cs)))))
-           clear-saving-semaphore (fn [] (swap! cs assoc-in [:saving] false))
            pull-watch-callback (fn [before after]
                                  (if-not (:saving @cs)
                                    (do 
                                      (let [drawing-data (pull-children block-uid 0)
                                            drawing-text (pull-children block-uid 1)
                                            empty-block-uid (re-find #":block/uid \"(.*)\", (:block/string \"\")" (str drawing-data))] ;check if user has nested a block under a new drawing
-                                       (if-not (nil? empty-block-uid)
-                                         (do 
-                                           (swap! cs assoc-in [:saving] true) ;;semaphore to avoid double creation of blocks
-                                           (create-nested-blocks {:block-uid block-uid 
-                                                                   :drawing drawing 
-                                                                   :empty-block-uid (second empty-block-uid)}))
-                                           (js/setTimeout clear-saving-semaphore 1000)) ;;to avoid double entry
-                                         (load-drawing {:block-uid block-uid 
-                                                        :drawing drawing 
-                                                        :data (get-data-from-block-string drawing-data) 
-                                                        :text (first drawing-text)})
-                                         (if-not (is-full-screen cs)
-                                           (do
-                                             (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
-                                             (swap! style assoc-in [:host-div] (host-div-style cs))))
-                                         (debug ["(main) :callback drawing-data appearance" (get-in @drawing [:drawing :appState :appearance]) ])
+                                      (if-not (nil? empty-block-uid)
+                                        (if-not (= (second empty-block-uid) (:prev-empty-block @cs))
+                                          (do
+                                            (swap! cs assoc-in [:prev-empty-block] (second empty-block-uid)) ;;semaphore to avoid double creation of blocks
+                                            (create-nested-blocks {:block-uid block-uid 
+                                                                    :drawing drawing 
+                                                                    :empty-block-uid (second empty-block-uid)})
+                                            ))) 
+                                      (load-drawing {:block-uid block-uid 
+                                                    :drawing drawing 
+                                                    :data (get-data-from-block-string drawing-data) 
+                                                    :text (first drawing-text)})
+                                      (if-not (is-full-screen cs)
+                                        (do
+                                          (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
+                                          (swap! style assoc-in [:host-div] (host-div-style cs))))
+                                      (debug ["(main) :callback drawing-data appearance" (get-in @drawing [:drawing :appState :appearance]) ])
            ))))]
         (r/create-class
          { :display-name "Excalidraw Roam Beta"

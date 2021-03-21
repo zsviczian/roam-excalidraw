@@ -3,7 +3,7 @@ if (typeof window.ExcalidrawWrapper == 'undefined') {
   window.ExcalidrawConfig = {
     rootPath: 'https://roam-excalidraw.com/',
     channel: 'alpha',
-    cljCodeVersion: 'excalidraw.app.alpha.v19',
+    cljCodeVersion: 'excalidraw.app.alpha.v20',
     DEBUG : false,
     sketchingUID : 'sketching',
     excalDATAUID : 'ExcalDATA',

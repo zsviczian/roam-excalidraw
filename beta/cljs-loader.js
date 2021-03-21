@@ -1,12 +1,14 @@
 window.ExcalidrawLoader = {
   sketchingUID : ExcalidrawConfig.sketchingUID,
   excalDATAUID : ExcalidrawConfig.excalDATAUID,
+  excalSVGUID  : ExcalidrawConfig.excalSVGUID,
   settingsUID  : ExcalidrawConfig.settingsUID,
   pageTitle : 'roam/excalidraw',
   mainComponentParent : 'Main Component',
   dataComponentParent : 'Data Block Component',
+  svgComponentParent : 'SVG Component',
   settingsComponentParent : 'Settings', 
-  defaultSetting: '{:mode "light", :img "SVG"}',
+  defaultSetting: '{\n:mode "light"\n:img "SVG"\n:max-embed-width 600\n:max-embed-height 400\n:full-screen-margin 0.015\n}',
 
   updateCodeBlock(blockUID, sourceCode) {
     window.roamAlphaAPI.updateBlock({"block": 
@@ -28,10 +30,9 @@ window.ExcalidrawLoader = {
     return blockUID;
   },
 
-  getBlockUIDByStringANDOrder (pageUID, order, blockString) {
+  getBlockUIDByString (pageUID, blockString) {
     q = `[:find ?uid . :where [?p :block/uid "${pageUID}"]
                             [?p :block/children ?b]
-                            [?b :block/order ${order}]
                             [?b :block/string ?s]
                             [(= ?s "${blockString}")]
                             [?b :block/uid ?uid]]`;
@@ -39,7 +40,7 @@ window.ExcalidrawLoader = {
   },
 
   getORcreateBlockBYString (pageUID, order, blockString) {
-    uid = this.getBlockUIDByStringANDOrder (pageUID, order, blockString);
+    uid = this.getBlockUIDByString (pageUID, blockString);
     if (uid == null)
       uid = this.createBlock(pageUID,order, blockString);
     return uid;
@@ -81,10 +82,12 @@ window.ExcalidrawLoader = {
 
     mainComponentParentUID = this.getORcreateBlockBYString (pageUID,0,this.mainComponentParent);
     dataComponentParentUID = this.getORcreateBlockBYString (pageUID,1,this.dataComponentParent);
-    settingsComponentParentUID = this.getORcreateBlockBYString (pageUID,2,this.settingsComponentParent);
+    svgComponentParentUID  = this.getORcreateBlockBYString (pageUID,2,this.svgComponentParent);
+    settingsComponentParentUID = this.getORcreateBlockBYString (pageUID,3,this.settingsComponentParent);
 
     this.createBlockIfNotExists (mainComponentParentUID, this.sketchingUID, '');
     this.createBlockIfNotExists (dataComponentParentUID, this.excalDATAUID, '');
+    this.createBlockIfNotExists (svgComponentParentUID, this.excalSVGUID,'');
     if(!this.blockExists(this.settingsUID)) 
       this.createBlockWithUID (settingsComponentParentUID,0,this.defaultSetting,this.settingsUID);
 
@@ -98,11 +101,21 @@ window.ExcalidrawLoader = {
                                       {"parent-uid": dataComponentParentUID, 
                                     "order": 0}, 
                                       "block": {"uid": this.excalDATAUID}});
+
+    if(!isParent(this.excalSVGUID,this.svgComponentParent))                                    
+    window.roamAlphaAPI.moveBlock({"location":
+                                    {"parent-uid": svgComponentParentUID, 
+                                  "order": 0}, 
+                                    "block": {"uid": this.excalSVGUID}});
+                                
     
     window.roamAlphaAPI.updateBlock({"block": {"uid": mainComponentParentUID,
                                                "open": false}});
     window.roamAlphaAPI.updateBlock({"block": {"uid": dataComponentParentUID,
                                                "open": false}});
+    window.roamAlphaAPI.updateBlock({"block": {"uid": svgComponentParentUID,
+    "open": false}});
+
     
     //create template
     if (firstEverRun) {
@@ -137,17 +150,28 @@ function loadExcalidrawCljs() {
   ExcalidrawLoader.buildPage();
   tripple_accent = String.fromCharCode(96,96,96);
   ExcalidrawConfig.log('cljs-loader.js','loadExcalidrawCljs()','updateCodeBlock');
+  
+  //update main-component
   ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.sketchingUID,tripple_accent + 
                   'clojure\n' + 
                   ExcalidrawConfig.mainComponent +
                   tripple_accent);
   delete ExcalidrawConfig.mainComponent;
 
+  //update data-component
   ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalDATAUID,tripple_accent + 
                   'clojure\n' + 
                   ExcalidrawConfig.dataComponent +
                   tripple_accent);
   delete ExcalidrawConfig.dataComponent;
+
+  //update svg-component
+  ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalSVGUID,tripple_accent + 
+                                    'clojure\n' + 
+                                    ExcalidrawConfig.svgComponent +
+                                    tripple_accent);
+  delete ExcalidrawConfig.svgComponent;
+
 }
 
 loadExcalidrawCljs();

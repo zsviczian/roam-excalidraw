@@ -507,6 +507,10 @@
 (defn get-style [x]
   (str/join [x "-" (:mode @app-settings)]))
 
+(defn timer-to-release-saving-semaphore []
+  (swap! cs assoc-in [:saving] false)
+)
+
 (defn main [{:keys [block-uid]} & args]
   (debug ["(main) component starting..."])
   (check-js-dependencies)
@@ -542,7 +546,7 @@
                                            (create-nested-blocks {:block-uid block-uid 
                                                                    :drawing drawing 
                                                                    :empty-block-uid (second empty-block-uid)}))
-                                           (swap! cs assoc-in [:saving] false))
+                                           (js/setTimeout timer-to-release-saving-semaphore 1000)) ;;to avoid double entry
                                          (load-drawing {:block-uid block-uid 
                                                         :drawing drawing 
                                                         :data (get-data-from-block-string drawing-data) 

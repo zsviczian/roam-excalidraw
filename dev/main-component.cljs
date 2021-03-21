@@ -307,26 +307,31 @@
   (if-not (nil? (:nested-text x)) 
     (do
       (let [text-elements (r/atom nil)]
-      (debug ["(update-drawing-based-on-nested-blocks) processing nested text - apply changes to existing blocks, omit deleted ones"])
+      (debug ["(update-drawing-based-on-nested-blocks) processing nested text - apply changes to existing text elements, omit deleted ones"])
         ;;update elements on drawing based on changes to nested text
         (doseq [y (get-text-elements (:elements x))]
           (let [block-uid (get-block-uid-from-text-element y)
-                block-text (:block/string (first (filter (comp #{block-uid} :block/uid) (:nested-text x))))]
-            (if (or
-                  (not (= 0 (count (filter (comp #{block-uid} :block/uid) (:nested-text x))))) ;;remove item is nested block is deleted
-                  (< (get-in x [:roamExcalidraw :version]) 1)) ;;to prevent text being deleted from drawings saved with the earlier version
-              (let [text-measures (js->clj (.measureText js/ExcalidrawWrapper block-text y))]
-                (if-not (= block-text (:text y))  
-                  (reset! text-elements 
-                            (conj @text-elements 
-                                    (-> y 
-                                      (assoc-in [:text] block-text)
-                                      (assoc-in [:baseline] (get text-measures "baseline"))
-                                      (assoc-in [:width] (get text-measures "width"))
-                                      (assoc-in [:height] (get text-measures "height"))
-                  )))
-                  (reset! text-elements (conj @text-elements y))
-        )))))
+                block-text (:block/string (first (filter (comp #{block-uid} :block/uid) (:nested-text x))))
+                text-element-has-nested-block-pair (= 0 (count (filter (comp #{block-uid} :block/uid) (:nested-text x))))]
+            ;;add text to drawing if text element has a nested block pair, 
+            (if (not text-element-has-nested-block-pair)  
+              (do
+                (if-not (= block-text (:text y)) ;if text has changed, update measures
+                  (let [text-measures (js->clj (.measureText js/ExcalidrawWrapper block-text y))]
+                    (reset! text-elements 
+                              (conj @text-elements 
+                                      (-> y 
+                                        (assoc-in [:text] block-text)
+                                        (assoc-in [:baseline] (get text-measures "baseline"))
+                                        (assoc-in [:width] (get text-measures "width"))
+                                        (assoc-in [:height] (get text-measures "height"))
+                    )))))
+                (reset! text-elements (conj @text-elements y)))
+              ;;else it should be removed from the drawing
+              ;;unless the drawing is from an old version of the plugin when nested blocks weren't handled
+              (if (< (get-in x [:roamExcalidraw :version]) 1) 
+                (reset! text-elements (conj @text-elements y)))
+        )))
         
         (debug ["(update-drawing-based-on-nested-blocks) processing nested text - add new nested blocks"])
         ;;add text for newly nested blocks

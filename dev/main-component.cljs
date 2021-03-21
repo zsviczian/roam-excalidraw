@@ -537,9 +537,12 @@
                                            drawing-text (pull-children block-uid 1)
                                            empty-block-uid (re-find #":block/uid \"(.*)\", (:block/string \"\")" (str drawing-data))] ;check if user has nested a block under a new drawing
                                        (if-not (nil? empty-block-uid)
-                                         (create-nested-blocks {:block-uid block-uid 
-                                                                :drawing drawing 
-                                                                :empty-block-uid (second empty-block-uid)}))
+                                         (do 
+                                           (swap! (:cs x) assoc-in [:saving] true) ;;semaphore to avoid double creation of blocks
+                                           (create-nested-blocks {:block-uid block-uid 
+                                                                   :drawing drawing 
+                                                                   :empty-block-uid (second empty-block-uid)}))
+                                           (swap! (:cs x) assoc-in [:saving] false))
                                          (load-drawing {:block-uid block-uid 
                                                         :drawing drawing 
                                                         :data (get-data-from-block-string drawing-data) 

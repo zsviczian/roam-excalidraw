@@ -18,11 +18,11 @@
                            :full-screen-margin 0.015
                            :max-embed-width 600
                            :max-embed-height 400
-                           :nested-text-rows 5
-                           :nested-text-row-height 50
+                           :nested-text-rows 10
+                           :nested-text-row-height 40
                            :nested-text-col-width 400
-                           :nested-text-start-top 50
-                           :nested-text-start-left 50
+                           :nested-text-start-top 40
+                           :nested-text-start-left 220
                            :nested-text-font-size 20
                            :nested-text-font-family 1})
 (def app-settings (r/atom default-app-settings))
@@ -38,10 +38,11 @@
   (.createBlock js/window.ExcalidrawWrapper parent-uid order block-string))
 
 (defn pretty-settings [x]
- (-> (str x)
-      (str/replace "{" "{\n")
-      (str/replace ", " "\n")
-      (str/replace "}" "\n}")))
+  (let [y (into (sorted-map) (sort-by first (seq x)))]
+    (-> (str y)
+          (str/replace "{" "{\n")
+          (str/replace ", " "\n")
+          (str/replace "}" "\n}"))))
 
 (defn get-next-block-order [x]
   (let [o (rd/q '[:find (max ?o) . 
@@ -316,7 +317,8 @@
             ;;add text to drawing if text element has a nested block pair, 
             (if (not text-element-has-nested-block-pair)  
               (do
-                (if-not (= block-text (:text y)) ;if text has changed, update measures
+                ;if text has changed, update measures
+                (if-not (= block-text (:text y)) 
                   (let [text-measures (js->clj (.measureText js/ExcalidrawWrapper block-text y))]
                     (reset! text-elements 
                               (conj @text-elements 
@@ -325,8 +327,9 @@
                                         (assoc-in [:baseline] (get text-measures "baseline"))
                                         (assoc-in [:width] (get text-measures "width"))
                                         (assoc-in [:height] (get text-measures "height"))
-                    )))))
-                (reset! text-elements (conj @text-elements y)))
+                    ))))
+                  ;;else add to list as-is 
+                  (reset! text-elements (conj @text-elements y))))
               ;;else it should be removed from the drawing
               ;;unless the drawing is from an old version of the plugin when nested blocks weren't handled
               (if (< (get-in x [:roamExcalidraw :version]) 1) 

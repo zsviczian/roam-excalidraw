@@ -390,12 +390,10 @@
 
 (defn generate-scene [x] ;{:drawing atom}]
   (debug ["(generate-scene) enter" x])
-  (let [scene (update-drawing-based-on-nested-blocks {:elements (:elements (:drawing @(:drawing x)))
+  (update-drawing-based-on-nested-blocks {:elements (:elements (:drawing @(:drawing x)))
                                                       :appState (:appState (:drawing @(:drawing x)))
                                                       :nested-text (:text @(:drawing x))
-                                                      :roamExcalidraw (:roamExcalidraw (:drawing @(:drawing x)))})]
-    (debug ["(generate-scene)" scene])
-))
+                                                      :roamExcalidraw (:roamExcalidraw (:drawing @(:drawing x)))}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Main Function Form-3

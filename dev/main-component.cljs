@@ -602,8 +602,8 @@
                                 [:div
                                   {:class (get-style "excalidraw-host")
                                    :style (:host-div @style)
-                                   :onmouseenter (fn[] (swap! cs assoc-in [:mouseover] true))
-                                   :onmouseout (fn[] (swap! cs assoc-in [:mouseover] false)) }
+                                   :on-mouse-over (fn[e] (swap! cs assoc-in [:mouseover] true))
+                                   :on-mouse-leave (fn[e] (swap! cs assoc-in [:mouseover] false)) }
                                   [:div {:class (get-style "ex-header-wrapper")}
                                   [:span {:class (get-style "ex-header-buttons-wrapper")}
                                     [:button

@@ -589,9 +589,9 @@
                                 {:class (get-style "ex-header-button")
                                   :style {:display (if (:mouseover @cs) "block" "none")
                                           :left (if (is-full-screen cs) ;;this is so the button refreshes when going full screen
-                                                  (- (.-clientWidth (:this-dom-node @cs)) 35) 
+                                                  (- (.-clientWidth (:this-dom-node @cs)) 60) 
                                                   (if-not (nil? (:this-dom-node @cs)) 
-                                                    (- (.-clientWidth (:this-dom-node @cs)) 35) 
+                                                    (- (.-clientWidth (:this-dom-node @cs)) 32 
                                                     0))}
                                   :draggable true
                                   :on-click (fn [e]

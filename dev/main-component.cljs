@@ -440,23 +440,19 @@
             (if (> ar 1.0) "100%" 
               embed-height  ))]
     (if (is-full-screen cs)
-      (do
-        (swap! cs assoc-in [:button-left] (- width (* left 2) 30))
-        {:position "fixed"
-        :z-index 1000
-        :top top
-        :left left
-        :width  (str/join ["calc(100% - " (* left 2) "px)"]) 
-        :height (- height (* top 2))
-        :resize "none"})
-      (do
-        (swap! cs assoc-in [:button-left] (- w (* left 2) 30))
-        {:position "relative"
-        :width w
-        :height h
-        :resize "both"
-        :overflow "hidden"}
-))))
+      {:position "fixed"
+      :z-index 1000
+      :top top
+      :left left
+      :width  (str/join ["calc(100% - " (* left 2) "px)"]) 
+      :height (- height (* top 2))
+      :resize "none"}
+      {:position "relative"
+      :width w
+      :height h
+      :resize "both"
+      :overflow "hidden"}
+)))
 
 (defn going-full-screen? [x cs style]
   (if (= x true)
@@ -515,7 +511,6 @@
                         :aspect-ratio nil
                         :saving false
                         :mouseover false
-                        :button-left: (:max-embed-width @app-settings)
                         :prev-empty-block nil}) ;; this is a semaphore system to avoid creating double nested blocks when manually creating the first nested element
            ew (r/atom nil) ;;excalidraw-wrapper
            drawing-before-edit (r/atom nil)
@@ -593,7 +588,11 @@
                                 [:button
                                 {:class (get-style "ex-header-button")
                                   :style {:display (if (:mouseover @cs) "block" "none")
-                                          :left (- (.-clientWidth (:this-dom-node @cs)) 30) };(:button-left @cs)}  
+                                          :left (if (is-full-screen cs) ;;this is so the button refreshes when going full screen
+                                                  (- (.-clientWidth (:this-dom-node @cs)) 30) 
+                                                  (if-not (nil? (:this-dom-node @cs)) 
+                                                    (- (.-clientWidth (:this-dom-node @cs)) 30) 
+                                                    0))}
                                   :draggable true
                                   :on-click (fn [e]
                                               (if (is-full-screen cs)

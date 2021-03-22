@@ -28,7 +28,7 @@
   background-color: transparent;
   color: var(--cl-ex-light);
   position: absolute;
-  top: 0px;
+  top: 5px;
   z-index: 1100;
   border-radius: 15px;
   margin-right: 3px;
@@ -59,7 +59,7 @@
   background-color: transparent;
   color: var(--cl-ex-dark);
   position: absolute;
-  top: 0px;
+  top: 5px;
   z-index: 1100;
   border-radius: 15px;
   margin-right: 3px;

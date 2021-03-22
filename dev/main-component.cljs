@@ -204,7 +204,7 @@
         {:block {:uid data-block-uid
                 :string render-string}})
     )
-    (swap! app-settings assoc-in [:mode] (get-in app-state [:appearance]))
+    (swap! app-settings assoc-in [:mode] (get-in app-state [:theme]))
     (save-settings)
 ))
 
@@ -253,7 +253,7 @@
 ;;are missing)
   (debug ["(create-nested-blocks)"])
   (let [default-data {:appState {:name "Untitled drawing"
-                                       :appearance (:mode @app-settings)}
+                                       :theme (:mode @app-settings)}
                       :roamExcalidraw {:version 1}}]
     (create-block (:block-uid x) 0 (str/join ["{{roam/render: ((ExcalDATA)) "
                                 (str default-data) " }}"]))
@@ -277,7 +277,7 @@
       (do
         (debug ["(load-drawing) no children - creating dummy data"])
         (let [default-data {:appState {:name "Untitled drawing"
-                                       :appearance (:mode @app-settings)}
+                                       :theme (:mode @app-settings)}
                             :roamExcalidraw {:version 1}}]
           (reset! (:drawing x) {:drawing default-data 
                             :title {:text "Untitled drawing"
@@ -298,7 +298,7 @@
                                         :block-uid  (get-in (:text x) [0 :block/uid])}
                                 :text (get-in (:text x) [0 :block/children])})
   )))
-  (debug ["(load-drawing) drawing: " @(:drawing x) " data: " (:data x) " text: " (str (:text x)) "appearance " (get-in (:data x) [:appState :appearance])])
+  (debug ["(load-drawing) drawing: " @(:drawing x) " data: " (:data x) " text: " (str (:text x)) "theme " (get-in (:data x) [:appState :theme])])
 )
 
 
@@ -480,7 +480,7 @@
 (def deps-available (r/atom false))
 
 (defn check-js-dependencies []
-  (if (and (not= (str (type js/ExcalidrawUtils)) "")
+  (if (and 
        (not= (str (type js/Excalidraw)) "")
        (not= (str (type js/ReactDOM)) "")
        (not= (str (type js/React)) "")
@@ -553,7 +553,7 @@
                                         (do
                                           (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
                                           (swap! style assoc-in [:host-div] (host-div-style cs))))
-                                      (debug ["(main) :callback drawing-data appearance" (get-in @drawing [:drawing :appState :appearance]) ])
+                                      (debug ["(main) :callback drawing-data theme" (get-in @drawing [:drawing :appState :theme]) ])
            ))))]
         (r/create-class
          { :display-name "Excalidraw Roam Beta"
@@ -694,5 +694,5 @@
                                   {:id app-name
                                     :style (if (is-full-screen cs)
                                             {:position "relative" :width "100%" :height (str/join ["calc(100% - " (:header-height @cs) "px"])}
-                                            {:background (if (= (get-in @drawing [:drawing :appState :appearance]) "dark") "#121212" "white")})}
+                                            {:background (if (= (get-in @drawing [:drawing :appState :theme]) "dark") "#121212" "white")})}
 ]]))})))))

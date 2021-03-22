@@ -211,7 +211,7 @@ window['ExcalidrawWrapper'] = class {
     let mode = 'light';
     if (diagram != null) 
       if(diagram.appState != null)
-        mode = (diagram.appState.appearance == 'dark') ? "dark" : "light";    
+        mode = (diagram.appState.theme == 'dark') ? "dark" : "light";    
     if (diagram==null) 
       diagram = excalidrawSplashScreen;
     else 
@@ -241,7 +241,7 @@ window['ExcalidrawWrapper'] = class {
     let mode = 'light';
     if (diagram != null) 
       if(diagram.appState != null)
-        mode = (diagram.appState.appearance == 'dark') ? "dark" : "light";
+        mode = (diagram.appState.theme == 'dark') ? "dark" : "light";
     if (diagram==null) 
       diagram = excalidrawSplashScreen;
     else 

@@ -589,9 +589,9 @@
                                 {:class (get-style "ex-header-button")
                                   :style {:display (if (:mouseover @cs) "block" "none")
                                           :left (if (is-full-screen cs) ;;this is so the button refreshes when going full screen
-                                                  (- (.-clientWidth (:this-dom-node @cs)) 30) 
+                                                  (- (.-clientWidth (:this-dom-node @cs)) 35) 
                                                   (if-not (nil? (:this-dom-node @cs)) 
-                                                    (- (.-clientWidth (:this-dom-node @cs)) 30) 
+                                                    (- (.-clientWidth (:this-dom-node @cs)) 35) 
                                                     0))}
                                   :draggable true
                                   :on-click (fn [e]
@@ -614,7 +614,7 @@
                                                               app-name
                                                               @drawing-before-edit
                                                               (:this-dom-node @cs) )))))}
-                                  (if (is-full-screen cs) "💾" "🖋")]
+                                  (if (is-full-screen cs) "✖️" "🖋")]
                                 [:div
                                 {:id app-name
                                   :style (if (is-full-screen cs)

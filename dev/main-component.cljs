@@ -458,7 +458,8 @@
       (load-settings)
       (.fullScreenKeyboardEventRedirect js/window.ExcalidrawWrapper true)
       (swap! cs assoc-in [:position] full-screen-view)
-      (swap! style assoc-in [:host-div] (host-div-style cs)))
+      (swap! style assoc-in [:host-div] (host-div-style cs)
+      (swap! style assoc-in [:button-left] (- (.-clientWidth (:this-dom-node @cs)) 60))))
     (do
       (.fullScreenKeyboardEventRedirect js/window.ExcalidrawWrapper false)
       (swap! cs assoc-in [:position] embedded-view)

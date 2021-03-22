@@ -438,15 +438,13 @@
             (if (> ar 1.0) "100%" 
               embed-height  ))]
     (if (is-full-screen cs)
-      (do
-        (swap! cs assoc-in [:mouseover] false)
-        {:position "fixed"
-        :z-index 1000
-        :top top
-        :left left
-        :width  (str/join ["calc(100% - " (* left 2) "px)"]) 
-        :height (- height (* top 2))
-        :resize "none"})
+      {:position "fixed"
+      :z-index 1000
+      :top top
+      :left left
+      :width  (str/join ["calc(100% - " (* left 2) "px)"]) 
+      :height (- height (* top 2))
+      :resize "none"}
       {:position "relative"
       :width w
       :height h
@@ -460,7 +458,8 @@
       (load-settings)
       (.fullScreenKeyboardEventRedirect js/window.ExcalidrawWrapper true)
       (swap! cs assoc-in [:position] full-screen-view)
-      (swap! style assoc-in [:host-div] (host-div-style cs)))
+      (swap! style assoc-in [:host-div] (host-div-style cs))
+      (swap! cs assoc-in [:mouseover] false))
     (do
       (.fullScreenKeyboardEventRedirect js/window.ExcalidrawWrapper false)
       (swap! cs assoc-in [:position] embedded-view)

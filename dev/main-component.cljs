@@ -458,8 +458,7 @@
       (load-settings)
       (.fullScreenKeyboardEventRedirect js/window.ExcalidrawWrapper true)
       (swap! cs assoc-in [:position] full-screen-view)
-      (swap! style assoc-in [:host-div] (host-div-style cs)
-      (swap! style assoc-in [:button-left] (- (.-clientWidth (:this-dom-node @cs)) 60))))
+      (swap! style assoc-in [:host-div] (host-div-style cs)))
     (do
       (.fullScreenKeyboardEventRedirect js/window.ExcalidrawWrapper false)
       (swap! cs assoc-in [:position] embedded-view)
@@ -515,11 +514,9 @@
            ew (r/atom nil) ;;excalidraw-wrapper
            drawing-before-edit (r/atom nil)
            app-name (str/join ["excalidraw-app-" block-uid])
-           style (r/atom {:host-div (host-div-style cs)
-                          :button-left 0})
+           style (r/atom {:host-div (host-div-style cs)})
            resize-handler (fn [] (if (is-full-screen cs) 
-                                   (do (swap! style assoc-in [:host-div] (host-div-style cs))
-                                     (swap! style assoc-in [:button-left] (- (.-clientWidth (:this-dom-node @cs)) 60)))
+                                   (swap! style assoc-in [:host-div] (host-div-style cs))  
                                    (if-not (nil? (:this-dom-node @cs)) 
                                      (swap! style assoc-in [:host-div] (host-div-style cs)))))
            pull-watch-callback (fn [before after]
@@ -591,7 +588,7 @@
                                 {:class (get-style "ex-header-button")
                                   :style {:display (if (:mouseover @cs) "block" "none")
                                           :left (if (is-full-screen cs) ;;this is so the button refreshes when going full screen
-                                                  (:button-left @style)
+                                                  (- (.-clientWidth (:this-dom-node @cs)) 60)
                                                   (if-not (nil? (:this-dom-node @cs)) 
                                                     (- (.-clientWidth (:this-dom-node @cs)) 32) 
                                                     0))}

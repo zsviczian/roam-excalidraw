@@ -60,8 +60,12 @@ window['ExcalidrawWrapper'] = class {
             width: dimensions.width,
             height: dimensions.height,
             initialData: initData,
-//            onChange: (elements, state) => {}, //console.log("Elements :", elements, "State : ", state),
-//            onPointerUpdate: (payload) => {},  //console.log(payload),
+            onChange: (elements, state) => {}, //console.log("Elements :", elements, "State : ", state),
+            onPointerUpdate: (payload) => {},  //console.log(payload),
+            //onCollabButtonClick: () => {},     //window.alert("You clicked on collab button"),
+//            viewModeEnabled: false,
+//            zenModeEnabled: false,
+//            gridModeEnabled: false
           })
         )
       );

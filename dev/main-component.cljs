@@ -406,11 +406,6 @@
 (defn is-full-screen [cs]  ;;component-state
   (not= (:position @cs) embedded-view))
 
-(defn set-zen-mode-enabled [ew cs value] ;;exalidraw-wrapper component-state
-  (debug ["(set-zen-mode-enabled) " value])
-  (swap! cs assoc-in [:zen-mode] value)
-  (if-not (nil? @ew) (.setZenModeEnabled @ew value)))
-
 (defn set-grid-mode-enabled [ew cs value] ;;exalidraw-wrapper component-state
   (debug ["(set-grid-mode-enabled) " value])
   (swap! cs assoc-in [:grid-mode] value)
@@ -516,7 +511,6 @@
       (debug ["(main) fn[] starting..."])
       (let [drawing (r/atom nil)
             cs (r/atom {:position embedded-view  ;;component-state
-                        :zen-mode false
                         :grid-mode false
                         :this-dom-node nil
                         :header-height 30

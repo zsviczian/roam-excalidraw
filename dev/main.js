@@ -24,12 +24,6 @@ window['ExcalidrawWrapper'] = class {
       
       this.excalidrawRef = excalidrawRef;
       
-      const [zenModeEnabled, setZenModeEnabled] = React.useState(false);
-      const [gridModeEnabled, setGridModeEnabled] = React.useState(false);
-
-      this.setZenModeEnabled = setZenModeEnabled;
-      this.setGridModeEnabled = setGridModeEnabled;
-
       React.useEffect(() => {
         setDimensions({
           width: excalidrawWrapperRef.current.getBoundingClientRect().width,
@@ -69,9 +63,9 @@ window['ExcalidrawWrapper'] = class {
             onChange: (elements, state) => {}, //console.log("Elements :", elements, "State : ", state),
             onPointerUpdate: (payload) => {},  //console.log(payload),
             //onCollabButtonClick: () => {},     //window.alert("You clicked on collab button"),
-            viewModeEnabled: false,
-            zenModeEnabled: zenModeEnabled,
-            gridModeEnabled: gridModeEnabled
+//            viewModeEnabled: false,
+//            zenModeEnabled: false,
+//            gridModeEnabled: false
           })
         )
       );

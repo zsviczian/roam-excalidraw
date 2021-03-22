@@ -632,68 +632,8 @@
                                                                   @drawing-before-edit
                                                                   (:this-dom-node @cs) )))))}
                                       (if (is-full-screen cs) "💾" "🖋")]
-                                  (if (is-full-screen cs)
-                                    [:button
-                                      {:class (get-style "ex-header-button")
-                                      :draggable true
-                                      :on-click (fn [e]
-                                                  (clear-checkboxes)
-                                                  (.svgClipboard js/ExcalidrawWrapper)
-                                                  (debug ["(main) Cancel :on-click"])
-                                                  (save-component {:block-uid block-uid 
-                                                                   :map-string (str @drawing-before-edit)
-                                                                   :cs cs
-                                                                   :drawing drawing})
-                                                  (swap! cs assoc-in [:aspect-ratio] (get-embed-image @drawing-before-edit (:this-dom-node @cs) app-name))
-                                                  (going-full-screen? false cs style))}
-                                      "❌"])]
-                                    [:span {:class (get-style "ex-header-title-wrapper")}
-                                      [:input
-                                      {:class (get-style "ex-header-title")
-                                        :value (get-in @drawing [:title :text])
-                                        :on-change (fn [e] 
-                                                    (if (nil? (get-in @drawing [:title :block-uid])) 
-                                                      (create-nested-blocks {:block-uid block-uid 
-                                                                             :drawing drawing 
-                                                                             :empty-block-uid nil}))
-                                                    (swap! drawing assoc-in [:title :text] (.. e -target -value))
-                                                    (block/update
-                                                      {:block {:uid (get-in @drawing [:title :block-uid])
-                                                              :string (get-in @drawing [:title :text])}})
-                                                    (if (is-full-screen cs)
-                                                      (do
-                                                        (let [x (edn/read-string
-                                                                  (js-to-clj-str
-                                                                  (get-drawing ew)))]
-                                                          (debug ["(main) input.ex-header-title update x:" x])
-                                                            (assoc-in 
-                                                            x 
-                                                            [:appState :name] (get-in @drawing [:title :text])))))
-                                                    )}]]
-                                  (if (is-full-screen cs)
-                                      [:span {:class (get-style "ex-header-options-wrapper")}
-                                        [:label {:class (get-style "ex-header-options-label")} 
-                                        [:input
-                                          {:class (get-style "ex-header-options-checkbox")
-                                          :type "checkbox"
-                                          :checked (:zen-mode @cs)
-                                          :on-change (fn [e]
-                                                        (set-zen-mode-enabled
-                                                        ew
-                                                        cs
-                                                        (not (:zen-mode @cs))))}]
-                                          "Zen Mode"]
-                                      [:label {:class (get-style "ex-header-options-label")}
-                                      [:input
-                                        {:class (get-style "ex-header-options-checkbox")
-                                        :type "checkbox"
-                                        :checked (:grid-mode @cs)
-                                        :on-change (fn [e]
-                                                      (set-grid-mode-enabled
-                                                      ew
-                                                      cs
-                                                      (not (:grid-mode @cs))))}]
-                                        "Grid Mode"]])];];)]
+                                  ]
+                                  ];];)]
                                   [:div
                                   {:id app-name
                                     :style (if (is-full-screen cs)

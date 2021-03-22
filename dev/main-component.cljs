@@ -522,6 +522,7 @@
                         :header-height 30
                         :aspect-ratio nil
                         :saving false
+                        :mouseover false
                         :prev-empty-block nil}) ;; this is a semaphore system to avoid creating double nested blocks when manually creating the first nested element
            ew (r/atom nil) ;;excalidraw-wrapper
            drawing-before-edit (r/atom nil)
@@ -600,11 +601,14 @@
                               (debug ["(main) :reagent-render"])
                                 [:div
                                   {:class (get-style "excalidraw-host")
-                                  :style (:host-div @style)}
+                                   :style (:host-div @style)
+                                   :onmouseenter (fn[] (swap! cs assoc-in [:mouseover] true))
+                                   :onmouseout (fn[] (swap! cs assoc-in [:mouseover] false)) }
                                   [:div {:class (get-style "ex-header-wrapper")}
                                   [:span {:class (get-style "ex-header-buttons-wrapper")}
                                     [:button
                                     {:class (get-style "ex-header-button")
+                                     :style {:display (if (:mouseover @cs) "block" "none")}  
                                       :draggable true
                                       :on-click (fn [e]
                                                   (if (is-full-screen cs)

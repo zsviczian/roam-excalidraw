@@ -593,7 +593,7 @@
                                 [:button
                                 {:class (get-style "ex-header-button")
                                   :style {:display (if (:mouseover @cs) "block" "none")
-                                          :left (:button-left @cs)}  
+                                          :left (- (.-clientWidth (:this-dom-node @cs)) 30) };(:button-left @cs)}  
                                   :draggable true
                                   :on-click (fn [e]
                                               (if (is-full-screen cs)

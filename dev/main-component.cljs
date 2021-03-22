@@ -438,13 +438,15 @@
             (if (> ar 1.0) "100%" 
               embed-height  ))]
     (if (is-full-screen cs)
-      {:position "fixed"
-      :z-index 1000
-      :top top
-      :left left
-      :width  (str/join ["calc(100% - " (* left 2) "px)"]) 
-      :height (- height (* top 2))
-      :resize "none"}
+      (do
+        (swap! cs assoc-in [:mouseover] false)
+        {:position "fixed"
+        :z-index 1000
+        :top top
+        :left left
+        :width  (str/join ["calc(100% - " (* left 2) "px)"]) 
+        :height (- height (* top 2))
+        :resize "none"})
       {:position "relative"
       :width w
       :height h

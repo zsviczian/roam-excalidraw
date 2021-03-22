@@ -406,11 +406,6 @@
 (defn is-full-screen [cs]  ;;component-state
   (not= (:position @cs) embedded-view))
 
-(defn set-grid-mode-enabled [ew cs value] ;;exalidraw-wrapper component-state
-  (debug ["(set-grid-mode-enabled) " value])
-  (swap! cs assoc-in [:grid-mode] value)
-  (if-not (nil? @ew) (.setGridModeEnabled @ew value)))
-
 (defn resize [ew]
   (debug ["(resize)"])
   (if-not (nil? @ew) (.onResize @ew)))
@@ -511,7 +506,6 @@
       (debug ["(main) fn[] starting..."])
       (let [drawing (r/atom nil)
             cs (r/atom {:position embedded-view  ;;component-state
-                        :grid-mode false
                         :this-dom-node nil
                         :header-height 30
                         :aspect-ratio nil

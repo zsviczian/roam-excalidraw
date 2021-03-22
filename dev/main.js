@@ -224,7 +224,7 @@ window['ExcalidrawWrapper'] = class {
       diagram.appState.exportWithDarkMode = false;
     diagram.appState.exportBackground = true;
     
-    hostDIV.appendChild(ExcalidrawUtils.exportToSvg(diagram));
+    hostDIV.appendChild(Excalidraw.exportToSvg(diagram));
     const svg = hostDIV.querySelector('svg');
     const aspectRatio = ExcalidrawWrapper.getAspectRatio(svg);
     ExcalidrawWrapper.setImgEventListner(node, svg, appName);
@@ -255,7 +255,7 @@ window['ExcalidrawWrapper'] = class {
     diagram.appState.exportBackground = true;
       
     (async () => {
-      const blob = await ExcalidrawUtils.exportToBlob({
+      const blob = await Excalidraw.exportToBlob({
         ...diagram,
         mimeType: "image/png",
         exportWithDarkMode: "true",
@@ -267,7 +267,7 @@ window['ExcalidrawWrapper'] = class {
       hostDIV.appendChild(img);
       ExcalidrawWrapper.setImgEventListner(node, img, appName);
     })();
-    let svg = ExcalidrawUtils.exportToSvg(diagram);
+    let svg = Excalidraw.exportToSvg(diagram);
     const aspectRatio = ExcalidrawWrapper.getAspectRatio(svg);
     return aspectRatio; //aspect ration
   }

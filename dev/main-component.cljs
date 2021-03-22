@@ -252,7 +252,8 @@
 ;;a new drawing that hasn't been edited yet (i.e. the data and title children
 ;;are missing)
   (debug ["(create-nested-blocks)"])
-  (let [default-data {:appState {:theme (:mode @app-settings)}
+  (let [default-data {:appState {:name "Untitled drawing"
+                                       :theme (:mode @app-settings)}
                       :roamExcalidraw {:version 1}}]
     (create-block (:block-uid x) 0 (str/join ["{{roam/render: ((ExcalDATA)) "
                                 (str default-data) " }}"]))
@@ -275,7 +276,8 @@
   (if (= (count (:data x)) 0)
       (do
         (debug ["(load-drawing) no children - creating dummy data"])
-        (let [default-data {:appState {:theme (:mode @app-settings)}
+        (let [default-data {:appState {:name "Untitled drawing"
+                                       :theme (:mode @app-settings)}
                             :roamExcalidraw {:version 1}}]
           (reset! (:drawing x) {:drawing default-data 
                             :title {:text "Untitled drawing"
@@ -393,7 +395,7 @@
                                                       :nested-text (:text @(:drawing x))
                                                       :roamExcalidraw (:roamExcalidraw (:drawing @(:drawing x)))})]
     (debug ["(generate-scene)" scene])
-))
+    (assoc-in scene [:appState :name] (get-in @(:drawing x) [:title :text]))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Main Function Form-3
@@ -587,9 +589,9 @@
                                 {:class (get-style "ex-header-button")
                                   :style {:display (if (:mouseover @cs) "block" "none")
                                           :left (if (is-full-screen cs) ;;this is so the button refreshes when going full screen
-                                                  (- (.-clientWidth (:this-dom-node @cs)) 60) 
+                                                  (- (.-clientWidth (:this-dom-node @cs)) 35) 
                                                   (if-not (nil? (:this-dom-node @cs)) 
-                                                    (- (.-clientWidth (:this-dom-node @cs)) 32) 
+                                                    (- (.-clientWidth (:this-dom-node @cs)) 35) 
                                                     0))}
                                   :draggable true
                                   :on-click (fn [e]

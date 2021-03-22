@@ -440,18 +440,23 @@
             (if (> ar 1.0) "100%" 
               embed-height  ))]
     (if (is-full-screen cs)
-      {:position "fixed"
-       :z-index 1000
-       :top top
-       :left left
-       :width  (str/join ["calc(100% - " (* left 2) "px)"]) 
-       :height (- height (* top 2))
-       :resize "none"} 
-      {:position "relative"
-       :width w
-       :height h
-       :resize "both"
-       :overflow "hidden"})))
+      (do
+        (swap! cs assoc-in [:button-left] (- width (* left 2) 30))
+        {:position "fixed"
+        :z-index 1000
+        :top top
+        :left left
+        :width  (str/join ["calc(100% - " (* left 2) "px)"]) 
+        :height (- height (* top 2))
+        :resize "none"})
+      (do
+        (swap! cs assoc-in [:button-left] (- w (* left 2) 30))
+        {:position "relative"
+        :width w
+        :height h
+        :resize "both"
+        :overflow "hidden"}
+))))
 
 (defn going-full-screen? [x cs style]
   (if (= x true)
@@ -510,6 +515,7 @@
                         :aspect-ratio nil
                         :saving false
                         :mouseover false
+                        :button-left: (:max-embed-width @app-settings)
                         :prev-empty-block nil}) ;; this is a semaphore system to avoid creating double nested blocks when manually creating the first nested element
            ew (r/atom nil) ;;excalidraw-wrapper
            drawing-before-edit (r/atom nil)
@@ -584,34 +590,32 @@
                                   :style (:host-div @style)
                                   :on-mouse-over (fn[e] (swap! cs assoc-in [:mouseover] true))
                                   :on-mouse-leave (fn[e] (swap! cs assoc-in [:mouseover] false)) }
-                                [:span {:class (get-style "ex-header-buttons-wrapper")
-                                        :style {:float "right"}}
-                                  [:button
-                                  {:class (get-style "ex-header-button")
-                                    :style {:display (if (:mouseover @cs) "block" "none")}  
-                                    :draggable true
-                                    :on-click (fn [e]
-                                                (if (is-full-screen cs)
-                                                  (do (.svgClipboard js/ExcalidrawWrapper)
-                                                    (save-component {:block-uid block-uid 
-                                                                      :map-string (js-to-clj-str (get-drawing ew))
-                                                                      :cs cs
-                                                                      :drawing drawing})
-                                                    (swap! cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
-                                                    (going-full-screen? false cs style)) 
-                                                  (do (going-full-screen? true cs style)
-                                                    (if (nil? (get-in @drawing [:title :block-uid])) 
-                                                      (create-nested-blocks {:block-uid block-uid 
-                                                                              :drawing drawing 
-                                                                              :empty-block-uid nil}))
-                                                    (reset! drawing-before-edit (generate-scene {:drawing drawing}))
-                                                    (debug ["(main) :on-click drawing-before-edig " @drawing-before-edit])
-                                                    (reset! ew (js/ExcalidrawWrapper.
-                                                                app-name
-                                                                @drawing-before-edit
-                                                                (:this-dom-node @cs) )))))}
-                                    (if (is-full-screen cs) "💾" "🖋")]
-                                ];];)]
+                                [:button
+                                {:class (get-style "ex-header-button")
+                                  :style {:display (if (:mouseover @cs) "block" "none")
+                                          :left (:button-left @cs)}  
+                                  :draggable true
+                                  :on-click (fn [e]
+                                              (if (is-full-screen cs)
+                                                (do (.svgClipboard js/ExcalidrawWrapper)
+                                                  (save-component {:block-uid block-uid 
+                                                                    :map-string (js-to-clj-str (get-drawing ew))
+                                                                    :cs cs
+                                                                    :drawing drawing})
+                                                  (swap! cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
+                                                  (going-full-screen? false cs style)) 
+                                                (do (going-full-screen? true cs style)
+                                                  (if (nil? (get-in @drawing [:title :block-uid])) 
+                                                    (create-nested-blocks {:block-uid block-uid 
+                                                                            :drawing drawing 
+                                                                            :empty-block-uid nil}))
+                                                  (reset! drawing-before-edit (generate-scene {:drawing drawing}))
+                                                  (debug ["(main) :on-click drawing-before-edig " @drawing-before-edit])
+                                                  (reset! ew (js/ExcalidrawWrapper.
+                                                              app-name
+                                                              @drawing-before-edit
+                                                              (:this-dom-node @cs) )))))}
+                                  (if (is-full-screen cs) "💾" "🖋")]
                                 [:div
                                 {:id app-name
                                   :style (if (is-full-screen cs)

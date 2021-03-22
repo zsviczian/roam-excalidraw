@@ -427,6 +427,7 @@
                          (-> (:this-dom-node @cs)  
                            (.-parentElement)
                            (.-parentElement)
+                           (.-parentElement)
                            (.-clientWidth)))
         embed-width (if (> host-div-width (:max-embed-width @app-settings)) 
                       (:max-embed-width @app-settings) host-div-width)
@@ -437,7 +438,7 @@
               (* ar embed-height)))
         h (if (nil? ar @cs) "100%" 
             (if (> ar 1.0) "100%" 
-              (+ embed-height (:header-height @cs) )))]
+              embed-height  ))]
     (if (is-full-screen cs)
       {:position "fixed"
        :z-index 1000
@@ -506,7 +507,6 @@
       (let [drawing (r/atom nil)
             cs (r/atom {:position embedded-view  ;;component-state
                         :this-dom-node nil
-                        :header-height 30
                         :aspect-ratio nil
                         :saving false
                         :mouseover false
@@ -561,10 +561,6 @@
                                   (debug ["(main) :component-did-mount"])
                                   (load-settings)
                                   (swap! cs assoc-in [:this-dom-node] (r/dom-node this))
-                                  (swap! cs assoc-in [:header-height]
-                                    (-> (:this-dom-node @cs)  
-                                          (.querySelector "[class^=\"ex-header-wrapper\"]")
-                                          (.-clientHeight)))
                                   (debug ["(main) :component-did-mount addPullWatch"])
                                   (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
                                   (pull-watch-callback nil nil)
@@ -619,6 +615,6 @@
                                 [:div
                                 {:id app-name
                                   :style (if (is-full-screen cs)
-                                          {:position "relative" :width "100%" :height (str/join ["calc(100% - " (:header-height @cs) "px"])}
+                                          {:position "relative" :width "100%" :height "100%"}
                                           {:background (if (= (get-in @drawing [:drawing :appState :theme]) "dark") "#121212" "white")})}
 ]])})))))

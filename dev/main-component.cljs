@@ -427,7 +427,6 @@
                          (-> (:this-dom-node @cs)  
                            (.-parentElement)
                            (.-parentElement)
-                           (.-parentElement)
                            (.-clientWidth)))
         embed-width (if (> host-div-width (:max-embed-width @app-settings)) 
                       (:max-embed-width @app-settings) host-div-width)
@@ -589,8 +588,8 @@
                                   :style (:host-div @style)
                                   :on-mouse-over (fn[e] (swap! cs assoc-in [:mouseover] true))
                                   :on-mouse-leave (fn[e] (swap! cs assoc-in [:mouseover] false)) }
-                                [:div {:class (get-style "ex-header-wrapper")}
-                                [:span {:class (get-style "ex-header-buttons-wrapper")}
+                                [:span {:class (get-style "ex-header-buttons-wrapper")
+                                        :style {:float "right"}}
                                   [:button
                                   {:class (get-style "ex-header-button")
                                     :style {:display (if (:mouseover @cs) "block" "none")}  
@@ -616,7 +615,6 @@
                                                                 @drawing-before-edit
                                                                 (:this-dom-node @cs) )))))}
                                     (if (is-full-screen cs) "💾" "🖋")]
-                                ]
                                 ];];)]
                                 [:div
                                 {:id app-name

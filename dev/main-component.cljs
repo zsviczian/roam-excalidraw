@@ -253,7 +253,7 @@
 ;;are missing)
   (debug ["(create-nested-blocks)"])
   (let [default-data {:appState {:name "Untitled drawing"
-                                       :theme (:mode @app-settings)}
+                                 :theme (:mode @app-settings)}
                       :roamExcalidraw {:version 1}}]
     (create-block (:block-uid x) 0 (str/join ["{{roam/render: ((ExcalDATA)) "
                                 (str default-data) " }}"]))
@@ -395,7 +395,7 @@
                                                       :nested-text (:text @(:drawing x))
                                                       :roamExcalidraw (:roamExcalidraw (:drawing @(:drawing x)))})]
     (debug ["(generate-scene)" scene])
-    (assoc-in scene [:appState :name] (get-in @(:drawing x) [:title :text]))))
+))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Main Function Form-3
@@ -489,6 +489,7 @@
                                                 [?e :block/children ?b]
                                                 [?b :block/order ?order]]
 			                             block-uid order))
+                                   
 (defn get-embed-image [drawing dom-node app-name]
   (if (= (:img @app-settings) "PNG")
     (.getPNG js/window.ExcalidrawWrapper drawing dom-node app-name)
@@ -591,7 +592,7 @@
                                           :left (if (is-full-screen cs) ;;this is so the button refreshes when going full screen
                                                   (- (.-clientWidth (:this-dom-node @cs)) 60) 
                                                   (if-not (nil? (:this-dom-node @cs)) 
-                                                    (- (.-clientWidth (:this-dom-node @cs)) 32 
+                                                    (- (.-clientWidth (:this-dom-node @cs)) 32) 
                                                     0))}
                                   :draggable true
                                   :on-click (fn [e]

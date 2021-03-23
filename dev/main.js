@@ -62,10 +62,7 @@ window['ExcalidrawWrapper'] = class {
             width: dimensions.width,
             height: dimensions.height,
             initialData: initData,
-            onChange: (elements, state) => {
-              delete state['collaborators'];
-              delete state['fileHandle'];
-              onChangeCallback({elements:elements, appState: state})}, //console.log("Elements :", elements, "State : ", state),
+            onChange: (elements, state) => {onChangeCallback(elements,state)}, //console.log("Elements :", elements, "State : ", state),
             //onPointerUpdate: (payload) => {},  //console.log(payload),
           })
         )

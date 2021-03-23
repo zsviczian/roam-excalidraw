@@ -516,8 +516,7 @@
                             (swap! style assoc-in [:host-div] (host-div-style cs))  
                             (if-not (nil? (:this-dom-node @cs)) 
                               (swap! style assoc-in [:host-div] (host-div-style cs)))))
-    changed-drawing (atom nil)
-    drawing-on-change-callback (fn [x] (reset! changed-drawing x) (swap! cs assoc-in [:dirty] true))
+    drawing-on-change-callback (fn [elements state] (debug ["(drawing-on-change-callback)" elements state]) (swap! cs assoc-in [:dirty] true))
     pull-watch-callback (fn [before after]
                           (if-not (or @saving-flag (is-full-screen cs))
                             (do 
@@ -541,14 +540,15 @@
                                     (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
                                     (swap! style assoc-in [:host-div] (host-div-style cs))))
                                 (debug ["(main) :callback drawing-data theme" (get-in @drawing [:drawing :appState :theme]) ])
-                        ))))]
+    ))))]
       (letfn [(autosave[] (if (is-full-screen cs)
                       (do (if (:dirty @cs) 
-                            (do (save-component {:block-uid block-uid 
-                                                 :map-string (js-to-clj-str @changed-drawing)
-                                                 :cs cs
-                                                 :drawing drawing
-                                                 :saving-flag saving-flag})))
+                            (do
+                              (save-component {:block-uid block-uid 
+                                              :map-string (js-to-clj-str (get-drawing ew))
+                                              :cs cs
+                                              :drawing drawing
+                                              :saving-flag saving-flag})))
                               (swap! cs assoc-in [:dirty] false)
                             (js/setTimeout autosave 5000))))]
       (if (= @deps-available false)

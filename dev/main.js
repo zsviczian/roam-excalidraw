@@ -62,9 +62,8 @@ window['ExcalidrawWrapper'] = class {
             width: dimensions.width,
             height: dimensions.height,
             initialData: initData,
-            onChange: (elements, state) => {
-
-              onChangeCallback( elements, state);
+            onChange: (el, st) => {
+              onChangeCallback( {elements: el, state: st});
             }, //console.log("Elements :", elements, "State : ", state),
             //onPointerUpdate: (payload) => {},  //console.log(payload),
           })

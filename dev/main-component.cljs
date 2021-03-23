@@ -185,6 +185,7 @@
     (swap! app-settings assoc-in [:mode] (get-in app-state [:theme]))
     (save-settings)
     (reset! (:saving-flag x) false)
+    {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}
 ))
 
 (defn load-settings []
@@ -520,11 +521,12 @@
       (letfn [(autosave[] (if (is-full-screen cs)
                       (do (if (:dirty @cs) 
                             (do
-                              (save-component {:block-uid block-uid 
-                                              :map-string (js-to-clj-str @changed-drawing) ;get-drawing ew))
-                                              :cs cs
-                                              :drawing drawing
-                                              :saving-flag saving-flag})))
+                              (.updateScene @ew
+                                (save-component {:block-uid block-uid 
+                                                 :map-string (js-to-clj-str @changed-drawing) ;get-drawing ew))
+                                                 :cs cs
+                                                 :drawing drawing
+                                                 :saving-flag saving-flag}))))
                               (swap! cs assoc-in [:dirty] false)
                             (js/setTimeout autosave 5000))))]
       (if (= @deps-available false)

@@ -8,7 +8,7 @@ window['ExcalidrawWrapper'] = class {
     console.log("notReadyToStart()",(typeof Excalidraw == 'undefined') && (typeof ReactDOM == 'undefined') && (typeof React == 'undefined'));
     return (typeof Excalidraw == 'undefined') && (typeof ReactDOM == 'undefined') && (typeof React == 'undefined');
   }
-  constructor (appName,initData,node) {    
+  constructor (appName,initData,node,onChangeCallback) {    
     this.hostDIV = node.querySelector('#'+appName);
     while (this.hostDIV.firstChild) {
       this.hostDIV.removeChild(this.hostDIV.lastChild);
@@ -60,8 +60,8 @@ window['ExcalidrawWrapper'] = class {
             width: dimensions.width,
             height: dimensions.height,
             initialData: initData,
-            onChange: (elements, state) => {}, //console.log("Elements :", elements, "State : ", state),
-            onPointerUpdate: (payload) => {},  //console.log(payload),
+            onChange: (elements, state) => {onChangeCallback()}, //console.log("Elements :", elements, "State : ", state),
+            //onPointerUpdate: (payload) => {},  //console.log(payload),
           })
         )
       );

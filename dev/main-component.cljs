@@ -623,7 +623,8 @@
                                                   (reset! ew (js/ExcalidrawWrapper.
                                                               app-name
                                                               (generate-scene {:drawing drawing})
-                                                              (:this-dom-node @cs) )))))}
+                                                              (:this-dom-node @cs)
+                                                              drawing-on-change-callback )))))}
                                   (if (is-full-screen cs) "✖️" "🖋")]
                                 [:div
                                 {:id app-name

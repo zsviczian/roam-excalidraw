@@ -511,15 +511,16 @@
                         :aspect-ratio nil
                         :saving false
                         :mouseover false
+                        :dirty false ;used to flag graph should be saved - saves every 5 secs
                         :prev-empty-block nil}) ;; this is a semaphore system to avoid creating double nested blocks when manually creating the first nested element
            ew (r/atom nil) ;;excalidraw-wrapper
-           drawing-before-edit (r/atom nil)
            app-name (str/join ["excalidraw-app-" block-uid])
            style (r/atom {:host-div (host-div-style cs)})
            resize-handler (fn [] (if (is-full-screen cs) 
                                    (swap! style assoc-in [:host-div] (host-div-style cs))  
                                    (if-not (nil? (:this-dom-node @cs)) 
                                      (swap! style assoc-in [:host-div] (host-div-style cs)))))
+           drawing-on-change-callback (fn [] (swap! cs assoc-in [:dirty] true))
            pull-watch-callback (fn [before after]
                                  (if-not (:saving @cs)
                                    (do 
@@ -580,6 +581,16 @@
 ;           :component-did-catch (fn [this error info])
            :reagent-render (fn [{:keys [block-uid]} & args]
                             (debug ["(main) :reagent-render"])
+                            (letfn [(autosave [] 
+                                     (if (is-full-screen cs)
+                                       (do (if (:dirty cs) 
+                                             (do
+                                               (save-component {:block-uid block-uid 
+                                                                :map-string (js-to-clj-str (get-drawing ew))
+                                                                :cs cs
+                                                                :drawing drawing})))
+                                               (swap! cs assoc-in [:dirty] false)
+                                             (js/setTimeout autosave 5000))))]
                               [:div
                                 {:class (get-style "excalidraw-host")
                                   :style (:host-div @style)
@@ -608,11 +619,10 @@
                                                     (create-nested-blocks {:block-uid block-uid 
                                                                             :drawing drawing 
                                                                             :empty-block-uid nil}))
-                                                  (reset! drawing-before-edit (generate-scene {:drawing drawing}))
-                                                  (debug ["(main) :on-click drawing-before-edig " @drawing-before-edit])
+                                                  (js/setTimeout autosave 5000)                          
                                                   (reset! ew (js/ExcalidrawWrapper.
                                                               app-name
-                                                              @drawing-before-edit
+                                                              (generate-scene {:drawing drawing})
                                                               (:this-dom-node @cs) )))))}
                                   (if (is-full-screen cs) "✖️" "🖋")]
                                 [:div
@@ -620,4 +630,4 @@
                                   :style (if (is-full-screen cs)
                                           {:position "relative" :width "100%" :height "100%"}
                                           {:background (if (= (get-in @drawing [:drawing :appState :theme]) "dark") "#121212" "white")})}
-]])})))))
+]]))})))))

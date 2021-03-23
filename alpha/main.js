@@ -8,7 +8,7 @@ window['ExcalidrawWrapper'] = class {
     console.log("notReadyToStart()",(typeof Excalidraw == 'undefined') && (typeof ReactDOM == 'undefined') && (typeof React == 'undefined'));
     return (typeof Excalidraw == 'undefined') && (typeof ReactDOM == 'undefined') && (typeof React == 'undefined');
   }
-  constructor (appName,initData,node) {    
+  constructor (appName,initData,node,onChangeCallback) {    
     this.hostDIV = node.querySelector('#'+appName);
     while (this.hostDIV.firstChild) {
       this.hostDIV.removeChild(this.hostDIV.lastChild);
@@ -24,22 +24,18 @@ window['ExcalidrawWrapper'] = class {
       
       this.excalidrawRef = excalidrawRef;
       
-      const [zenModeEnabled, setZenModeEnabled] = React.useState(false);
-      const [gridModeEnabled, setGridModeEnabled] = React.useState(false);
-
-      this.setZenModeEnabled = setZenModeEnabled;
-      this.setGridModeEnabled = setGridModeEnabled;
-
       React.useEffect(() => {
         setDimensions({
           width: excalidrawWrapperRef.current.getBoundingClientRect().width,
           height: excalidrawWrapperRef.current.getBoundingClientRect().height
         });
         const onResize = () => {
-          setDimensions({
-            width: excalidrawWrapperRef.current.getBoundingClientRect().width,
-            height: excalidrawWrapperRef.current.getBoundingClientRect().height
-          });
+          try {
+            setDimensions({
+              width: excalidrawWrapperRef.current.getBoundingClientRect().width,
+              height: excalidrawWrapperRef.current.getBoundingClientRect().height
+            });
+          } catch(err) {console.log ("onResize ",err)}
         };
 
         window.addEventListener("resize", onResize);
@@ -66,12 +62,21 @@ window['ExcalidrawWrapper'] = class {
             width: dimensions.width,
             height: dimensions.height,
             initialData: initData,
-            onChange: (elements, state) => {}, //console.log("Elements :", elements, "State : ", state),
-            onPointerUpdate: (payload) => {},  //console.log(payload),
-            //onCollabButtonClick: () => {},     //window.alert("You clicked on collab button"),
-            viewModeEnabled: false,
-            zenModeEnabled: zenModeEnabled,
-            gridModeEnabled: gridModeEnabled
+            onChange: (el, st) => {
+              onChangeCallback( {elements: el, 
+                                 appState: {theme: st["theme"],
+                                            height: st["height"],
+                                            name: st["name"],
+                                            scrollX: st["scrollX"],
+                                            scrollY: st["scrollY"],
+                                            viewBackgroundColor: st["viewBackgroundColor"],
+                                            width: st["width"],
+                                            zoom: st["zoom"],
+                                            offsetLeft: st["offsetLeft"],
+                                            offsetTop: st["offsetTop"]}
+                                           });
+            }, //console.log("Elements :", elements, "State : ", state),
+            //onPointerUpdate: (payload) => {},  //console.log(payload),
           })
         )
       );
@@ -143,17 +148,34 @@ window['ExcalidrawWrapper'] = class {
     }
   }
   
+  static getHostDIVWidth(node) {
+    let blockNode = node;
+    let foundIt = false;    
+    while ( (blockNode!=null) && !foundIt ) {
+      foundIt = blockNode.id.startsWith('block-input-');
+      if (!foundIt)
+        blockNode = blockNode.parentElement;
+    }
+    return blockNode.clientWidth;
+  }
+
   static setImgEventListner(roamRenderNode,imgNode,appName) {
     let blockNode = roamRenderNode;
-    const blockUID = appName.slice(-9);
+//    const blockUID = appName.slice(-9);
     //this is workaround wizardy. Somehow when the node is distroyed the render component re-initiates and
     //creates a ghost, which does not have a parent element...
-    let uidIndex =-1;
+/*    let uidIndex =-1;
     while ( (blockNode!=null) && (uidIndex ==-1) ) {
       uidIndex = blockNode.id.indexOf(blockUID);
       if (uidIndex == -1)
         blockNode = blockNode.parentElement;
-    }
+    }*/
+    let foundIt = false;    
+    while ( (blockNode!=null) && !foundIt ) {
+      foundIt = blockNode.id.startsWith('block-input-');
+      if (!foundIt)
+        blockNode = blockNode.parentElement;
+    }    
     if(blockNode!=null)
       imgNode.addEventListener('dblclick', function(e) {
         try{
@@ -211,7 +233,7 @@ window['ExcalidrawWrapper'] = class {
     let mode = 'light';
     if (diagram != null) 
       if(diagram.appState != null)
-        mode = (diagram.appState.appearance == 'dark') ? "dark" : "light";    
+        mode = (diagram.appState.theme == 'dark') ? "dark" : "light";    
     if (diagram==null) 
       diagram = excalidrawSplashScreen;
     else 
@@ -224,7 +246,7 @@ window['ExcalidrawWrapper'] = class {
       diagram.appState.exportWithDarkMode = false;
     diagram.appState.exportBackground = true;
     
-    hostDIV.appendChild(ExcalidrawUtils.exportToSvg(diagram));
+    hostDIV.appendChild(Excalidraw.exportToSvg(diagram));
     const svg = hostDIV.querySelector('svg');
     const aspectRatio = ExcalidrawWrapper.getAspectRatio(svg);
     ExcalidrawWrapper.setImgEventListner(node, svg, appName);
@@ -241,7 +263,7 @@ window['ExcalidrawWrapper'] = class {
     let mode = 'light';
     if (diagram != null) 
       if(diagram.appState != null)
-        mode = (diagram.appState.appearance == 'dark') ? "dark" : "light";
+        mode = (diagram.appState.theme == 'dark') ? "dark" : "light";
     if (diagram==null) 
       diagram = excalidrawSplashScreen;
     else 
@@ -255,7 +277,7 @@ window['ExcalidrawWrapper'] = class {
     diagram.appState.exportBackground = true;
       
     (async () => {
-      const blob = await ExcalidrawUtils.exportToBlob({
+      const blob = await Excalidraw.exportToBlob({
         ...diagram,
         mimeType: "image/png",
         exportWithDarkMode: "true",
@@ -267,7 +289,7 @@ window['ExcalidrawWrapper'] = class {
       hostDIV.appendChild(img);
       ExcalidrawWrapper.setImgEventListner(node, img, appName);
     })();
-    let svg = ExcalidrawUtils.exportToSvg(diagram);
+    let svg = Excalidraw.exportToSvg(diagram);
     const aspectRatio = ExcalidrawWrapper.getAspectRatio(svg);
     return aspectRatio; //aspect ration
   }

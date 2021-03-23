@@ -1,4 +1,4 @@
-(ns excalidraw.app.alpha.v20
+(ns excalidraw.app.alpha.v21
   (:require 
    [clojure.set :as s]
    [reagent.core :as r]
@@ -118,19 +118,6 @@
           :where [?e :block/uid ?title-uid]]
         x)))))
 
-(defn get-or-create-orphans-block-uid [x]
-  (let [uid (rd/q '[:find ?orphan-uid .
-                   :in $ ?uid
-                   :where [?b :block/uid ?uid]
-                          [?b :block/children ?c]
-                          [?c :block/string ?s]
-                          [(= ?s "Orphans")]
-                          [?c :block/uid ?orphan-uid]]
-                  x)]
-    (if (nil? uid)
-      (.createBlock js/ExcalidrawWrapper x 3 "Orphans")
-      uid)))
-
 (defn get-text-elements [x]
   (filter (comp #{"text"} :type) x)
 )
@@ -147,7 +134,7 @@
 ;;{:block-uid "BlockUID" :map-string "String" :cs atom :drawing atom}
 (defn save-component [x] 
   ;;Disable the pullWatch while blocks are edited
-  (swap! (:cs x) assoc-in [:saving] true) 
+  (reset! (:saving-flag x) true) 
   (debug ["(save-component) Enter"])
 
   (let [data-block-uid (get-data-block-uid (:block-uid x))
@@ -156,8 +143,7 @@
         ;;get text blocks nested under title
         title-block-uid (get-in @(:drawing x) [:title :block-uid])
         nested-text-blocks (get-text-blocks title-block-uid) 
-        app-state (into {} (filter (comp some? val) (:appState edn-map))) ;;remove nil elements from appState
-        orphans-block-uid (r/atom nil)] 
+        app-state (into {} (filter (comp some? val) (:appState edn-map)))] ;;remove nil elements from appState
     
     ;;process text on drawing
     (debug ["(save-component) start processing text"])
@@ -183,20 +169,12 @@
             (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
     ))))
     
-    ;;process nested text - move to orphans blocks no longer on drawing    
-    (doseq [y nested-text-blocks]
-      (if (= 0 (count (filter (comp #{(str/join ["ROAM_" (:block/uid y) "_ROAM"])} :id) @text-elements)))
-        (do (if (nil? @orphans-block-uid) (reset! orphans-block-uid (get-or-create-orphans-block-uid (:block-uid x))))
-          (block/move {:location {:parent-uid @orphans-block-uid :order (get-next-block-order @orphans-block-uid)}
-                       :block {:uid (:block/uid y)}})
-    )))
     (debug ["(save-component) text-blocks with updated IDs" (str @text-elements)])
     
     ;;updating the data block is the final piece in saving the component
     ;;this update will trigger pullwatch to load the updated drawing 
     ;;to display as SVG or PNG (depending on setting)
     ;;I enable pullwatch event handler actions before updating the data block
-    (swap! (:cs x) assoc-in [:saving] false)
     (let [elements (update-elements-with-parts {:raw-elements (:elements edn-map) :text-elements @text-elements})  
           out-string (fix-double-bracket (str {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}))
           render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
@@ -204,8 +182,9 @@
         {:block {:uid data-block-uid
                 :string render-string}})
     )
-    (swap! app-settings assoc-in [:mode] (get-in app-state [:appearance]))
+    (swap! app-settings assoc-in [:mode] (get-in app-state [:theme]))
     (save-settings)
+    (reset! (:saving-flag x) false)
 ))
 
 (defn load-settings []
@@ -253,14 +232,14 @@
 ;;are missing)
   (debug ["(create-nested-blocks)"])
   (let [default-data {:appState {:name "Untitled drawing"
-                                       :appearance (:mode @app-settings)}
+                                 :theme (:mode @app-settings)}
                       :roamExcalidraw {:version 1}}]
     (create-block (:block-uid x) 0 (str/join ["{{roam/render: ((ExcalDATA)) "
                                 (str default-data) " }}"]))
     (reset! (:drawing x) {:drawing default-data 
                           :title {:text (if (nil? (:empty-block-uid x)) "Untitled drawing" "")
                                   :block-uid (if (nil? (:empty-block-uid x)) 
-                                               (create-block (:block-uid x) 1 "Untitled drawing")
+                                               (create-block (:block-uid x) 1 "Excalidraw text (nest here)")
                                                (:empty-block-uid x))}})
     (if (nil? (:empty-block-uid x)) 
       (block/update {:block {:uid (:block-uid x) :open false}}))))
@@ -277,7 +256,7 @@
       (do
         (debug ["(load-drawing) no children - creating dummy data"])
         (let [default-data {:appState {:name "Untitled drawing"
-                                       :appearance (:mode @app-settings)}
+                                       :theme (:mode @app-settings)}
                             :roamExcalidraw {:version 1}}]
           (reset! (:drawing x) {:drawing default-data 
                             :title {:text "Untitled drawing"
@@ -288,7 +267,7 @@
           (debug ["(load-drawing) create title only"])
           (reset! (:drawing x) {:drawing (:data x)
                            :title {:text "Untitled drawing"
-                                   :block-uid (create-block (:block-uid x) 1 "Untitled drawing")}})
+                                   :block-uid (create-block (:block-uid x) 1 "Excalidraw text (nest here)")}})
           (block/update {:block {:uid (:block-uid x) :open false}})
         )
         (do
@@ -298,7 +277,7 @@
                                         :block-uid  (get-in (:text x) [0 :block/uid])}
                                 :text (get-in (:text x) [0 :block/children])})
   )))
-  (debug ["(load-drawing) drawing: " @(:drawing x) " data: " (:data x) " text: " (str (:text x)) "appearance " (get-in (:data x) [:appState :appearance])])
+  (debug ["(load-drawing) drawing: " @(:drawing x) " data: " (:data x) " text: " (str (:text x)) "theme " (get-in (:data x) [:appState :theme])])
 )
 
 
@@ -390,12 +369,10 @@
 
 (defn generate-scene [x] ;{:drawing atom}]
   (debug ["(generate-scene) enter" x])
-  (let [scene (update-drawing-based-on-nested-blocks {:elements (:elements (:drawing @(:drawing x)))
+  (update-drawing-based-on-nested-blocks {:elements (:elements (:drawing @(:drawing x)))
                                                       :appState (:appState (:drawing @(:drawing x)))
                                                       :nested-text (:text @(:drawing x))
-                                                      :roamExcalidraw (:roamExcalidraw (:drawing @(:drawing x)))})]
-    (debug ["(generate-scene)" scene])
-    (assoc-in scene [:appState :name] (get-in @(:drawing x) [:title :text]))))
+                                                      :roamExcalidraw (:roamExcalidraw (:drawing @(:drawing x)))}))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Main Function Form-3
@@ -405,16 +382,6 @@
 
 (defn is-full-screen [cs]  ;;component-state
   (not= (:position @cs) embedded-view))
-
-(defn set-zen-mode-enabled [ew cs value] ;;exalidraw-wrapper component-state
-  (debug ["(set-zen-mode-enabled) " value])
-  (swap! cs assoc-in [:zen-mode] value)
-  (if-not (nil? @ew) (.setZenModeEnabled @ew value)))
-
-(defn set-grid-mode-enabled [ew cs value] ;;exalidraw-wrapper component-state
-  (debug ["(set-grid-mode-enabled) " value])
-  (swap! cs assoc-in [:grid-mode] value)
-  (if-not (nil? @ew) (.setGridModeEnabled @ew value)))
 
 (defn resize [ew]
   (debug ["(resize)"])
@@ -434,11 +401,7 @@
         top      (int (* height (:full-screen-margin @app-settings)))
         left     (int (* width (:full-screen-margin @app-settings)))
         host-div-width (if (nil? (:this-dom-node @cs)) (:max-embed-width @app-settings)
-                         (-> (:this-dom-node @cs)  
-                           (.-parentElement)
-                           (.-parentElement)
-                           (.-parentElement)
-                           (.-clientWidth)))
+                         (.getHostDIVWidth js/ExcalidrawWrapper (:this-dom-node @cs)))
         embed-width (if (> host-div-width (:max-embed-width @app-settings)) 
                       (:max-embed-width @app-settings) host-div-width)
         embed-height (* (:max-embed-height @app-settings) (/ embed-width (:max-embed-width @app-settings)))
@@ -448,20 +411,21 @@
               (* ar embed-height)))
         h (if (nil? ar @cs) "100%" 
             (if (> ar 1.0) "100%" 
-              (+ embed-height (:header-height @cs) )))]
+              embed-height  ))]
     (if (is-full-screen cs)
       {:position "fixed"
-       :z-index 1000
-       :top top
-       :left left
-       :width  (str/join ["calc(100% - " (* left 2) "px)"]) 
-       :height (- height (* top 2))
-       :resize "none"} 
+      :z-index 1000
+      :top top
+      :left left
+      :width  (str/join ["calc(100% - " (* left 2) "px)"]) 
+      :height (- height (* top 2))
+      :resize "none"}
       {:position "relative"
-       :width w
-       :height h
-       :resize "both"
-       :overflow "hidden"})))
+      :width w
+      :height h
+      :resize "both"
+      :overflow "hidden"}
+)))
 
 (defn going-full-screen? [x cs style]
   (if (= x true)
@@ -469,7 +433,8 @@
       (load-settings)
       (.fullScreenKeyboardEventRedirect js/window.ExcalidrawWrapper true)
       (swap! cs assoc-in [:position] full-screen-view)
-      (swap! style assoc-in [:host-div] (host-div-style cs)))
+      (swap! style assoc-in [:host-div] (host-div-style cs))
+      (swap! cs assoc-in [:mouseover] false))
     (do
       (.fullScreenKeyboardEventRedirect js/window.ExcalidrawWrapper false)
       (swap! cs assoc-in [:position] embedded-view)
@@ -480,7 +445,7 @@
 (def deps-available (r/atom false))
 
 (defn check-js-dependencies []
-  (if (and (not= (str (type js/ExcalidrawUtils)) "")
+  (if (and 
        (not= (str (type js/Excalidraw)) "")
        (not= (str (type js/ReactDOM)) "")
        (not= (str (type js/React)) "")
@@ -498,6 +463,7 @@
                                                 [?e :block/children ?b]
                                                 [?b :block/order ?order]]
 			                             block-uid order))
+                                   
 (defn get-embed-image [drawing dom-node app-name]
   (if (= (:img @app-settings) "PNG")
     (.getPNG js/window.ExcalidrawWrapper drawing dom-node app-name)
@@ -510,189 +476,138 @@
 (defn main [{:keys [block-uid]} & args]
   (debug ["(main) component starting..."])
   (check-js-dependencies)
-  (if (= @deps-available false)
-    [:div "Libraries have not yet loaded. Please refresh the block in a moment."]
-    (fn []
-      (debug ["(main) fn[] starting..."])
-      (let [drawing (r/atom nil)
-            cs (r/atom {:position embedded-view  ;;component-state
-                        :zen-mode false
-                        :grid-mode false
-                        :this-dom-node nil
-                        :header-height 30
-                        :aspect-ratio nil
-                        :saving false
-                        :prev-empty-block nil}) ;; this is a semaphore system to avoid creating double nested blocks when manually creating the first nested element
-           ew (r/atom nil) ;;excalidraw-wrapper
-           drawing-before-edit (r/atom nil)
-           app-name (str/join ["excalidraw-app-" block-uid])
-           style (r/atom {:host-div (host-div-style cs)})
-           resize-handler (fn [] (if (is-full-screen cs)
-                                   (swap! style assoc-in [:host-div] (host-div-style cs))
-                                   (if-not (nil? (:this-dom-node @cs)) 
-                                     (swap! style assoc-in [:host-div] (host-div-style cs)))))
-           pull-watch-callback (fn [before after]
-                                 (if-not (:saving @cs)
-                                   (do 
-                                     (let [drawing-data (pull-children block-uid 0)
-                                           drawing-text (pull-children block-uid 1)
-                                           empty-block-uid (re-find #":block/uid \"(.*)\", (:block/string \"\")" (str drawing-data))] ;check if user has nested a block under a new drawing
-                                      (if-not (nil? empty-block-uid)
-                                        (if-not (= (second empty-block-uid) (:prev-empty-block @cs))
-                                          (do
-                                            (swap! cs assoc-in [:prev-empty-block] (second empty-block-uid)) ;;semaphore to avoid double creation of blocks
-                                            (create-nested-blocks {:block-uid block-uid 
-                                                                    :drawing drawing 
-                                                                    :empty-block-uid (second empty-block-uid)})
-                                            ))) 
-                                      (load-drawing {:block-uid block-uid 
-                                                    :drawing drawing 
-                                                    :data (get-data-from-block-string drawing-data) 
-                                                    :text (first drawing-text)})
-                                      (if-not (is-full-screen cs)
-                                        (do
-                                          (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
-                                          (swap! style assoc-in [:host-div] (host-div-style cs))))
-                                      (debug ["(main) :callback drawing-data appearance" (get-in @drawing [:drawing :appState :appearance]) ])
-           ))))]
-        (r/create-class
-         { :display-name "Excalidraw Roam Beta"
-           ;; Constructor
-;           :constructor (fn [this props]
-;                          (debug ["(main) :constructor"]))
-;           :get-initial-state (fn [this]
-;                                (debug ["(main) :get-initial-state"]))
-           ;; Static methods
-;           :get-derived-state-from-props (fn [props state] )
-;           :get-derived-state-from-error (fn [error] )
-           ;; Methods
- ;          :get-snapshot-before-update (fn [this old-argv new-argv] )
- ;          :should-component-update (fn [this old-argv new-argv]
- ;                                     (debug ["(main) :should-component-update"]))
-           :component-did-mount (fn [this]
-                                  (debug ["(main) :component-did-mount"])
-                                  (load-settings)
-                                  (swap! cs assoc-in [:this-dom-node] (r/dom-node this))
-                                  (swap! cs assoc-in [:header-height]
-                                    (-> (:this-dom-node @cs)  
-                                          (.querySelector "[class^=\"ex-header-wrapper\"]")
-                                          (.-clientHeight)))
-                                  (debug ["(main) :component-did-mount addPullWatch"])
-                                  (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
-                                  (pull-watch-callback nil nil)
-                                  ;(swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
-                                  (swap! style assoc-in [:host-div] (host-div-style cs))
-                                  (.addEventListener js/window "resize" resize-handler)
-                                  (debug ["(main) :component-did-mount Exalidraw mount initiated"]))
-           :component-did-update (fn [this old-argv old-state snapshot]
-                                   (debug ["(main) :component-did-update"])
-                                   (if (is-full-screen cs)
-                                     (resize ew)))
-           :component-will-unmount (fn [this]
-                                     (debug ["(main) :component-will-unmount"])
-                                     (.removePullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
-                                     (.removeEventListener js/window "resize" resize-handler))
-;           :component-did-catch (fn [this error info])
-           :reagent-render (fn [{:keys [block-uid]} & args]
-                             (letfn [(clear-checkboxes [] 
-                               (if (:zen-mode @cs) (swap! cs assoc-in [:zen-mode] false))
-                               (if (:grid-mode @cs) (swap! cs assoc-in [:grid-mode] false)))]
+  (let [drawing (r/atom nil)
+      cs (r/atom {:position embedded-view  ;;component-state
+                  :this-dom-node nil
+                  :aspect-ratio nil
+                  :mouseover false
+                  :dirty false ;used to flag graph should be saved - saves every 5 secs
+                  :prev-empty-block nil}) ;; this is a semaphore system to avoid creating double nested blocks when manually creating the first nested element
+    saving-flag (atom false)
+    ew (r/atom nil) ;;excalidraw-wrapper
+    app-name (str/join ["excalidraw-app-" block-uid])
+    style (r/atom {:host-div (host-div-style cs)})
+    resize-handler (fn [] (if (is-full-screen cs) 
+                            (swap! style assoc-in [:host-div] (host-div-style cs))  
+                            (if-not (nil? (:this-dom-node @cs)) 
+                              (swap! style assoc-in [:host-div] (host-div-style cs)))))
+    changed-drawing (atom nil)
+    drawing-on-change-callback (fn [x] (reset! changed-drawing x) (swap! cs assoc-in [:dirty] true))
+    pull-watch-callback (fn [before after]
+                          (if-not (or @saving-flag (is-full-screen cs))
+                            (do 
+                              (let [drawing-data (pull-children block-uid 0)
+                                    drawing-text (pull-children block-uid 1)
+                                    empty-block-uid (re-find #":block/uid \"(.*)\", (:block/string \"\")" (str drawing-data))] ;check if user has nested a block under a new drawing
+                                (if-not (nil? empty-block-uid)
+                                  (if-not (= (second empty-block-uid) (:prev-empty-block @cs))
+                                    (do
+                                      (swap! cs assoc-in [:prev-empty-block] (second empty-block-uid)) ;;semaphore to avoid double creation of blocks
+                                      (create-nested-blocks {:block-uid block-uid 
+                                                              :drawing drawing 
+                                                              :empty-block-uid (second empty-block-uid)})
+                                      ))) 
+                                (load-drawing {:block-uid block-uid 
+                                              :drawing drawing 
+                                              :data (get-data-from-block-string drawing-data) 
+                                              :text (first drawing-text)})
+                                (if-not (is-full-screen cs)
+                                  (do
+                                    (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
+                                    (swap! style assoc-in [:host-div] (host-div-style cs))))
+                                (debug ["(main) :callback drawing-data theme" (get-in @drawing [:drawing :appState :theme]) ])
+    ))))]
+      (letfn [(autosave[] (if (is-full-screen cs)
+                      (do (if (:dirty @cs) 
+                            (do
+                              (save-component {:block-uid block-uid 
+                                              :map-string (js-to-clj-str (@changed-drawing)) ;get-drawing ew))
+                                              :cs cs
+                                              :drawing drawing
+                                              :saving-flag saving-flag})))
+                              (swap! cs assoc-in [:dirty] false)
+                            (js/setTimeout autosave 5000))))]
+      (if (= @deps-available false)
+        [:div "Libraries have not yet loaded. Please refresh the block in a moment."]
+        (fn []
+          (debug ["(main) fn[] starting..."])
+          (r/create-class
+          { :display-name "Excalidraw Roam Beta"
+            ;; Constructor
+  ;           :constructor (fn [this props]
+  ;                          (debug ["(main) :constructor"]))
+  ;           :get-initial-state (fn [this]
+  ;                                (debug ["(main) :get-initial-state"]))
+            ;; Static methods
+  ;           :get-derived-state-from-props (fn [props state] )
+  ;           :get-derived-state-from-error (fn [error] )
+            ;; Methods
+  ;          :get-snapshot-before-update (fn [this old-argv new-argv] )
+  ;          :should-component-update (fn [this old-argv new-argv]
+  ;                                     (debug ["(main) :should-component-update"]))
+            :component-did-mount (fn [this]
+                                    (debug ["(main) :component-did-mount"])
+                                    (load-settings)
+                                    (swap! cs assoc-in [:this-dom-node] (r/dom-node this))
+                                    (debug ["(main) :component-did-mount addPullWatch"])
+                                    (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
+                                    (pull-watch-callback nil nil)
+                                    ;(swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
+                                    (swap! style assoc-in [:host-div] (host-div-style cs))
+                                    (.addEventListener js/window "resize" resize-handler)
+                                    (debug ["(main) :component-did-mount Exalidraw mount initiated"]))
+            :component-did-update (fn [this old-argv old-state snapshot]
+                                    (debug ["(main) :component-did-update"])
+                                    (if (is-full-screen cs)
+                                      (resize ew)))
+            :component-will-unmount (fn [this]
+                                      (debug ["(main) :component-will-unmount"])
+                                      (.removePullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
+                                      (.removeEventListener js/window "resize" resize-handler))
+  ;           :component-did-catch (fn [this error info])
+            :reagent-render (fn [{:keys [block-uid]} & args]
                               (debug ["(main) :reagent-render"])
-                                [:div
-                                  {:class (get-style "excalidraw-host")
-                                  :style (:host-div @style)}
-                                  [:div {:class (get-style "ex-header-wrapper")}
-                                  [:span {:class (get-style "ex-header-buttons-wrapper")}
-                                    [:button
-                                    {:class (get-style "ex-header-button")
-                                      :draggable true
-                                      :on-click (fn [e]
-                                                  (if (is-full-screen cs)
-                                                    (do (clear-checkboxes)
-                                                      (.svgClipboard js/ExcalidrawWrapper)
-                                                      (save-component {:block-uid block-uid 
-                                                                       :map-string (js-to-clj-str (get-drawing ew))
-                                                                       :cs cs
-                                                                       :drawing drawing})
-                                                      (swap! cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
-                                                      (going-full-screen? false cs style)) 
-                                                    (do (going-full-screen? true cs style)
-                                                      (if (nil? (get-in @drawing [:title :block-uid])) 
-                                                        (create-nested-blocks {:block-uid block-uid 
-                                                                               :drawing drawing 
-                                                                               :empty-block-uid nil}))
-                                                      (reset! drawing-before-edit (generate-scene {:drawing drawing}))
-                                                      (debug ["(main) :on-click drawing-before-edig " @drawing-before-edit])
-                                                      (reset! ew (js/ExcalidrawWrapper.
-                                                                  app-name
-                                                                  @drawing-before-edit
-                                                                  (:this-dom-node @cs) )))))}
-                                      (if (is-full-screen cs) "💾" "🖋")]
-                                  (if (is-full-screen cs)
-                                    [:button
-                                      {:class (get-style "ex-header-button")
-                                      :draggable true
-                                      :on-click (fn [e]
-                                                  (clear-checkboxes)
-                                                  (.svgClipboard js/ExcalidrawWrapper)
-                                                  (debug ["(main) Cancel :on-click"])
+                              [:div
+                                {:class (get-style "excalidraw-host")
+                                  :style (:host-div @style)
+                                  :on-mouse-over (fn[e] (swap! cs assoc-in [:mouseover] true))
+                                  :on-mouse-leave (fn[e] (swap! cs assoc-in [:mouseover] false)) }
+                                [:button
+                                {:class (get-style "ex-header-button")
+                                  :style {:display (if (:mouseover @cs) "block" "none")
+                                          :left (if (is-full-screen cs) ;;this is so the button refreshes when going full screen
+                                                  (- (.-clientWidth (:this-dom-node @cs)) 60)
+                                                  (if-not (nil? (:this-dom-node @cs)) 
+                                                    (- (.-clientWidth (:this-dom-node @cs)) 32) 
+                                                    0))}
+                                  :draggable true
+                                  :on-click (fn [e]
+                                              (if (is-full-screen cs)
+                                                (do (.svgClipboard js/ExcalidrawWrapper)
                                                   (save-component {:block-uid block-uid 
-                                                                   :map-string (str @drawing-before-edit)
-                                                                   :cs cs
-                                                                   :drawing drawing})
-                                                  (swap! cs assoc-in [:aspect-ratio] (get-embed-image @drawing-before-edit (:this-dom-node @cs) app-name))
-                                                  (going-full-screen? false cs style))}
-                                      "❌"])]
-                                    [:span {:class (get-style "ex-header-title-wrapper")}
-                                      [:input
-                                      {:class (get-style "ex-header-title")
-                                        :value (get-in @drawing [:title :text])
-                                        :on-change (fn [e] 
-                                                    (if (nil? (get-in @drawing [:title :block-uid])) 
-                                                      (create-nested-blocks {:block-uid block-uid 
-                                                                             :drawing drawing 
-                                                                             :empty-block-uid nil}))
-                                                    (swap! drawing assoc-in [:title :text] (.. e -target -value))
-                                                    (block/update
-                                                      {:block {:uid (get-in @drawing [:title :block-uid])
-                                                              :string (get-in @drawing [:title :text])}})
-                                                    (if (is-full-screen cs)
-                                                      (do
-                                                        (let [x (edn/read-string
-                                                                  (js-to-clj-str
-                                                                  (get-drawing ew)))]
-                                                          (debug ["(main) input.ex-header-title update x:" x])
-                                                            (assoc-in 
-                                                            x 
-                                                            [:appState :name] (get-in @drawing [:title :text])))))
-                                                    )}]]
-                                  (if (is-full-screen cs)
-                                      [:span {:class (get-style "ex-header-options-wrapper")}
-                                        [:label {:class (get-style "ex-header-options-label")} 
-                                        [:input
-                                          {:class (get-style "ex-header-options-checkbox")
-                                          :type "checkbox"
-                                          :checked (:zen-mode @cs)
-                                          :on-change (fn [e]
-                                                        (set-zen-mode-enabled
-                                                        ew
-                                                        cs
-                                                        (not (:zen-mode @cs))))}]
-                                          "Zen Mode"]
-                                      [:label {:class (get-style "ex-header-options-label")}
-                                      [:input
-                                        {:class (get-style "ex-header-options-checkbox")
-                                        :type "checkbox"
-                                        :checked (:grid-mode @cs)
-                                        :on-change (fn [e]
-                                                      (set-grid-mode-enabled
-                                                      ew
-                                                      cs
-                                                      (not (:grid-mode @cs))))}]
-                                        "Grid Mode"]])];];)]
-                                  [:div
-                                  {:id app-name
-                                    :style (if (is-full-screen cs)
-                                            {:position "relative" :width "100%" :height (str/join ["calc(100% - " (:header-height @cs) "px"])}
-                                            {:background (if (= (get-in @drawing [:drawing :appState :appearance]) "dark") "#121212" "white")})}
-]]))})))))
+                                                                    :map-string (js-to-clj-str (get-drawing ew))
+                                                                    :cs cs
+                                                                    :drawing drawing
+                                                                    :saving-flag saving-flag})
+                                                  (swap! cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
+                                                  (going-full-screen? false cs style)) 
+                                                (do (going-full-screen? true cs style)
+                                                  (if (nil? (get-in @drawing [:title :block-uid])) 
+                                                    (create-nested-blocks {:block-uid block-uid 
+                                                                            :drawing drawing 
+                                                                            :empty-block-uid nil}))
+                                                  (reset! ew (js/ExcalidrawWrapper.
+                                                              app-name
+                                                              (generate-scene {:drawing drawing})
+                                                              (:this-dom-node @cs)
+                                                              drawing-on-change-callback ))
+                                                              (js/setTimeout autosave 5000))))}
+                                  (if (is-full-screen cs) "✖️" "🖋")]
+                                [:div
+                                {:id app-name
+                                  :style {:position "relative" :width "100%" :height "100%"}}
+;                                          (if (is-full-screen cs)
+;                                          {:position "relative" :width "100%" :height "100%"}
+                                          ;;{:background (if (= (get-in @drawing [:drawing :appState :theme]) "dark") "#121212" "white")}
+;                                          )}
+]])}))))))

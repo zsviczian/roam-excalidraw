@@ -516,7 +516,8 @@
                             (swap! style assoc-in [:host-div] (host-div-style cs))  
                             (if-not (nil? (:this-dom-node @cs)) 
                               (swap! style assoc-in [:host-div] (host-div-style cs)))))
-    drawing-on-change-callback (fn [x] (debug ["(drawing-on-change-callback)" x]) (swap! cs assoc-in [:dirty] true))
+    changed-drawing (atom nil)
+    drawing-on-change-callback (fn [x] (reset! changed-drawing x) (swap! cs assoc-in [:dirty] true))
     pull-watch-callback (fn [before after]
                           (if-not (or @saving-flag (is-full-screen cs))
                             (do 

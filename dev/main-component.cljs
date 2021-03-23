@@ -630,8 +630,9 @@
                                   (if (is-full-screen cs) "✖️" "🖋")]
                                 [:div
                                 {:id app-name
-                                  :style (if (is-full-screen cs)
-                                          {:position "relative" :width "100%" :height "100%"}
+                                  :style {:position "relative" :width "100%" :height "100%"}}
+;                                          (if (is-full-screen cs)
+;                                          {:position "relative" :width "100%" :height "100%"}
                                           ;;{:background (if (= (get-in @drawing [:drawing :appState :theme]) "dark") "#121212" "white")}
-                                          )}
+;                                          )}
 ]]))})))))

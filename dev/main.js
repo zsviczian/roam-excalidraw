@@ -148,6 +148,17 @@ window['ExcalidrawWrapper'] = class {
     }
   }
   
+  static getHostDIVWidth(node,blockUID) {
+    let blockNode = node;
+    let uidIndex =-1;
+    while ( (blockNode!=null) && (uidIndex ==-1) ) {
+      uidIndex = blockNode.id.indexOf(blockUID);
+      if (uidIndex == -1)
+        blockNode = blockNode.parentElement;
+    }
+    return blockNode.clientWidth;
+  }
+
   static setImgEventListner(roamRenderNode,imgNode,appName) {
     let blockNode = roamRenderNode;
     const blockUID = appName.slice(-9);

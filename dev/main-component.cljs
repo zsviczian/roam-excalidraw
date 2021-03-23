@@ -401,11 +401,7 @@
         top      (int (* height (:full-screen-margin @app-settings)))
         left     (int (* width (:full-screen-margin @app-settings)))
         host-div-width (if (nil? (:this-dom-node @cs)) (:max-embed-width @app-settings)
-                         (-> (:this-dom-node @cs)  
-                           (.-parentElement)
-                           (.-parentElement)
-                           (.-parentElement)
-                           (.-clientWidth)))
+                         (.getHostDIVWidth js/ExcalidrawWrapper (:this-dom-node @cs) (:block-uid @cs)))
         embed-width (if (> host-div-width (:max-embed-width @app-settings)) 
                       (:max-embed-width @app-settings) host-div-width)
         embed-height (* (:max-embed-height @app-settings) (/ embed-width (:max-embed-width @app-settings)))
@@ -482,6 +478,7 @@
   (check-js-dependencies)
   (let [drawing (r/atom nil)
       cs (r/atom {:position embedded-view  ;;component-state
+                  :block-uid block-uid
                   :this-dom-node nil
                   :aspect-ratio nil
                   :mouseover false

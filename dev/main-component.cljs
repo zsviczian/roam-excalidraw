@@ -181,11 +181,11 @@
       (block/update
         {:block {:uid data-block-uid
                 :string render-string}})
-    )
-    (swap! app-settings assoc-in [:mode] (get-in app-state [:theme]))
-    (save-settings)
-    (reset! (:saving-flag x) false)
-    {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}
+    
+      (swap! app-settings assoc-in [:mode] (get-in app-state [:theme]))
+      (save-settings)
+      (reset! (:saving-flag x) false)
+      {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}})
 ))
 
 (defn load-settings []

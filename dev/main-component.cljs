@@ -118,19 +118,6 @@
           :where [?e :block/uid ?title-uid]]
         x)))))
 
-(defn get-or-create-orphans-block-uid [x]
-  (let [uid (rd/q '[:find ?orphan-uid .
-                   :in $ ?uid
-                   :where [?b :block/uid ?uid]
-                          [?b :block/children ?c]
-                          [?c :block/string ?s]
-                          [(= ?s "Orphans")]
-                          [?c :block/uid ?orphan-uid]]
-                  x)]
-    (if (nil? uid)
-      (.createBlock js/ExcalidrawWrapper x 3 "Orphans")
-      uid)))
-
 (defn get-text-elements [x]
   (filter (comp #{"text"} :type) x)
 )
@@ -156,8 +143,7 @@
         ;;get text blocks nested under title
         title-block-uid (get-in @(:drawing x) [:title :block-uid])
         nested-text-blocks (get-text-blocks title-block-uid) 
-        app-state (into {} (filter (comp some? val) (:appState edn-map))) ;;remove nil elements from appState
-        orphans-block-uid (r/atom nil)] 
+        app-state (into {} (filter (comp some? val) (:appState edn-map)))] ;;remove nil elements from appState
     
     ;;process text on drawing
     (debug ["(save-component) start processing text"])
@@ -183,13 +169,6 @@
             (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
     ))))
     
-    ;;process nested text - move to orphans blocks no longer on drawing    
-    (doseq [y nested-text-blocks]
-      (if (= 0 (count (filter (comp #{(str/join ["ROAM_" (:block/uid y) "_ROAM"])} :id) @text-elements)))
-        (do (if (nil? @orphans-block-uid) (reset! orphans-block-uid (get-or-create-orphans-block-uid (:block-uid x))))
-          (block/move {:location {:parent-uid @orphans-block-uid :order (get-next-block-order @orphans-block-uid)}
-                       :block {:uid (:block/uid y)}})
-    )))
     (debug ["(save-component) text-blocks with updated IDs" (str @text-elements)])
     
     ;;updating the data block is the final piece in saving the component
@@ -260,7 +239,7 @@
     (reset! (:drawing x) {:drawing default-data 
                           :title {:text (if (nil? (:empty-block-uid x)) "Untitled drawing" "")
                                   :block-uid (if (nil? (:empty-block-uid x)) 
-                                               (create-block (:block-uid x) 1 "Untitled drawing")
+                                               (create-block (:block-uid x) 1 "Excalidraw text (nest here)")
                                                (:empty-block-uid x))}})
     (if (nil? (:empty-block-uid x)) 
       (block/update {:block {:uid (:block-uid x) :open false}}))))
@@ -288,7 +267,7 @@
           (debug ["(load-drawing) create title only"])
           (reset! (:drawing x) {:drawing (:data x)
                            :title {:text "Untitled drawing"
-                                   :block-uid (create-block (:block-uid x) 1 "Untitled drawing")}})
+                                   :block-uid (create-block (:block-uid x) 1 "Excalidraw text (nest here)")}})
           (block/update {:block {:uid (:block-uid x) :open false}})
         )
         (do

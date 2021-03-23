@@ -152,7 +152,7 @@ window['ExcalidrawWrapper'] = class {
     let blockNode = node;
     let foundIt = false;    
     while ( (blockNode!=null) && !foundIt ) {
-      foundIt = (blockNode.id).startsWidth('block-input-');
+      foundIt = blockNode.id.startsWith('block-input-');
       if (!foundIt)
         blockNode = blockNode.parentElement;
     }
@@ -172,7 +172,7 @@ window['ExcalidrawWrapper'] = class {
     }*/
     let foundIt = false;    
     while ( (blockNode!=null) && !foundIt ) {
-      foundIt = (blockNode.id).startsWidth('block-input-');
+      foundIt = blockNode.id.startsWith('block-input-');
       if (!foundIt)
         blockNode = blockNode.parentElement;
     }    

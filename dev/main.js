@@ -30,10 +30,12 @@ window['ExcalidrawWrapper'] = class {
           height: excalidrawWrapperRef.current.getBoundingClientRect().height
         });
         const onResize = () => {
-          setDimensions({
-            width: excalidrawWrapperRef.current.getBoundingClientRect().width,
-            height: excalidrawWrapperRef.current.getBoundingClientRect().height
-          });
+          try {
+            setDimensions({
+              width: excalidrawWrapperRef.current.getBoundingClientRect().width,
+              height: excalidrawWrapperRef.current.getBoundingClientRect().height
+            });
+          } catch(err) {console.log ("onResize ",err)}
         };
 
         window.addEventListener("resize", onResize);

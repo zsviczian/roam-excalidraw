@@ -546,7 +546,7 @@
                       (do (if (:dirty @cs) 
                             (do
                               (save-component {:block-uid block-uid 
-                                              :map-string (js-to-clj-str (get-drawing ew))
+                                              :map-string (js-to-clj-str (@changed-drawing)) ;get-drawing ew))
                                               :cs cs
                                               :drawing drawing
                                               :saving-flag saving-flag})))

@@ -196,7 +196,6 @@
     ;;this update will trigger pullwatch to load the updated drawing 
     ;;to display as SVG or PNG (depending on setting)
     ;;I enable pullwatch event handler actions before updating the data block
-    (swap! (:cs x) assoc-in [:saving] false)
     (let [elements (update-elements-with-parts {:raw-elements (:elements edn-map) :text-elements @text-elements})  
           out-string (fix-double-bracket (str {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}))
           render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
@@ -206,6 +205,7 @@
     )
     (swap! app-settings assoc-in [:mode] (get-in app-state [:theme]))
     (save-settings)
+    (swap! (:cs x) assoc-in [:saving] false)
 ))
 
 (defn load-settings []
@@ -522,7 +522,7 @@
                                      (swap! style assoc-in [:host-div] (host-div-style cs)))))
            drawing-on-change-callback (fn [] (swap! cs assoc-in [:dirty] true))
            pull-watch-callback (fn [before after]
-                                 (if-not (:saving @cs)
+                                 (if-not (or (:saving @cs) (is-full-screen cs))
                                    (do 
                                      (let [drawing-data (pull-children block-uid 0)
                                            drawing-text (pull-children block-uid 1)
@@ -583,7 +583,7 @@
                             (debug ["(main) :reagent-render"])
                             (letfn [(autosave [] 
                                      (if (is-full-screen cs)
-                                       (do (if (:dirty cs) 
+                                       (do (if (:dirty @cs) 
                                              (do
                                                (save-component {:block-uid block-uid 
                                                                 :map-string (js-to-clj-str (get-drawing ew))
@@ -630,5 +630,6 @@
                                 {:id app-name
                                   :style (if (is-full-screen cs)
                                           {:position "relative" :width "100%" :height "100%"}
-                                          {:background (if (= (get-in @drawing [:drawing :appState :theme]) "dark") "#121212" "white")})}
+                                          ;;{:background (if (= (get-in @drawing [:drawing :appState :theme]) "dark") "#121212" "white")}
+                                          )}
 ]]))})))))

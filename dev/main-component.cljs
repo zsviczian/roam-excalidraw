@@ -147,7 +147,7 @@
 ;;{:block-uid "BlockUID" :map-string "String" :cs atom :drawing atom}
 (defn save-component [x] 
   ;;Disable the pullWatch while blocks are edited
-  (swap! (:cs x) assoc-in [:saving] true) 
+  (reset! (:saving-flag x) true) 
   (debug ["(save-component) Enter"])
 
   (let [data-block-uid (get-data-block-uid (:block-uid x))
@@ -205,7 +205,7 @@
     )
     (swap! app-settings assoc-in [:mode] (get-in app-state [:theme]))
     (save-settings)
-    (swap! (:cs x) assoc-in [:saving] false)
+    (reset! (:saving-flag x) false)
 ))
 
 (defn load-settings []
@@ -509,10 +509,10 @@
             cs (r/atom {:position embedded-view  ;;component-state
                         :this-dom-node nil
                         :aspect-ratio nil
-                        :saving false
                         :mouseover false
                         :dirty false ;used to flag graph should be saved - saves every 5 secs
                         :prev-empty-block nil}) ;; this is a semaphore system to avoid creating double nested blocks when manually creating the first nested element
+           saving-flag (atom false)
            ew (r/atom nil) ;;excalidraw-wrapper
            app-name (str/join ["excalidraw-app-" block-uid])
            style (r/atom {:host-div (host-div-style cs)})
@@ -522,7 +522,7 @@
                                      (swap! style assoc-in [:host-div] (host-div-style cs)))))
            drawing-on-change-callback (fn [] (swap! cs assoc-in [:dirty] true))
            pull-watch-callback (fn [before after]
-                                 (if-not (or (:saving @cs) (is-full-screen cs))
+                                 (if-not (or @saving-flag (is-full-screen cs))
                                    (do 
                                      (let [drawing-data (pull-children block-uid 0)
                                            drawing-text (pull-children block-uid 1)
@@ -588,7 +588,8 @@
                                                (save-component {:block-uid block-uid 
                                                                 :map-string (js-to-clj-str (get-drawing ew))
                                                                 :cs cs
-                                                                :drawing drawing})))
+                                                                :drawing drawing
+                                                                :saving-flag saving-flag})))
                                                (swap! cs assoc-in [:dirty] false)
                                              (js/setTimeout autosave 5000))))]
                               [:div
@@ -611,7 +612,8 @@
                                                   (save-component {:block-uid block-uid 
                                                                     :map-string (js-to-clj-str (get-drawing ew))
                                                                     :cs cs
-                                                                    :drawing drawing})
+                                                                    :drawing drawing
+                                                                    :saving-flag saving-flag})
                                                   (swap! cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
                                                   (going-full-screen? false cs style)) 
                                                 (do (going-full-screen? true cs style)

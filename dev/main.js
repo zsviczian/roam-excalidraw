@@ -69,7 +69,7 @@ window['ExcalidrawWrapper'] = class {
               delete s['fileHandle'];
               }
               catch(e) {}
-              onChangeCallback({elements: elements, appState: state});
+              onChangeCallback( elements, s);
             }, //console.log("Elements :", elements, "State : ", state),
             //onPointerUpdate: (payload) => {},  //console.log(payload),
           })

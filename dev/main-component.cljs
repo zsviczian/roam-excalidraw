@@ -521,11 +521,11 @@
                             (if-not (nil? @changed-drawing)  ;;only save if not editing
                               (do
                                 (debug ["autosave - saving"])
-                                (save-component {:block-uid block-uid 
+                                (.updateScene @ew (save-component {:block-uid block-uid 
                                                  :map-string (js-to-clj-str @changed-drawing) ;get-drawing ew))
                                                  :cs cs
                                                  :drawing drawing
-                                                 :saving-flag saving-flag})
+                                                 :saving-flag saving-flag}))
                                 (js/setTimeout autosave 5000))
                               (js/setTimeout autosave 1000) ;;the user is currently editing an element, try again in one sec, until able to save
                               )))]

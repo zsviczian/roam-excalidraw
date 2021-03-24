@@ -237,11 +237,11 @@
     (create-block (:block-uid x) 0 (str/join ["{{roam/render: ((ExcalDATA)) "
                                 (str default-data) " }}"]))
     (reset! (:drawing x) {:drawing default-data 
-                          :nestedtext-parent {:block-uid (create-block (:block-uid x) 1 "**Excalidraw text (nest here)**")}})
+                          :nestedtext-parent {:block-uid (create-block (:block-uid x) 1 "**Text nested here will appear on drawing:**")}})
                                                               
     (if (nil? (:empty-block-uid x)) 
       (block/update {:block {:uid (:block-uid x) :open false}})) ;;fold up the drawing block to hide children
-      (block/move {:location {:parent-uid (get-in (:drawing x) [:nestedtext-parent :block-uid]) ;;move new block under nested text
+      (block/move {:location {:parent-uid (get-in @(:drawing x) [:nestedtext-parent :block-uid]) ;;move new block under nested text
                               :order 0}
                    :block {:uid (:empty-block-uid x)}})
 ))
@@ -266,7 +266,7 @@
         (do
           (debug ["(load-drawing) create title only"])
           (reset! (:drawing x) {:drawing (:data x)
-                                :nestedtext-parent {:block-uid (create-block (:block-uid x) 1 "**Excalidraw text (nest here)**")}})
+                                :nestedtext-parent {:block-uid (create-block (:block-uid x) 1 "**Text nested here will appear on drawing:**")}})
           (block/update {:block {:uid (:block-uid x) :open false}})
         )
         (do

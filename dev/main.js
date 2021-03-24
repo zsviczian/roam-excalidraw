@@ -64,7 +64,7 @@ window['ExcalidrawWrapper'] = class {
             initialData: initData,
             onChange: (el, st) => {
               //based on https://github.com/excalidraw/excalidraw/blob/master/src/excalidraw-app/collab/CollabWrapper.tsx#L387
-              console.log ("onchange", st.editingElement?.id, st.resizingElement?.id, st.draggingElement?.id);
+              console.log ("onchange", st.editingElement, st.resizingElement, st.draggingElement);
               onChangeCallback( {elements: el.filter (element => !(element.id === st.editingElmenet?.id ||
                                                                   element.id === st.resizingElement?.id ||
                                                                   element.id === st.draggingElement?.id )), 

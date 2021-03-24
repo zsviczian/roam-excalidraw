@@ -17,18 +17,16 @@
 }
 
 .ex-fullscreen-button:hover {
-  border: 1px solid dimgray;
+  border: 1px solid gray;
 }
 
 .excalidraw-host {
-  /*background-color: var(--bg-ex-light);
-  border-radius: 5px;*/
   display: block;
 }
 
 .ex-embed-button {
   background-color: transparent;
-  color: dimgray;
+  color: gray;
   position: absolute;
   top: 2px;
   z-index: 1100;
@@ -36,78 +34,10 @@
   border: 1px solid transparent;
 }
 
-.ex-embed-button {
-  border: 1px solid dimgray;
+.ex-embed-button:hover {
+  border: 1px solid gray;
 }
 
-
-:root {
-  --bg-ex-dark: 	#121212;
-  --cl-ex-dark: 	lightgray;
-  --bg-ex-light:	white;
-  --cl-ex-light:	rgb(68, 68, 68);
-}
-
-
-/******************/
-/*   Light mode   */
-/******************/
-.excalidraw-host-light {
-  background-color: var(--bg-ex-light);
-  border-radius: 5px;
-  display: block;
-}
-
-.ex-header-button-light {
-  background-color: transparent;
-  color: var(--cl-ex-light);
-  position: absolute;
-  top: 2px;
-  z-index: 1100;
-  border-radius: 18px;
-  border: none;
-}
-
-.ex-header-button-light:hover {
-  border: 1px solid dimgray;
-}
-
-/*
-.excalidraw-host-light {     
-}*/
-
-
-/******************/
-/*   Dark mode    */
-/******************/
-
-.excalidraw-host-dark {
-  background-color: var(--bg-ex-dark);
-  border-radius: 5px;
-  display: block;
-}
-
-.ex-header-button-dark {
-  background-color: transparent;
-  color: var(--cl-ex-dark);
-  position: absolute;
-  top: 2px;
-  z-index: 1100;
-  border-radius: 18px;
-  border: none;
-}
-
-.ex-header-button-dark:hover {
-  border: 1px solid dimgray;
-}
-
-/*
-.excalidraw-host-dark {     
-}*/
-
-/*****************/
-/* other settings*/
-/*****************/
 .excalidraw-wrapper { 
   height: 100%;
   margin: 0px;
@@ -120,12 +50,9 @@
   padding: 2px 5px 2px 5px;
 }
 
-/*
-.excalidraw-svg {
-  margin: 0px -4px -4px -4px;
-}*/
-
-/*excalidraw overrides*/
+/**********************************/
+/*      Excalidraw overrides      */
+/**********************************/
 
 .excalidraw .github-corner {
   display: none;
@@ -149,8 +76,6 @@ kbd {
 .excalidraw .App-menu_top .buttonList {
   display: flex;
 }
-
-
 
 :root[dir="ltr"]
   .excalidraw

@@ -471,9 +471,6 @@
     (.getSVG js/window.ExcalidrawWrapper drawing dom-node app-name)
   ))
 
-(defn get-style [x]
-  (str/join [x "-" (:mode @app-settings)]))
-
 (defn main [{:keys [block-uid]} & args]
   (debug ["(main) component starting..."])
   (check-js-dependencies)

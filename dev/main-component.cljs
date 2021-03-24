@@ -520,6 +520,7 @@
       (letfn [(autosave[] (if (is-full-screen cs) ;;kill timer if no longer full screen
                             (if-not (nil? @changed-drawing)  ;;only save if not editing
                               (do
+                                (debug ["autosave - saving"])
                                 (save-component {:block-uid block-uid 
                                                  :map-string (js-to-clj-str @changed-drawing) ;get-drawing ew))
                                                  :cs cs

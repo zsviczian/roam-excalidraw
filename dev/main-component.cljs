@@ -570,13 +570,13 @@
             :reagent-render (fn [{:keys [block-uid]} & args]
                               (debug ["(main) :reagent-render"])
                               [:div
-                                {:class (get-style "excalidraw-host")
+                                {:class "excalidraw-host"
                                   :style (:host-div @style)
                                   :on-mouse-over (fn[e] (swap! cs assoc-in [:mouseover] true))
                                   :on-mouse-leave (fn[e] (swap! cs assoc-in [:mouseover] false)) }
-                                (if-not (is-full-screen)
+                                (if-not (is-full-screen cs)
                                   [:button
-                                  {:class (get-style "ex-header-button")
+                                  {:class "ex-embed-button"
                                     :style {:display (if (:mouseover @cs) "block" "none")
                                             :left (if-not (nil? (:this-dom-node @cs)) 
                                                     (- (.-clientWidth (:this-dom-node @cs)) 32) 
@@ -596,9 +596,8 @@
                                                             (js/setTimeout autosave 5000))}
                                     "🖋"]
                                   [:button
-                                   {:class (get-style "ex-header-button")
-                                    :style {:display (if (:mouseover @cs) "block" "none")
-                                            :left (- (.-clientWidth (:this-dom-node @cs)) 60)}
+                                   {:class "ex-fullscreen-button"
+                                    :style {:left (- (.-clientWidth (:this-dom-node @cs)) 32)}
                                     :draggable true
                                     :on-click (fn [e]
                                                 (.svgClipboard js/ExcalidrawWrapper)
@@ -610,7 +609,7 @@
                                                 (swap! cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
                                                 (going-full-screen? false cs style)
                                    )}
-                                   "✖️"])
+                                   "❌"])
                                 [:div
                                 {:id app-name
                                   :style {:position "relative" :width "100%" :height "100%"}}

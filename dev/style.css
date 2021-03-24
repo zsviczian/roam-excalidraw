@@ -7,6 +7,40 @@
   src: url("https://excalidraw.com/Cascadia.woff2");
 }
 
+.ex-fullscreen-button {
+  background-color: transparent;
+  position: absolute;
+  top: 2px;
+  z-index: 1100;
+  border-radius: 18px;
+  border: 1px solid transparent;
+}
+
+.ex-fullscreen-button:hover {
+  border: 1px solid dimgray;
+}
+
+.excalidraw-host {
+  /*background-color: var(--bg-ex-light);
+  border-radius: 5px;*/
+  display: block;
+}
+
+.ex-embed-button {
+  background-color: transparent;
+  color: dimgray;
+  position: absolute;
+  top: 2px;
+  z-index: 1100;
+  border-radius: 18px;
+  border: 1px solid transparent;
+}
+
+.ex-embed-button {
+  border: 1px solid dimgray;
+}
+
+
 :root {
   --bg-ex-dark: 	#121212;
   --cl-ex-dark: 	lightgray;

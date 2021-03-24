@@ -63,17 +63,19 @@ window['ExcalidrawWrapper'] = class {
             height: dimensions.height,
             initialData: initData,
             onChange: (el, st) => {
-              onChangeCallback( {elements: el, 
-                                 appState: {theme: st["theme"],
-                                            height: st["height"],
-                                            name: st["name"],
-                                            scrollX: st["scrollX"],
-                                            scrollY: st["scrollY"],
-                                            viewBackgroundColor: st["viewBackgroundColor"],
-                                            width: st["width"],
-                                            zoom: st["zoom"],
-                                            offsetLeft: st["offsetLeft"],
-                                            offsetTop: st["offsetTop"]}
+              onChangeCallback( {elements: el.filter (element => !(element.id === st.editingElmenet?.id ||
+                                                                  element.id === st.resizingElement?.id ||
+                                                                  element.id === st.draggingElement?.id )), 
+                                 appState: {theme: st.theme,
+                                            height: st.height,
+                                            name: st.name,
+                                            scrollX: st.scrollX,
+                                            scrollY: st.scrollY,
+                                            viewBackgroundColor: st.viewBackgroundColor,
+                                            width: st.width,
+                                            zoom: st.zoom,
+                                            offsetLeft: st.offsetLeft,
+                                            offsetTop: st.offsetTop}
                                            });
             }, //console.log("Elements :", elements, "State : ", state),
             //onPointerUpdate: (payload) => {},  //console.log(payload),

@@ -63,6 +63,7 @@ window['ExcalidrawWrapper'] = class {
             height: dimensions.height,
             initialData: initData,
             onChange: (el, st) => {
+              //based on https://github.com/excalidraw/excalidraw/blob/master/src/excalidraw-app/collab/CollabWrapper.tsx#L387
               onChangeCallback( {elements: el.filter (element => !(element.id === st.editingElmenet?.id ||
                                                                   element.id === st.resizingElement?.id ||
                                                                   element.id === st.draggingElement?.id )), 

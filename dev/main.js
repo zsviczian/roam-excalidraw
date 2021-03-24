@@ -312,7 +312,7 @@ window['ExcalidrawWrapper'] = class {
       .roamAlphaAPI
       .data
       .addPullWatch(
-        `[:block/children {:block/children ...}]`,
+        `[:block/children :block/string :block/order {:block/children ...}]`,
         `[:block/uid "${blockUID}"]`,
          callback); 
   }
@@ -323,7 +323,7 @@ window['ExcalidrawWrapper'] = class {
       .roamAlphaAPI
       .data
       .removePullWatch(
-        `[:block/children {:block/children ...}]`,
+        `[:block/children :block/string :block/order {:block/children ...}]`,
         `[:block/uid "${blockUID}"]`,
          callback);     
   }

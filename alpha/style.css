@@ -7,73 +7,37 @@
   src: url("https://excalidraw.com/Cascadia.woff2");
 }
 
-:root {
-  --bg-ex-dark: 	#121212;
-  --cl-ex-dark: 	lightgray;
-  --bg-ex-light:	white;
-  --cl-ex-light:	rgb(68, 68, 68);
-}
-
-
-/******************/
-/*   Light mode   */
-/******************/
-.excalidraw-host-light {
-  background-color: var(--bg-ex-light);
-  border-radius: 5px;
-  display: block;
-}
-
-.ex-header-button-light {
+.ex-fullscreen-button {
   background-color: transparent;
-  color: var(--cl-ex-light);
   position: absolute;
   top: 2px;
   z-index: 1100;
   border-radius: 18px;
-  border: none;
+  border: 1px solid transparent;
 }
 
-.ex-header-button-light:hover {
-  border: 1px solid dimgray;
+.ex-fullscreen-button:hover {
+  border: 1px solid gray;
 }
 
-/*
-.excalidraw-host-light {     
-}*/
-
-
-/******************/
-/*   Dark mode    */
-/******************/
-
-.excalidraw-host-dark {
-  background-color: var(--bg-ex-dark);
-  border-radius: 5px;
+.excalidraw-host {
   display: block;
 }
 
-.ex-header-button-dark {
-  background-color: transparent;
-  color: var(--cl-ex-dark);
+.ex-embed-button {
+  background-color: rgba(128,128,128,0.5);
+  color: yellow;
   position: absolute;
   top: 2px;
   z-index: 1100;
   border-radius: 18px;
-  border: none;
+  border: 1px solid transparent;
 }
 
-.ex-header-button-dark:hover {
-  border: 1px solid dimgray;
+.ex-embed-button:hover {
+  border: 1px solid red;
 }
 
-/*
-.excalidraw-host-dark {     
-}*/
-
-/*****************/
-/* other settings*/
-/*****************/
 .excalidraw-wrapper { 
   height: 100%;
   margin: 0px;
@@ -86,13 +50,13 @@
   padding: 2px 5px 2px 5px;
 }
 
-/*
-.excalidraw-svg {
-  margin: 0px -4px -4px -4px;
-}*/
+/**********************************/
+/*      Excalidraw overrides      */
+/**********************************/
 
-/*excalidraw overrides*/
-
+.excalidraw .github-corner {
+  display: none;
+}
 
 .excalidraw.excalidraw-modal-container {
   z-index: 1010 !important; 
@@ -112,8 +76,6 @@ kbd {
 .excalidraw .App-menu_top .buttonList {
   display: flex;
 }
-
-
 
 :root[dir="ltr"]
   .excalidraw

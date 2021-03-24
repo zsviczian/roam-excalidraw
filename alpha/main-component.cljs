@@ -1,4 +1,4 @@
-(ns excalidraw.app.alpha.v23
+(ns excalidraw.app.alpha.v24
   (:require 
    [clojure.set :as s]
    [reagent.core :as r]
@@ -471,9 +471,6 @@
     (.getSVG js/window.ExcalidrawWrapper drawing dom-node app-name)
   ))
 
-(defn get-style [x]
-  (str/join [x "-" (:mode @app-settings)]))
-
 (defn main [{:keys [block-uid]} & args]
   (debug ["(main) component starting..."])
   (check-js-dependencies)
@@ -570,41 +567,46 @@
             :reagent-render (fn [{:keys [block-uid]} & args]
                               (debug ["(main) :reagent-render"])
                               [:div
-                                {:class (get-style "excalidraw-host")
+                                {:class "excalidraw-host"
                                   :style (:host-div @style)
                                   :on-mouse-over (fn[e] (swap! cs assoc-in [:mouseover] true))
                                   :on-mouse-leave (fn[e] (swap! cs assoc-in [:mouseover] false)) }
-                                [:button
-                                {:class (get-style "ex-header-button")
-                                  :style {:display (if (:mouseover @cs) "block" "none")
-                                          :left (if (is-full-screen cs) ;;this is so the button refreshes when going full screen
-                                                  (- (.-clientWidth (:this-dom-node @cs)) 60)
-                                                  (if-not (nil? (:this-dom-node @cs)) 
+                                (if-not (is-full-screen cs)
+                                  [:button
+                                  {:class "ex-embed-button"
+                                    :style {:display (if (:mouseover @cs) "block" "none")
+                                            :left (if-not (nil? (:this-dom-node @cs)) 
                                                     (- (.-clientWidth (:this-dom-node @cs)) 32) 
-                                                    0))}
-                                  :draggable true
-                                  :on-click (fn [e]
-                                              (if (is-full-screen cs)
-                                                (do (.svgClipboard js/ExcalidrawWrapper)
-                                                  (save-component {:block-uid block-uid 
-                                                                    :map-string (js-to-clj-str (get-drawing ew))
-                                                                    :cs cs
-                                                                    :drawing drawing
-                                                                    :saving-flag saving-flag})
-                                                  (swap! cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
-                                                  (going-full-screen? false cs style)) 
-                                                (do (going-full-screen? true cs style)
-                                                  (if (nil? (get-in @drawing [:title :block-uid])) 
-                                                    (create-nested-blocks {:block-uid block-uid 
-                                                                            :drawing drawing 
-                                                                            :empty-block-uid nil}))
-                                                  (reset! ew (js/ExcalidrawWrapper.
-                                                              app-name
-                                                              (generate-scene {:drawing drawing})
-                                                              (:this-dom-node @cs)
-                                                              drawing-on-change-callback ))
-                                                              (js/setTimeout autosave 5000))))}
-                                  (if (is-full-screen cs) "✖️" "🖋")]
+                                                    0)}
+                                    :draggable true
+                                    :on-click (fn [e]
+                                                (going-full-screen? true cs style)
+                                                (if (nil? (get-in @drawing [:title :block-uid])) 
+                                                  (create-nested-blocks {:block-uid block-uid 
+                                                                          :drawing drawing 
+                                                                          :empty-block-uid nil}))
+                                                (reset! ew (js/ExcalidrawWrapper.
+                                                            app-name
+                                                            (generate-scene {:drawing drawing})
+                                                            (:this-dom-node @cs)
+                                                            drawing-on-change-callback ))
+                                                            (js/setTimeout autosave 5000))}
+                                    "🖋"]
+                                  [:button
+                                   {:class "ex-fullscreen-button"
+                                    :style {:left (- (.-clientWidth (:this-dom-node @cs)) 32)}
+                                    :draggable true
+                                    :on-click (fn [e]
+                                                (.svgClipboard js/ExcalidrawWrapper)
+                                                (save-component {:block-uid block-uid 
+                                                                  :map-string (js-to-clj-str (get-drawing ew))
+                                                                  :cs cs
+                                                                  :drawing drawing
+                                                                  :saving-flag saving-flag})
+                                                (swap! cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
+                                                (going-full-screen? false cs style)
+                                   )}
+                                   "❌"])
                                 [:div
                                 {:id app-name
                                   :style {:position "relative" :width "100%" :height "100%"}}

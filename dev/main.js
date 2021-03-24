@@ -64,10 +64,8 @@ window['ExcalidrawWrapper'] = class {
             initialData: initData,
             onChange: (el, st) => {
               //based on https://github.com/excalidraw/excalidraw/blob/master/src/excalidraw-app/collab/CollabWrapper.tsx#L387
-              console.log ("onchange", st.editingElement, st.resizingElement, st.draggingElement);
-              onChangeCallback( {elements: el.filter (element => !(element.id === st.editingElmenet?.id ||
-                                                                  element.id === st.resizingElement?.id ||
-                                                                  element.id === st.draggingElement?.id )), 
+              if (st.editingElement == null && st.resizingElement == null && st.draggingElement == null)
+                onChangeCallback( {elements: el,
                                  appState: {theme: st.theme,
                                             height: st.height,
                                             name: st.name,
@@ -79,6 +77,7 @@ window['ExcalidrawWrapper'] = class {
                                             offsetLeft: st.offsetLeft,
                                             offsetTop: st.offsetTop}
                                            });
+              else onChangeCallback(null);
             }, //console.log("Elements :", elements, "State : ", state),
             //onPointerUpdate: (payload) => {},  //console.log(payload),
           })

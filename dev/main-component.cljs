@@ -478,57 +478,56 @@
   (debug ["(main) component starting..."])
   (check-js-dependencies)
   (let [drawing (r/atom nil)
-      cs (r/atom {:position embedded-view  ;;component-state
-                  :this-dom-node nil
-                  :aspect-ratio nil
-                  :mouseover false
-                  :dirty false ;used to flag graph should be saved - saves every 5 secs
-                  :prev-empty-block nil}) ;; this is a semaphore system to avoid creating double nested blocks when manually creating the first nested element
-    saving-flag (atom false)
-    ew (r/atom nil) ;;excalidraw-wrapper
-    app-name (str/join ["excalidraw-app-" block-uid])
-    style (r/atom {:host-div (host-div-style cs)})
-    resize-handler (fn [] (if (is-full-screen cs) 
-                            (swap! style assoc-in [:host-div] (host-div-style cs))  
-                            (if-not (nil? (:this-dom-node @cs)) 
-                              (swap! style assoc-in [:host-div] (host-div-style cs)))))
-    changed-drawing (atom nil)
-    drawing-on-change-callback (fn [x] (reset! changed-drawing x) (swap! cs assoc-in [:dirty] true))
-    pull-watch-callback (fn [before after]
-                          (if-not (or @saving-flag (is-full-screen cs))
-                            (do 
-                              (let [drawing-data (pull-children block-uid 0)
-                                    drawing-text (pull-children block-uid 1)
-                                    empty-block-uid (re-find #":block/uid \"(.*)\", (:block/string \"\")" (str drawing-data))] ;check if user has nested a block under a new drawing
-                                (if-not (nil? empty-block-uid)
-                                  (if-not (= (second empty-block-uid) (:prev-empty-block @cs))
-                                    (do
-                                      (swap! cs assoc-in [:prev-empty-block] (second empty-block-uid)) ;;semaphore to avoid double creation of blocks
-                                      (create-nested-blocks {:block-uid block-uid 
-                                                              :drawing drawing 
-                                                              :empty-block-uid (second empty-block-uid)})
-                                      ))) 
-                                (load-drawing {:block-uid block-uid 
-                                              :drawing drawing 
-                                              :data (get-data-from-block-string drawing-data) 
-                                              :text (first drawing-text)})
-                                (if-not (is-full-screen cs)
-                                  (do
-                                    (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
-                                    (swap! style assoc-in [:host-div] (host-div-style cs))))
-                                (debug ["(main) :callback drawing-data theme" (get-in @drawing [:drawing :appState :theme]) ])
-    ))))]
-      (letfn [(autosave[] (if (is-full-screen cs)
-                      (do (if (:dirty @cs) 
-                            (do
-                              (.updateScene @ew
+        cs (r/atom {:position embedded-view  ;;component-state
+                    :this-dom-node nil
+                    :aspect-ratio nil
+                    :mouseover false
+                    :prev-empty-block nil}) ;; this is a semaphore system to avoid creating double nested blocks when manually creating the first nested element
+        saving-flag (atom false)
+        ew (r/atom nil) ;;excalidraw-wrapper
+        app-name (str/join ["excalidraw-app-" block-uid])
+        style (r/atom {:host-div (host-div-style cs)})
+        resize-handler (fn [] (if (is-full-screen cs) 
+                                (swap! style assoc-in [:host-div] (host-div-style cs))  
+                                (if-not (nil? (:this-dom-node @cs)) 
+                                  (swap! style assoc-in [:host-div] (host-div-style cs)))))
+        changed-drawing (atom nil)
+        drawing-on-change-callback (fn [x] (reset! changed-drawing x))
+        pull-watch-callback (fn [before after]
+                              (if-not (or @saving-flag (is-full-screen cs))
+                                (do 
+                                  (let [drawing-data (pull-children block-uid 0)
+                                        drawing-text (pull-children block-uid 1)
+                                        empty-block-uid (re-find #":block/uid \"(.*)\", (:block/string \"\")" (str drawing-data))] ;check if user has nested a block under a new drawing
+                                    (if-not (nil? empty-block-uid)
+                                      (if-not (= (second empty-block-uid) (:prev-empty-block @cs))
+                                        (do
+                                          (swap! cs assoc-in [:prev-empty-block] (second empty-block-uid)) ;;semaphore to avoid double creation of blocks
+                                          (create-nested-blocks {:block-uid block-uid 
+                                                                  :drawing drawing 
+                                                                  :empty-block-uid (second empty-block-uid)})
+                                          ))) 
+                                    (load-drawing {:block-uid block-uid 
+                                                  :drawing drawing 
+                                                  :data (get-data-from-block-string drawing-data) 
+                                                  :text (first drawing-text)})
+                                    (if-not (is-full-screen cs)
+                                      (do
+                                        (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
+                                        (swap! style assoc-in [:host-div] (host-div-style cs))))
+                                    (debug ["(main) :callback drawing-data theme" (get-in @drawing [:drawing :appState :theme]) ])
+  ))))]
+      (letfn [(autosave[] (if (is-full-screen cs) ;;kill timer if no longer full screen
+                            (if-not (nil? @changed-drawing)  ;;only save if not editing
+                              (do
                                 (save-component {:block-uid block-uid 
                                                  :map-string (js-to-clj-str @changed-drawing) ;get-drawing ew))
                                                  :cs cs
                                                  :drawing drawing
-                                                 :saving-flag saving-flag}))))
-                              (swap! cs assoc-in [:dirty] false)
-                            (js/setTimeout autosave 5000))))]
+                                                 :saving-flag saving-flag})
+                                (js/setTimeout autosave 5000))
+                              (js/setTimeout autosave 1000) ;;the user is currently editing an element, try again in one sec, until able to save
+                              )))]
       (if (= @deps-available false)
         [:div "Libraries have not yet loaded. Please refresh the block in a moment."]
         (fn []

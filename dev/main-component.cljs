@@ -491,6 +491,7 @@
         changed-drawing (atom nil)
         drawing-on-change-callback (fn [x] (reset! changed-drawing x))
         pull-watch-callback (fn [before after]
+                              (debug ["(pull-watch-callback) after:" (js-to-clj-str after)])
                               (if-not (or @saving-flag (is-full-screen cs))
                                 (do 
                                   (let [drawing-data (pull-children block-uid 0)
@@ -512,8 +513,7 @@
                                       (do
                                         (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
                                         (swap! style assoc-in [:host-div] (host-div-style cs))))
-                                    (debug ["(main) :callback drawing-data theme" (get-in @drawing [:drawing :appState :theme]) ])
-  ))))]
+                                    (debug ["(main) :callback drawing-data theme" (get-in @drawing [:drawing :appState :theme])])  ))))]
       (letfn [(autosave[] (if (is-full-screen cs) ;;kill timer if no longer full screen
                             (if-not (nil? @changed-drawing)  ;;only save if not editing
                               (do
@@ -524,9 +524,8 @@
                                                  :drawing drawing
                                                  :saving-flag saving-flag}))
                                 (js/setTimeout autosave 5000))
-                              (js/setTimeout autosave 1000) ;;the user is currently editing an element, try again in one sec, until able to save
-                              )))]
-      (if (= @deps-available false)
+                              (js/setTimeout autosave 1000)  )))] ;;the user is currently editing an element, try again in one sec, until able to save
+       (if (= @deps-available false)
         [:div "Libraries have not yet loaded. Please refresh the block in a moment."]
         (fn []
           (debug ["(main) fn[] starting..."])
@@ -551,7 +550,6 @@
                                     (debug ["(main) :component-did-mount addPullWatch"])
                                     (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
                                     (pull-watch-callback nil nil)
-                                    ;(swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
                                     (swap! style assoc-in [:host-div] (host-div-style cs))
                                     (.addEventListener js/window "resize" resize-handler)
                                     (debug ["(main) :component-did-mount Exalidraw mount initiated"]))
@@ -573,7 +571,7 @@
                                   :on-mouse-leave (fn[e] (swap! cs assoc-in [:mouseover] false)) }
                                 (if-not (is-full-screen cs)
                                   [:button
-                                  {:class "ex-embed-button"
+                                   {:class "ex-embed-button"
                                     :style {:display (if (:mouseover @cs) "block" "none")
                                             :left (if-not (nil? (:this-dom-node @cs)) 
                                                     (- (.-clientWidth (:this-dom-node @cs)) 32) 
@@ -608,10 +606,6 @@
                                    )}
                                    "❌"])
                                 [:div
-                                {:id app-name
+                                 {:id app-name
                                   :style {:position "relative" :width "100%" :height "100%"}}
-;                                          (if (is-full-screen cs)
-;                                          {:position "relative" :width "100%" :height "100%"}
-                                          ;;{:background (if (= (get-in @drawing [:drawing :appState :theme]) "dark") "#121212" "white")}
-;                                          )}
 ]])}))))))

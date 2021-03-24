@@ -40,11 +40,7 @@
 
 (defn host-div-style [cs]
   (let [host-div-width (if (nil? (:tdn @cs)) (:max-embed-width @app-settings)
-                       (-> (:tdn @cs)  
-                         (.-parentElement)
-                         (.-parentElement)
-                         (.-parentElement)
-                         (.-clientWidth)))
+                       (.getHostDIVWidth js/ExcalidrawWrapper (:tdn @cs)))
       embed-width (if (> host-div-width (:max-embed-width @app-settings)) 
                     (:max-embed-width @app-settings) host-div-width)
       embed-height (* (:max-embed-height @app-settings) (/ embed-width (:max-embed-width @app-settings)))

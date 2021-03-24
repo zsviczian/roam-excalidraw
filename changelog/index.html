@@ -14,6 +14,35 @@
 <body>
   <div style = "clear: both; width: 900px; margin:0 auto;">
   <h1 id="change-log">Change log</h1>  
+  <h2>March 24th, 2021  </h2>
+  <p>Changes are available on the beta channel only. Change to beta channel if you are ok to find bugs... while hopefully you'll experience nothing serious, in worst case you may lose your drawing.</p>
+  <p>Change loader like this to use beta channel:</p>
+  <!--HTML generated using hilite.me--><div style="background: rgb(255, 255, 255); border-color: gray; border-image: initial; border-style: solid; border-width: 0.1em 0.1em 0.1em 0.8em; border: solid gray; overflow: auto; padding: 0.2em 0.6em; width: auto;"><pre style="line-height: 125%; margin: 0px;">{</pre><pre style="line-height: 125%; margin: 0px;">  <span style="color: #008800; font-weight: bold;">let</span> s = <span style="color: #003388;">document</span>.createElement(<span style="background-color: #fff0f0; color: #dd2200;">'script'</span>);
+    s.type = <span style="background-color: #fff0f0; color: #dd2200;">'text/javascript'</span>;
+    s.src = <span style="background-color: #fff0f0; color: #dd2200;">'https://roam-excalidraw.com/beta/loader.js'</span>;
+    s.async = <span style="color: #008800; font-weight: bold;">false</span>;
+    <span style="color: #003388;">document</span>.getElementsByTagName(<span style="background-color: #fff0f0; color: #dd2200;">'head'</span>)[<span style="color: #0000dd; font-weight: bold;">0</span>].appendChild(s);  
+  }
+  </pre></div>
+  <h3>Quality of life improvements</h3>
+  <p>I removed the title from top. You can always nest your drawing under a block. No value in having a title field.</p>
+  <p>To edit your drawing move your mouse over the image, a pencil will appear in the top right corner, click the pencil.</p>
+  <p><img src="./20210324/4.jpg" width=200 alt="">  </p>
+  <p>In fullscreen mode I removed the zen-mode and grid-mode checkboxes. Instead you will find these in the context menu using right click.</p>
+  <p>I removed the save and cancel buttons from full screen mode. Instead you can now close full screen mode by clicking the X in the top right corner.</p>
+  <p><img src="./20210324/5.jpg" width=100 alt="">  </p>
+  <p>I added autosave. While editing, your drawing will be regularly saved to your graph.</p>
+  <p>While in embedded mode - i.e. when you are not editing your drawing - if you double click the image, you can access the underlying block.</p>
+  <p>((block-referencing)) a drawing in your graph now works (almost) as expected. (almost == if you click the pen to edit the drawing, it will not fully work).</p>
+  <h3>Nested text support</h3>
+  <p>Text on your drawing will be synchronized with text nested under the drawing. Synchronization works both ways. You can edit nested text and it will update on the drawing.</p>
+  <p><img src="./20210324/2.jpg" width=500 alt="">  </p>
+  <h3>Additional settings</h3>
+  <p><img src="./20210324/1.jpg" width=300 alt="">  </p>
+  <h3>Experimental: Added SVG paste option</h3>
+  <p>Copy a drawing using the copy to SVG command in fullscreen mode.</p>
+  <p>Use CTRL+V to paste the SVG into your Roam graph.</p>
+  <p><img src="./20210324/3.jpg" width=300 alt="">  </p>
   <h2>March 18th, 2021  </h2>
   
   <h3>Additional settings</h3>

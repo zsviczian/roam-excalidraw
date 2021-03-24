@@ -141,8 +141,8 @@
         edn-map (edn/read-string (:map-string x))
         text-elements (r/atom nil)
         ;;get text blocks nested under title
-        title-block-uid (get-in @(:drawing x) [:title :block-uid])
-        nested-text-blocks (get-text-blocks title-block-uid) 
+        nestedtext-parent-block-uid (get-in @(:drawing x) [:nestedtext-parent :block-uid])
+        nested-text-blocks (get-text-blocks nestedtext-parent-block-uid) 
         app-state (into {} (filter (comp some? val) (:appState edn-map)))] ;;remove nil elements from appState
     
     ;;process text on drawing
@@ -160,12 +160,12 @@
               )
               (do ;block no-longer exists, create new one
                 (debug ["(save-component) block should, but does not exist, creating..."])
-                (let [new-block-uid (.createBlock js/ExcalidrawWrapper title-block-uid (get-next-block-order title-block-uid) (:text y))]
+                (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
                   (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
         )))))
         (do ;;block with text does not exist as nested block, create new
           (debug ["(save-component) block does not exists, creating"])
-          (let [new-block-uid (.createBlock js/ExcalidrawWrapper title-block-uid (get-next-block-order title-block-uid) (:text y))]
+          (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
             (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
     ))))
     
@@ -232,18 +232,19 @@
 ;;a new drawing that hasn't been edited yet (i.e. the data and title children
 ;;are missing)
   (debug ["(create-nested-blocks)"])
-  (let [default-data {:appState {:name "Untitled drawing"
-                                 :theme (:mode @app-settings)}
+  (let [default-data {:appState {:theme (:mode @app-settings)}
                       :roamExcalidraw {:version 1}}]
     (create-block (:block-uid x) 0 (str/join ["{{roam/render: ((ExcalDATA)) "
                                 (str default-data) " }}"]))
     (reset! (:drawing x) {:drawing default-data 
-                          :title {:text (if (nil? (:empty-block-uid x)) "Untitled drawing" "")
-                                  :block-uid (if (nil? (:empty-block-uid x)) 
-                                               (create-block (:block-uid x) 1 "Excalidraw text (nest here)")
-                                               (:empty-block-uid x))}})
+                          :nestedtext-parent {:block-uid (create-block (:block-uid x) 1 "**Excalidraw text (nest here)**")}})
+                                                              
     (if (nil? (:empty-block-uid x)) 
-      (block/update {:block {:uid (:block-uid x) :open false}}))))
+      (block/update {:block {:uid (:block-uid x) :open false}})) ;;fold up the drawing block to hide children
+      (block/move {:location {:parent-uid (get-in (:drawing x) [:nestedtext-parent :block-uid]) ;;move new block under nested text
+                              :order 0}
+                   :block {:uid (:empty-block-uid x)}})
+))
 
 
 
@@ -256,26 +257,22 @@
   (if (= (count (:data x)) 0)
       (do
         (debug ["(load-drawing) no children - creating dummy data"])
-        (let [default-data {:appState {:name "Untitled drawing"
-                                       :theme (:mode @app-settings)}
+        (let [default-data {:appState {:theme (:mode @app-settings)}
                             :roamExcalidraw {:version 1}}]
           (reset! (:drawing x) {:drawing default-data 
-                            :title {:text "Untitled drawing"
-                                    :block-uid nil}})
+                                :nestedtext-parent {:block-uid nil}})
       ))
       (if (= (count (:text x)) 0)
         (do
           (debug ["(load-drawing) create title only"])
           (reset! (:drawing x) {:drawing (:data x)
-                           :title {:text "Untitled drawing"
-                                   :block-uid (create-block (:block-uid x) 1 "Excalidraw text (nest here)")}})
+                                :nestedtext-parent {:block-uid (create-block (:block-uid x) 1 "**Excalidraw text (nest here)**")}})
           (block/update {:block {:uid (:block-uid x) :open false}})
         )
         (do
           (debug ["(load-drawing) ExcalDATA & title already exist"])
           (reset! (:drawing x) {:drawing (:data x)
-                                :title {:text (get-in (:text x) [0 :block/string])
-                                        :block-uid  (get-in (:text x) [0 :block/uid])}
+                                :nestedtext-parent {:block-uid  (get-in (:text x) [0 :block/uid])}
                                 :text (get-in (:text x) [0 :block/children])})
   )))
   (debug ["(load-drawing) drawing: " @(:drawing x) " data: " (:data x) " text: " (str (:text x)) "theme " (get-in (:data x) [:appState :theme])])
@@ -579,7 +576,7 @@
                                     :draggable true
                                     :on-click (fn [e]
                                                 (going-full-screen? true cs style)
-                                                (if (nil? (get-in @drawing [:title :block-uid])) 
+                                                (if (nil? (get-in @drawing [:nestedtext-parent :block-uid])) 
                                                   (create-nested-blocks {:block-uid block-uid 
                                                                           :drawing drawing 
                                                                           :empty-block-uid nil}))

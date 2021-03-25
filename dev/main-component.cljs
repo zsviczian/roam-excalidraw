@@ -599,13 +599,13 @@
                                     :draggable true
                                     :on-click (fn [e]
                                                 (.svgClipboard js/ExcalidrawWrapper)
+                                                (going-full-screen? false cs style)
                                                 (save-component {:block-uid block-uid 
                                                                   :map-string (js-to-clj-str (get-drawing ew))
                                                                   :cs cs
                                                                   :drawing drawing
                                                                   :saving-flag saving-flag})
                                                 (swap! cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
-                                                (going-full-screen? false cs style)
                                    )}
                                    "❌"])
                                 [:div

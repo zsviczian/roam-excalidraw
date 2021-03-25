@@ -155,7 +155,7 @@
     
     ;;process text on drawing
     ;;(debug ["(save-component) start processing text"])
-    (if (is-full-screen (:cs x))
+    (if-not (is-full-screen (:cs x))
       (doseq [y (get-text-elements (:elements edn-map))]
         (if (str/starts-with? (:id y) "ROAM_")
           (do ;;block with text should already exist, update text, but double check that the block is there...

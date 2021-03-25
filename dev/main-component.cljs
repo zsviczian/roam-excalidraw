@@ -291,14 +291,15 @@
 (defn flatten-nested-text [level nested-text] 
   (let [result (atom nil)]
     (doseq [y nested-text]
-      (let [order (str/join [level "." (pp/cl-format nil "~2,'0d" (:block/order y))])]
+      (let [order (str/join [level (pp/cl-format nil "~2,'0d" (:block/order y))])]
         (reset! result (conj @result {:block/string (:block/string y)
-                                      :block/order order
-                                      :block/uid (:block/uid y)})
-        (if (> (count (:block/children y) 0) )
-          (reset! result (conj @result (flatten-nested-text order (:block/children y))))
-    ))))
-    (sort-by :order result)
+                                       :block/order order
+                                       :block/uid (:block/uid y)}))
+        (if-not (nil? (:block/children y)) 
+          (reset! result (concat @result (flatten-nested-text order (:block/children y)))))
+    ))   
+    (debug ["flat-nest " (str @result)])
+     (into [] (sort-by :block/order @result))
 ))
 
 ;;check if text in nested block has changed compared to drawing and updated text in drawing element including size
@@ -306,14 +307,14 @@
   ;;(debug ["(update-drawing-based-on-nested-blocks) Enter x:" x])
   (if-not (nil? (:nested-text x)) 
     (do
-      (debug ["flat-nest: " (str (flatten-nested-text "0" (:nested-text x)))])
-      (let [text-elements (r/atom nil)]
+      (let [text-elements (r/atom nil)
+            nested-text (flatten-nested-text "" (:nested-text x))]   
       ;;(debug ["(update-drawing-based-on-nested-blocks) processing nested text - apply changes to existing text elements, omit deleted ones"])
         ;;update elements on drawing based on changes to nested text
         (doseq [y (get-text-elements (:elements x))]
           (let [block-uid (get-block-uid-from-text-element y)
-                block-text (:block/string (first (filter (comp #{block-uid} :block/uid) (:nested-text x))))
-                text-element-has-nested-block-pair (= 0 (count (filter (comp #{block-uid} :block/uid) (:nested-text x))))]
+                block-text (:block/string (first (filter (comp #{block-uid} :block/uid) nested-text)))
+                text-element-has-nested-block-pair (= 0 (count (filter (comp #{block-uid} :block/uid) nested-text)))]
             ;;add text to drawing if text element has a nested block pair, 
             (if (not text-element-has-nested-block-pair)  
               (do
@@ -338,7 +339,7 @@
         
         ;;(debug ["(update-drawing-based-on-nested-blocks) processing nested text - add new nested blocks"])
         ;;add text for newly nested blocks
-        (doseq [y (:nested-text x)]
+        (doseq [y nested-text]
           (let [text (:block/string y)
                 dummy {:fontFamily (:nested-text-font-family @app-settings) 
                        :fontSize (:nested-text-font-size @app-settings)}
@@ -372,7 +373,7 @@
                                   :verticalAlign "top"
                                   :strokeColor "#000000"
                                   :textAlign "left"
-                                  :x x
+                                  :x (+ x (* 5 (count (:block/order y))))
                                   :fontSize (:nested-text-font-size @app-settings)
                                   :version 1
                                   :backgroundColor "transparent"

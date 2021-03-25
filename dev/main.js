@@ -2,7 +2,7 @@ function myKeyboardListner(ev) {
   if (ev.ctrlKey && (ev.code=='z' || ev.key=='z') ) {
     if (ExcalidrawConfig.DEBUG) console.log('keyboard evenet') ;
     ev.preventDefault();
-    if (typeof e.stopPropagation != "undefined") {
+    if (typeof ev.stopPropagation != "undefined") {
       ev.stopPropagation();
       if (ExcalidrawConfig.DEBUG) console.log("stop propagation") ;
     } else {

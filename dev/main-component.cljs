@@ -339,48 +339,50 @@
         
         ;;(debug ["(update-drawing-based-on-nested-blocks) processing nested text - add new nested blocks"])
         ;;add text for newly nested blocks
-        (doseq [nt nested-text]
-          (let [text (:block/string nt)
-                dummy {:fontFamily (:nested-text-font-family @app-settings) 
-                       :fontSize (:nested-text-font-size @app-settings)}
-                order (:block/order nt)
-                id (:block/uid nt)]
-            (if (= 0 (count (filter (comp #{(str/join ["ROAM_" (:block/uid nt) "_ROAM"])} :id) @text-elements)))
-              (let [col (int (/ order (:nested-text-rows @app-settings)))
-                    row (mod order (:nested-text-rows @app-settings))
-                    x (+ (:nested-text-start-left @app-settings) (* col (:nested-text-col-width @app-settings)))
-                    y (+ (:nested-text-start-top @app-settings) (* row (:nested-text-row-height @app-settings)))  
-                    text-measures (js->clj (.measureText js/ExcalidrawWrapper text dummy))]
-                ;;(debug ["(update-drawing-based-on-nested-blocks) add new: text" text "id" id])
-                (reset! text-elements 
-                          (conj @text-elements 
-                                {:y y
-                                  :baseline (get text-measures "baseline")
-                                  :isDeleted false
-                                  :strokeStyle "solid":roughness 1
-                                  :width (get text-measures "width")
-                                  :type "text"
-                                  :strokeSharpness "sharp"
-                                  :fillStyle "hachure"
-                                  :angle 0
-                                  :groupIds []
-                                  :seed 1
-                                  :fontFamily (:nested-text-font-family @app-settings)
-                                  :boundElementIds []
-                                  :strokeWidth 1
-                                  :opacity 100
-                                  :id (str/join ["ROAM_" id "_ROAM"])
-                                  :verticalAlign "top"
-                                  :strokeColor "#000000"
-                                  :textAlign "left"
-                                  :x (+ x (* 5 (count (:block/order nt))))
-                                  :fontSize (:nested-text-font-size @app-settings)
-                                  :version 1
-                                  :backgroundColor "transparent"
-                                  :versionNonce 1
-                                  :height (get text-measures "height")
-                                  :text text}))                                
-        ))))
+        (let [counter (atom -1)]
+          (doseq [nt nested-text]
+            (swap! counter inc)
+            (let [text (:block/string nt)
+                  dummy {:fontFamily (:nested-text-font-family @app-settings) 
+                        :fontSize (:nested-text-font-size @app-settings)}
+                  order (:block/order nt)
+                  id (:block/uid nt)]
+              (if (= 0 (count (filter (comp #{(str/join ["ROAM_" (:block/uid nt) "_ROAM"])} :id) @text-elements)))
+                (let [col (int (/ @counter (:nested-text-rows @app-settings)))
+                      row (mod @counter (:nested-text-rows @app-settings))
+                      x (+ (:nested-text-start-left @app-settings) (* col (:nested-text-col-width @app-settings)))
+                      y (+ (:nested-text-start-top @app-settings) (* row (:nested-text-row-height @app-settings)))  
+                      text-measures (js->clj (.measureText js/ExcalidrawWrapper text dummy))]
+                  ;;(debug ["(update-drawing-based-on-nested-blocks) add new: text" text "id" id])
+                  (reset! text-elements 
+                            (conj @text-elements 
+                                  {:y y
+                                    :baseline (get text-measures "baseline")
+                                    :isDeleted false
+                                    :strokeStyle "solid":roughness 1
+                                    :width (get text-measures "width")
+                                    :type "text"
+                                    :strokeSharpness "sharp"
+                                    :fillStyle "hachure"
+                                    :angle 0
+                                    :groupIds []
+                                    :seed 1
+                                    :fontFamily (:nested-text-font-family @app-settings)
+                                    :boundElementIds []
+                                    :strokeWidth 1
+                                    :opacity 100
+                                    :id (str/join ["ROAM_" id "_ROAM"])
+                                    :verticalAlign "top"
+                                    :strokeColor "#000000"
+                                    :textAlign "left"
+                                    :x (+ x (* 5 (count order)))
+                                    :fontSize (:nested-text-font-size @app-settings)
+                                    :version 1
+                                    :backgroundColor "transparent"
+                                    :versionNonce 1
+                                    :height (get text-measures "height")
+                                    :text text}))                                
+          )))))
 
 
         {:elements (update-elements-with-parts {:raw-elements (:elements x) :text-elements @text-elements})

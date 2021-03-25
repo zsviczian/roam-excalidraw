@@ -493,8 +493,16 @@
                                 (swap! style assoc-in [:host-div] (host-div-style cs))  
                                 (if-not (nil? (:this-dom-node @cs)) 
                                   (swap! style assoc-in [:host-div] (host-div-style cs)))))
-        changed-drawing (atom nil)
-        drawing-on-change-callback (fn [x] (reset! changed-drawing x))
+        ;changed-drawing (atom nil)
+        drawing-on-change-callback (fn [x] (if-not (nil? x) 
+                                             (.updateScene 
+                                              @ew 
+                                              (save-component 
+                                               {:block-uid block-uid 
+                                                :map-string (js-to-clj-str x) 
+                                                :cs cs
+                                                :drawing drawing
+                                                :saving-flag saving-flag}))))
         pull-watch-callback (fn [before after]
                               ;;(debug ["(pull-watch-callback) after:" (js-to-clj-str after)])
                               (if-not (or @saving-flag (is-full-screen cs))
@@ -520,17 +528,17 @@
                                         (swap! style assoc-in [:host-div] (host-div-style cs))))
                                     ;;(debug ["(main) :callback drawing-data theme" (get-in @drawing [:drawing :appState :theme])])
   ))))]
-      (letfn [(autosave[] (if (is-full-screen cs) ;;kill timer if no longer full screen
-                            (if-not (nil? @changed-drawing)  ;;only save if not editing
-                              (do
-                                ;;(debug ["autosave - saving"])
-                                (.updateScene @ew (save-component {:block-uid block-uid 
-                                                 :map-string (js-to-clj-str @changed-drawing) ;get-drawing ew))
-                                                 :cs cs
-                                                 :drawing drawing
-                                                 :saving-flag saving-flag}))
-                                (js/setTimeout autosave 10000))
-                              (js/setTimeout autosave 2000)  )))] ;;the user is currently editing an element, try again in one sec, until able to save
+;      (letfn [(autosave[] (if (is-full-screen cs) ;;kill timer if no longer full screen
+;                            (if-not (nil? @changed-drawing)  ;;only save if not editing
+;                              (do
+;                                ;;(debug ["autosave - saving"])
+;                                (.updateScene @ew (save-component {:block-uid block-uid 
+;                                                 :map-string (js-to-clj-str @changed-drawing) ;get-drawing ew))
+;                                                 :cs cs
+;                                                 :drawing drawing
+;                                                 :saving-flag saving-flag}))
+;                                (js/setTimeout autosave 10000))
+;                              (js/setTimeout autosave 2000)  )))] ;;the user is currently editing an element, try again in one sec, until able to save
        (if (= @deps-available false)
         [:div "Libraries have not yet loaded. Please refresh the block in a moment."]
         (fn []
@@ -592,7 +600,8 @@
                                                             (generate-scene {:drawing drawing})
                                                             (:this-dom-node @cs)
                                                             drawing-on-change-callback ))
-                                                            (js/setTimeout autosave 10000))}
+                                                            ;(js/setTimeout autosave 10000)
+                                                            )}
                                     "🖋"]
                                   [:button
                                    {:class "ex-fullscreen-button"
@@ -612,4 +621,4 @@
                                 [:div
                                  {:id app-name
                                   :style {:position "relative" :width "100%" :height "100%"}}
-]])}))))))
+]])})))))

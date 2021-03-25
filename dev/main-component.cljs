@@ -155,8 +155,8 @@
     
     ;;process text on drawing
     ;;(debug ["(save-component) start processing text"])
-    (if-not (is-full-screen (:cs x))
-      (do
+;    (if-not (is-full-screen (:cs x))
+;      (do
         (doseq [y (get-text-elements (:elements edn-map))]
           (if (str/starts-with? (:id y) "ROAM_")
             (do ;;block with text should already exist, update text, but double check that the block is there...
@@ -189,18 +189,18 @@
           (swap! app-settings assoc-in [:mode] (get-in app-state [:theme]))
           (save-settings)
           (reset! (:saving-flag x) false)
-      ))
-      (do 
-      
-        (let [elements (:elements edn-map) ;(update-elements-with-parts {:raw-elements (:elements edn-map) :text-elements @text-elements})  
-            out-string (fix-double-bracket (str {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}))
-            render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
-          (block/update
-            {:block {:uid data-block-uid
-                    :string render-string}})
-          (reset! (:saving-flag x) false)
+ ;     ))
+;      (do       
+;        (let [elements (:elements edn-map) ;(update-elements-with-parts {:raw-elements (:elements edn-map) :text-elements @text-elements})  
+;            out-string (fix-double-bracket (str {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}))
+;            render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
+;          (block/update
+;            {:block {:uid data-block-uid
+;                    :string render-string}})
+;          (reset! (:saving-flag x) false)
           {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}                                      
-)))))
+;))
+)))
 
 (defn load-settings []
   ;;(debug ["(load-settings) Enter"])
@@ -494,7 +494,7 @@
                                 (if-not (nil? (:this-dom-node @cs)) 
                                   (swap! style assoc-in [:host-div] (host-div-style cs)))))
         ;changed-drawing (atom nil)
-        drawing-on-change-callback (fn [x] (if-not (nil? x) 
+        drawing-on-change-callback (fn [x] (if (and (not (nil? x)) (not @saving-flag))
                                              (.updateScene 
                                               @ew 
                                               (save-component 

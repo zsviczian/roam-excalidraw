@@ -595,8 +595,6 @@
                                                             (generate-scene {:drawing drawing})
                                                             (:this-dom-node @cs)
                                                             drawing-on-change-callback ))
-                                                            (rest! (:data save-this) nil)
-                                                            (rest! (:counter save-this) -1)
                                                             (js/setTimeout countdown-save 700)
                                                             )}
                                     "🖋"]

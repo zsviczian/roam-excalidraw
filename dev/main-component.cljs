@@ -185,20 +185,21 @@
               render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
           (block/update
             {:block {:uid data-block-uid
-                    :string render-string}})) )
+                    :string render-string}})) 
+          (swap! app-settings assoc-in [:mode] (get-in app-state [:theme]))
+          (save-settings)
+          (reset! (:saving-flag x) false)
+      )
       (do 
-        (let [elements {:elements (get-text-elements (:elements edn-map))} ;(update-elements-with-parts {:raw-elements (:elements edn-map) :text-elements @text-elements})  
+        (let [elements (get-text-elements (:elements edn-map)) ;(update-elements-with-parts {:raw-elements (:elements edn-map) :text-elements @text-elements})  
             out-string (fix-double-bracket (str {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}))
             render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
-        (block/update
-          {:block {:uid data-block-uid
-                  :string render-string}})) ))
-    
-      (swap! app-settings assoc-in [:mode] (get-in app-state [:theme]))
-      (save-settings)
-      (reset! (:saving-flag x) false)
-      {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}})
-))
+          (block/update
+            {:block {:uid data-block-uid
+                    :string render-string}})) 
+          (reset! (:saving-flag x) false)
+          {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}                                      
+))))
 
 (defn load-settings []
   ;;(debug ["(load-settings) Enter"])

@@ -483,8 +483,8 @@
         app-name (str/join ["excalidraw-app-" block-uid])
         style (r/atom {:host-div (host-div-style cs)})
         saving-flag (atom false)
-        save-this {:counter (atom -1)
-                   :date (atom nil)}
+        save-this (atom {:counter -1
+                         :date nil})
         resize-handler (fn [] (if (is-full-screen cs) 
                                 (swap! style assoc-in [:host-div] (host-div-style cs))  
                                 (if-not (nil? (:this-dom-node @cs)) 
@@ -515,21 +515,17 @@
                                         (swap! style assoc-in [:host-div] (host-div-style cs))))
                                     ;;(debug ["(main) :callback drawing-data theme" (get-in @drawing [:drawing :appState :theme])])
                             ))))
-        drawing-on-change-callback (fn [x] (if-not (nil? x)
-                                             (do
-                                               (reset! (:counter save-this) 2)
-                                               (reset! (:data save-this) x)
-                                             )))]
+        drawing-on-change-callback (fn [x] (if-not (nil? x) (reset! save-this {:counter 2 :data x})))]
     (letfn [(countdown-save [] (if (is-full-screen cs)
                                 (do
-                                  (swap! (:counter save-this) dec)
-                                  (if (= 0 (:counter save-this)) 
-                                    (if-not (or (nil? @(:data save-this)) @saving-flag) 
+                                  (swap! save-this assoc-in [:counter] dec)
+                                  (if (= 0 (:counter @save-this)) 
+                                    (if-not (or (nil? (:data @save-this)) @saving-flag) 
                                       (.updateScene 
                                         @ew 
                                         (save-component 
                                           {:block-uid block-uid 
-                                          :map-string (js-to-clj-str @(:data save-this)) 
+                                          :map-string (js-to-clj-str (:data @save-this)) 
                                           :cs cs
                                           :drawing drawing
                                           :saving-flag saving-flag}))))

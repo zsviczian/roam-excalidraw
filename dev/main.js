@@ -78,7 +78,7 @@ window['ExcalidrawWrapper'] = class {
                 const elementsString = JSON.stringify(el);
                 if(elementsString!=excalidrawPreviousElements) {
                   excalidrawPreviousElements = elementsString;
-                  onChangeCallback( {elements: el.filter(e => !e.isDeleted),
+                  onChangeCallback( {elements: el, //.filter(e => !e.isDeleted),
                                   appState: {theme: st.theme,
                                               height: st.height,
                                               name: st.name,

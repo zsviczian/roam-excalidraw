@@ -155,53 +155,45 @@
     
     ;;process text on drawing
     ;;(debug ["(save-component) start processing text"])
-;    (if-not (is-full-screen (:cs x))
-;      (do
-        (doseq [y (get-text-elements (:elements edn-map))]
-          (if (str/starts-with? (:id y) "ROAM_")
-            (do ;;block with text should already exist, update text, but double check that the block is there...
-              ;;(debug ["(save-component) nested block should exist text:" (:text y) "block-id" (get-block-uid-from-text-element y)])
-              (let [text-block-uid (get-block-uid-from-text-element y)]
-                (if-not (= 0 (count (filter (comp #{text-block-uid} :block/uid) nested-text-blocks)))
-                  (do ;;block exists
-                    ;;(debug ["(save-component) block exists, updateing"])
-                    (block/update {:block {:uid text-block-uid :string (:text y)}})
-                    (reset! text-elements (conj @text-elements y))
-                  )
-                  (do ;block no-longer exists, create new one
-                    ;;(debug ["(save-component) block should, but does not exist, creating..."])
-                    (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
-                      (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
-            )))))
-            (do ;;block with text does not exist as nested block, create new
-              ;;(debug ["(save-component) block does not exists, creating"])
-              (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
-                (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"])))) 
-                (reset! text-elements (conj @text-elements (assoc-in y [:isDeleted] true))) 
-                ))))
+    (doseq [y (get-text-elements (:elements edn-map))]
+      (if (:isDeleted y)
+        (if (str/start-swith? (:id y) "ROAM_")
+          (block/delete {:block {:uid (get-block-uid-from-text-element y)}})
+        )
+        (if (str/starts-with? (:id y) "ROAM_")
+          (do ;;block with text should already exist, update text, but double check that the block is there...
+            ;;(debug ["(save-component) nested block should exist text:" (:text y) "block-id" (get-block-uid-from-text-element y)])
+            (let [text-block-uid (get-block-uid-from-text-element y)]
+              (if-not (= 0 (count (filter (comp #{text-block-uid} :block/uid) nested-text-blocks)))
+                (do ;;block exists
+                  ;;(debug ["(save-component) block exists, updateing"])
+                  (block/update {:block {:uid text-block-uid :string (:text y)}})
+                  (reset! text-elements (conj @text-elements y))
+                )
+                (do ;block no-longer exists, create new one
+                  ;;(debug ["(save-component) block should, but does not exist, creating..."])
+                  (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
+                    (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
+          )))))
+          (do ;;block with text does not exist as nested block, create new
+            ;;(debug ["(save-component) block does not exists, creating"])
+            (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
+              (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"])))) 
+              (reset! text-elements (conj @text-elements (assoc-in y [:isDeleted] true))) 
+              )))))
 
-        ;;(debug ["(save-component) text-blocks with updated IDs" (str @text-elements)])
-        ;;updating the data block is the final piece in saving the component
-        (let [elements (update-elements-with-parts {:raw-elements (:elements edn-map) :text-elements @text-elements})  
-              out-string (fix-double-bracket (str {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}))
-              render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
-          (block/update
-            {:block {:uid data-block-uid
-                    :string render-string}}) 
-          (swap! app-settings assoc-in [:mode] (get-in app-state [:theme]))
-          (save-settings)
-          (reset! (:saving-flag x) false)
- ;     ))
-;      (do       
-;        (let [elements (:elements edn-map) ;(update-elements-with-parts {:raw-elements (:elements edn-map) :text-elements @text-elements})  
-;            out-string (fix-double-bracket (str {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}))
-;            render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
-;          (block/update
-;            {:block {:uid data-block-uid
-;                    :string render-string}})
-;          (reset! (:saving-flag x) false)
-          {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}                                      
-;))
+    ;;(debug ["(save-component) text-blocks with updated IDs" (str @text-elements)])
+    ;;updating the data block is the final piece in saving the component
+    (let [elements (update-elements-with-parts {:raw-elements (:elements edn-map) :text-elements @text-elements})  
+          out-string (fix-double-bracket (str {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}))
+          render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
+      (block/update
+        {:block {:uid data-block-uid
+                :string render-string}}) 
+      (swap! app-settings assoc-in [:mode] (get-in app-state [:theme]))
+      (save-settings)
+      (reset! (:saving-flag x) false)
+      {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}                                      
 )))
 
 (defn load-settings []

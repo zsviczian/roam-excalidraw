@@ -517,7 +517,7 @@
                             ))))
         drawing-on-change-callback (fn [x] (if-not (nil? x)
                                              (do
-                                               (reset! (:counter save-this) 3)
+                                               (reset! (:counter save-this) 2)
                                                (reset! (:data save-this) x)
                                              )))]
     (letfn [(countdown-save [] (if (is-full-screen cs)
@@ -533,7 +533,7 @@
                                           :cs cs
                                           :drawing drawing
                                           :saving-flag saving-flag}))))
-                                  (js/setTimeout countdown-save 500))))]
+                                  (js/setTimeout countdown-save 700))))]
        (if (= @deps-available false)
         [:div "Libraries have not yet loaded. Please refresh the block in a moment."]
         (fn []
@@ -595,7 +595,7 @@
                                                             (generate-scene {:drawing drawing})
                                                             (:this-dom-node @cs)
                                                             drawing-on-change-callback ))
-                                                            (js/setTimeout countdown-save 500)
+                                                            (js/setTimeout countdown-save 700)
                                                             )}
                                     "🖋"]
                                   [:button

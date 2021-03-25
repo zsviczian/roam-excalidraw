@@ -7,7 +7,8 @@
    [clojure.string :as str]
    [clojure.edn :as edn]
    [roam.util :as util]
-   [roam.datascript.reactive :as dr]))
+   [roam.datascript.reactive :as dr]
+   [clojure.pprint :as pp]))
 
 (def plugin-version 1)
 (def app-page "roam/excalidraw")
@@ -290,7 +291,7 @@
 (defn flatten-nested-text [level nested-text] 
   (let [result (atom nil)]
     (doseq [y nested-text])
-      (let [order (str/join [level "." (format "%02d" (:block/order y))])]
+      (let [order (str/join [level "." (pp/cl-format nil "~2,'0d" (:block/order y))])]
         (reset! result (conj @result {:block/string (:block/string y)
                                       :block/order order
                                       :block/uid (:block/uid y)})

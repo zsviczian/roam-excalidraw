@@ -1,4 +1,4 @@
-function myKeyboardListner(ev) {
+function excalidrawWrapperKeyboardListner(ev) {
   if (ev.ctrlKey && (ev.code=='z' || ev.key=='z') ) {
     ev.preventDefault();
     if (typeof ev.stopPropagation != "undefined") {
@@ -9,12 +9,15 @@ function myKeyboardListner(ev) {
   }
 }
 
+var excalidrawPreviousElements = '';
+
 window['ExcalidrawWrapper'] = class {
   static notReadyToStart () {
     console.log("notReadyToStart()",(typeof Excalidraw == 'undefined') && (typeof ReactDOM == 'undefined') && (typeof React == 'undefined'));
     return (typeof Excalidraw == 'undefined') && (typeof ReactDOM == 'undefined') && (typeof React == 'undefined');
   }
-  constructor (appName,initData,node,onChangeCallback) {    
+  constructor (appName,initData,node,onChangeCallback) {   
+    excalidrawPreviousElements = JSON.stringify(initData.elements); 
     this.hostDIV = node.querySelector('#'+appName);
     while (this.hostDIV.firstChild) {
       this.hostDIV.removeChild(this.hostDIV.lastChild);
@@ -51,6 +54,7 @@ window['ExcalidrawWrapper'] = class {
       }, [excalidrawWrapperRef]);
 
       this.updateScene = (scene) => {
+        excalidrawPreviousElements = JSON.stringify(scene.elements);
         excalidrawRef.current.updateScene(scene);
       }
       
@@ -70,19 +74,24 @@ window['ExcalidrawWrapper'] = class {
             initialData: initData,
             onChange: (el, st) => {
               //based on https://github.com/excalidraw/excalidraw/blob/master/src/excalidraw-app/collab/CollabWrapper.tsx#L387
-              if (st.editingElement == null && st.resizingElement == null && st.draggingElement == null)
-                onChangeCallback( {elements: el,
-                                 appState: {theme: st.theme,
-                                            height: st.height,
-                                            name: st.name,
-                                            scrollX: st.scrollX,
-                                            scrollY: st.scrollY,
-                                            viewBackgroundColor: st.viewBackgroundColor,
-                                            width: st.width,
-                                            zoom: st.zoom,
-                                            offsetLeft: st.offsetLeft,
-                                            offsetTop: st.offsetTop}
-                                           });
+              if (st.editingElement == null && st.resizingElement == null && st.draggingElement == null) {
+                const elementsString = JSON.stringify(el);
+                if(elementsString!=excalidrawPreviousElements) {
+                  excalidrawPreviousElements = elementsString;
+                  onChangeCallback( {elements: el, //.filter(e => !e.isDeleted),
+                                  appState: {theme: st.theme,
+                                              height: st.height,
+                                              name: st.name,
+                                              scrollX: st.scrollX,
+                                              scrollY: st.scrollY,
+                                              viewBackgroundColor: st.viewBackgroundColor,
+                                              width: st.width,
+                                              zoom: st.zoom,
+                                              offsetLeft: st.offsetLeft,
+                                              offsetTop: st.offsetTop}
+                                            });                                            
+                }
+              }
               else onChangeCallback(null);
             }, //console.log("Elements :", elements, "State : ", state),
             //onPointerUpdate: (payload) => {},  //console.log(payload),
@@ -136,11 +145,11 @@ window['ExcalidrawWrapper'] = class {
   //to Excalidraw main div
   static fullScreenKeyboardEventRedirect(isFullScreen) {
     if (isFullScreen) {
-      document.addEventListener('keydown',myKeyboardListner);
+      document.addEventListener('keydown',excalidrawWrapperKeyboardListner);
       if (ExcalidrawConfig.DEBUG) console.log("keyboard listener added");
     }
     else {
-      document.removeEventListener('keydown',myKeyboardListner);
+      document.removeEventListener('keydown',excalidrawWrapperKeyboardListner);
       if (ExcalidrawConfig.DEBUG) console.log("keyboard listner removed");
     }
   }

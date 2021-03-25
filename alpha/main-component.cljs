@@ -1,4 +1,4 @@
-(ns excalidraw.app.alpha.v25
+(ns excalidraw.app.alpha.v26
   (:require 
    [clojure.set :as s]
    [reagent.core :as r]
@@ -33,6 +33,11 @@
 (def silent (r/atom true))
 (defn debug [x]
   (if-not @silent (apply (.-log js/console) "<<< Roam-Excalidraw Main cljs >>>" x)))
+
+(def embedded-view "ev")
+(def full-screen-view "fs")
+(defn is-full-screen [cs]  ;;component-state
+  (not= (:position @cs) embedded-view))
 
 (defn create-block [parent-uid order block-string]
   (.createBlock js/window.ExcalidrawWrapper parent-uid order block-string))
@@ -151,45 +156,45 @@
     ;;process text on drawing
     ;;(debug ["(save-component) start processing text"])
     (doseq [y (get-text-elements (:elements edn-map))]
-      (if (str/starts-with? (:id y) "ROAM_")
-        (do ;;block with text should already exist, update text, but double check that the block is there...
-          ;;(debug ["(save-component) nested block should exist text:" (:text y) "block-id" (get-block-uid-from-text-element y)])
-          (let [text-block-uid (get-block-uid-from-text-element y)]
-            (if-not (= 0 (count (filter (comp #{text-block-uid} :block/uid) nested-text-blocks)))
-              (do ;;block exists
-                ;;(debug ["(save-component) block exists, updateing"])
-                (block/update {:block {:uid text-block-uid :string (:text y)}})
-                (reset! text-elements (conj @text-elements y))
-              )
-              (do ;block no-longer exists, create new one
-                ;;(debug ["(save-component) block should, but does not exist, creating..."])
-                (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
-                  (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
-        )))))
-        (do ;;block with text does not exist as nested block, create new
-          ;;(debug ["(save-component) block does not exists, creating"])
-          (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
-            (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
-    ))))
-    
+      (if (:isDeleted y)
+        (if (str/starts-with? (:id y) "ROAM_")
+          (block/delete {:block {:uid (get-block-uid-from-text-element y)}})
+        )
+        (if (str/starts-with? (:id y) "ROAM_")
+          (do ;;block with text should already exist, update text, but double check that the block is there...
+            ;;(debug ["(save-component) nested block should exist text:" (:text y) "block-id" (get-block-uid-from-text-element y)])
+            (let [text-block-uid (get-block-uid-from-text-element y)]
+              (if-not (= 0 (count (filter (comp #{text-block-uid} :block/uid) nested-text-blocks)))
+                (do ;;block exists
+                  ;;(debug ["(save-component) block exists, updateing"])
+                  (block/update {:block {:uid text-block-uid :string (:text y)}})
+                  (reset! text-elements (conj @text-elements y))
+                )
+                (do ;block no-longer exists, create new one
+                  ;;(debug ["(save-component) block should, but does not exist, creating..."])
+                  (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
+                    (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
+          )))))
+          (do ;;block with text does not exist as nested block, create new
+            ;;(debug ["(save-component) block does not exists, creating"])
+            (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
+              (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"])))) 
+              (reset! text-elements (conj @text-elements (assoc-in y [:isDeleted] true))) 
+              )))))
+
     ;;(debug ["(save-component) text-blocks with updated IDs" (str @text-elements)])
-    
     ;;updating the data block is the final piece in saving the component
-    ;;this update will trigger pullwatch to load the updated drawing 
-    ;;to display as SVG or PNG (depending on setting)
-    ;;I enable pullwatch event handler actions before updating the data block
     (let [elements (update-elements-with-parts {:raw-elements (:elements edn-map) :text-elements @text-elements})  
           out-string (fix-double-bracket (str {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}))
           render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
       (block/update
         {:block {:uid data-block-uid
-                :string render-string}})
-    
+                :string render-string}}) 
       (swap! app-settings assoc-in [:mode] (get-in app-state [:theme]))
       (save-settings)
       (reset! (:saving-flag x) false)
-      {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}})
-))
+      {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}                                      
+)))
 
 (defn load-settings []
   ;;(debug ["(load-settings) Enter"])
@@ -378,12 +383,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Main Function Form-3
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(def embedded-view "ev")
-(def full-screen-view "fs")
-
-(defn is-full-screen [cs]  ;;component-state
-  (not= (:position @cs) embedded-view))
-
 (defn resize [ew]
   ;;(debug ["(resize)"])
   (if-not (nil? @ew) (.onResize @ew)))
@@ -488,8 +487,16 @@
                                 (swap! style assoc-in [:host-div] (host-div-style cs))  
                                 (if-not (nil? (:this-dom-node @cs)) 
                                   (swap! style assoc-in [:host-div] (host-div-style cs)))))
-        changed-drawing (atom nil)
-        drawing-on-change-callback (fn [x] (reset! changed-drawing x))
+        ;changed-drawing (atom nil)
+        drawing-on-change-callback (fn [x] (if (and (not (nil? x)) (not @saving-flag))
+                                             (.updateScene 
+                                              @ew 
+                                              (save-component 
+                                               {:block-uid block-uid 
+                                                :map-string (js-to-clj-str x) 
+                                                :cs cs
+                                                :drawing drawing
+                                                :saving-flag saving-flag}))))
         pull-watch-callback (fn [before after]
                               ;;(debug ["(pull-watch-callback) after:" (js-to-clj-str after)])
                               (if-not (or @saving-flag (is-full-screen cs))
@@ -515,17 +522,17 @@
                                         (swap! style assoc-in [:host-div] (host-div-style cs))))
                                     ;;(debug ["(main) :callback drawing-data theme" (get-in @drawing [:drawing :appState :theme])])
   ))))]
-      (letfn [(autosave[] (if (is-full-screen cs) ;;kill timer if no longer full screen
-                            (if-not (nil? @changed-drawing)  ;;only save if not editing
-                              (do
-                                ;;(debug ["autosave - saving"])
-                                (.updateScene @ew (save-component {:block-uid block-uid 
-                                                 :map-string (js-to-clj-str @changed-drawing) ;get-drawing ew))
-                                                 :cs cs
-                                                 :drawing drawing
-                                                 :saving-flag saving-flag}))
-                                (js/setTimeout autosave 10000))
-                              (js/setTimeout autosave 2000)  )))] ;;the user is currently editing an element, try again in one sec, until able to save
+;      (letfn [(autosave[] (if (is-full-screen cs) ;;kill timer if no longer full screen
+;                            (if-not (nil? @changed-drawing)  ;;only save if not editing
+;                              (do
+;                                ;;(debug ["autosave - saving"])
+;                                (.updateScene @ew (save-component {:block-uid block-uid 
+;                                                 :map-string (js-to-clj-str @changed-drawing) ;get-drawing ew))
+;                                                 :cs cs
+;                                                 :drawing drawing
+;                                                 :saving-flag saving-flag}))
+;                                (js/setTimeout autosave 10000))
+;                              (js/setTimeout autosave 2000)  )))] ;;the user is currently editing an element, try again in one sec, until able to save
        (if (= @deps-available false)
         [:div "Libraries have not yet loaded. Please refresh the block in a moment."]
         (fn []
@@ -587,7 +594,8 @@
                                                             (generate-scene {:drawing drawing})
                                                             (:this-dom-node @cs)
                                                             drawing-on-change-callback ))
-                                                            (js/setTimeout autosave 10000))}
+                                                            ;(js/setTimeout autosave 10000)
+                                                            )}
                                     "🖋"]
                                   [:button
                                    {:class "ex-fullscreen-button"
@@ -595,16 +603,16 @@
                                     :draggable true
                                     :on-click (fn [e]
                                                 (.svgClipboard js/ExcalidrawWrapper)
+                                                (going-full-screen? false cs style)
                                                 (save-component {:block-uid block-uid 
                                                                   :map-string (js-to-clj-str (get-drawing ew))
                                                                   :cs cs
                                                                   :drawing drawing
                                                                   :saving-flag saving-flag})
                                                 (swap! cs assoc-in [:aspect-ratio] (get-embed-image (get-drawing ew) (:this-dom-node @cs) app-name))
-                                                (going-full-screen? false cs style)
                                    )}
                                    "❌"])
                                 [:div
                                  {:id app-name
                                   :style {:position "relative" :width "100%" :height "100%"}}
-]])}))))))
+]])})))))

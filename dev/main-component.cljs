@@ -305,7 +305,7 @@
   ;;(debug ["(update-drawing-based-on-nested-blocks) Enter x:" x])
   (if-not (nil? (:nested-text x)) 
     (do
-      (debug ["flat-nest: " (flatten-nested-text "0" (:nested-text x))])
+      (debug ["flat-nest: " (str (flatten-nested-text "0" (:nested-text x)))])
       (let [text-elements (r/atom nil)]
       ;;(debug ["(update-drawing-based-on-nested-blocks) processing nested text - apply changes to existing text elements, omit deleted ones"])
         ;;update elements on drawing based on changes to nested text

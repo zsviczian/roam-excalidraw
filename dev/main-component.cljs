@@ -34,6 +34,11 @@
 (defn debug [x]
   (if-not @silent (apply (.-log js/console) "<<< Roam-Excalidraw Main cljs >>>" x)))
 
+(def embedded-view "ev")
+(def full-screen-view "fs")
+(defn is-full-screen [cs]  ;;component-state
+  (not= (:position @cs) embedded-view))
+
 (defn create-block [parent-uid order block-string]
   (.createBlock js/window.ExcalidrawWrapper parent-uid order block-string))
 
@@ -150,27 +155,28 @@
     
     ;;process text on drawing
     ;;(debug ["(save-component) start processing text"])
-    (doseq [y (get-text-elements (:elements edn-map))]
-      (if (str/starts-with? (:id y) "ROAM_")
-        (do ;;block with text should already exist, update text, but double check that the block is there...
-          ;;(debug ["(save-component) nested block should exist text:" (:text y) "block-id" (get-block-uid-from-text-element y)])
-          (let [text-block-uid (get-block-uid-from-text-element y)]
-            (if-not (= 0 (count (filter (comp #{text-block-uid} :block/uid) nested-text-blocks)))
-              (do ;;block exists
-                ;;(debug ["(save-component) block exists, updateing"])
-                (block/update {:block {:uid text-block-uid :string (:text y)}})
-                (reset! text-elements (conj @text-elements y))
-              )
-              (do ;block no-longer exists, create new one
-                ;;(debug ["(save-component) block should, but does not exist, creating..."])
-                (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
-                  (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
-        )))))
-        (do ;;block with text does not exist as nested block, create new
-          ;;(debug ["(save-component) block does not exists, creating"])
-          (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
-            (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
-    ))))
+    (if (is-full-screen (:cs x))
+      (doseq [y (get-text-elements (:elements edn-map))]
+        (if (str/starts-with? (:id y) "ROAM_")
+          (do ;;block with text should already exist, update text, but double check that the block is there...
+            ;;(debug ["(save-component) nested block should exist text:" (:text y) "block-id" (get-block-uid-from-text-element y)])
+            (let [text-block-uid (get-block-uid-from-text-element y)]
+              (if-not (= 0 (count (filter (comp #{text-block-uid} :block/uid) nested-text-blocks)))
+                (do ;;block exists
+                  ;;(debug ["(save-component) block exists, updateing"])
+                  (block/update {:block {:uid text-block-uid :string (:text y)}})
+                  (reset! text-elements (conj @text-elements y))
+                )
+                (do ;block no-longer exists, create new one
+                  ;;(debug ["(save-component) block should, but does not exist, creating..."])
+                  (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
+                    (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
+          )))))
+          (do ;;block with text does not exist as nested block, create new
+            ;;(debug ["(save-component) block does not exists, creating"])
+            (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
+              (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
+      ))))
     
     ;;(debug ["(save-component) text-blocks with updated IDs" (str @text-elements)])
     
@@ -378,12 +384,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Main Function Form-3
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(def embedded-view "ev")
-(def full-screen-view "fs")
-
-(defn is-full-screen [cs]  ;;component-state
-  (not= (:position @cs) embedded-view))
-
 (defn resize [ew]
   ;;(debug ["(resize)"])
   (if-not (nil? @ew) (.onResize @ew)))

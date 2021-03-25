@@ -339,13 +339,13 @@
         
         ;;(debug ["(update-drawing-based-on-nested-blocks) processing nested text - add new nested blocks"])
         ;;add text for newly nested blocks
-        (doseq [y nested-text]
-          (let [text (:block/string y)
+        (doseq [nt nested-text]
+          (let [text (:block/string nt)
                 dummy {:fontFamily (:nested-text-font-family @app-settings) 
                        :fontSize (:nested-text-font-size @app-settings)}
-                order (:block/order y)
-                id (:block/uid y)]
-            (if (= 0 (count (filter (comp #{(str/join ["ROAM_" (:block/uid y) "_ROAM"])} :id) @text-elements)))
+                order (:block/order nt)
+                id (:block/uid nt)]
+            (if (= 0 (count (filter (comp #{(str/join ["ROAM_" (:block/uid nt) "_ROAM"])} :id) @text-elements)))
               (let [col (int (/ order (:nested-text-rows @app-settings)))
                     row (mod order (:nested-text-rows @app-settings))
                     x (+ (:nested-text-start-left @app-settings) (* col (:nested-text-col-width @app-settings)))
@@ -373,7 +373,7 @@
                                   :verticalAlign "top"
                                   :strokeColor "#000000"
                                   :textAlign "left"
-                                  :x (+ x (* 5 (count (:block/order y))))
+                                  :x (+ x (* 5 (count (:block/order nt))))
                                   :fontSize (:nested-text-font-size @app-settings)
                                   :version 1
                                   :backgroundColor "transparent"

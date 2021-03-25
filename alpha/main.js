@@ -1,6 +1,12 @@
 function myKeyboardListner(ev) {
-  if (ev.ctrlKey && (ev.code=='z' || ev.key=='z') ) 
+  if (ev.ctrlKey && (ev.code=='z' || ev.key=='z') ) {
     ev.preventDefault();
+    if (typeof ev.stopPropagation != "undefined") {
+      ev.stopPropagation();
+    } else {
+      ev.cancelBubble = true;
+    }
+  }
 }
 
 window['ExcalidrawWrapper'] = class {

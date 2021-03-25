@@ -187,7 +187,7 @@
             {:block {:uid data-block-uid
                     :string render-string}})) )
       (do 
-        (let [elements (get-text-elements (:elements edn-map)) ;(update-elements-with-parts {:raw-elements (:elements edn-map) :text-elements @text-elements})  
+        (let [elements {:elements (get-text-elements (:elements edn-map))} ;(update-elements-with-parts {:raw-elements (:elements edn-map) :text-elements @text-elements})  
             out-string (fix-double-bracket (str {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}))
             render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]
         (block/update

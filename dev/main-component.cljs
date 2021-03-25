@@ -24,7 +24,8 @@
                            :nested-text-start-top 40
                            :nested-text-start-left 230
                            :nested-text-font-size 20
-                           :nested-text-font-family 1})
+                           :nested-text-font-family 1
+                           :autosave true})
 (def app-settings (r/atom default-app-settings))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -551,6 +552,7 @@
             :component-did-mount (fn [this]
                                     ;;(debug ["(main) :component-did-mount"])
                                     (load-settings)
+                                    (set! (.-autosave js/ExcalidrawConfig) (:autosave @app-settings))
                                     (swap! cs assoc-in [:this-dom-node] (r/dom-node this))
                                     ;;(debug ["(main) :component-did-mount addPullWatch"])
                                     (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)

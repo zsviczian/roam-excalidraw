@@ -9,6 +9,7 @@ function excalidrawWrapperKeyboardListner(ev) {
   }
 }
 
+ExcalidrawConfig.autosave = true;
 var excalidrawPreviousElements = '';
 
 window['ExcalidrawWrapper'] = class {
@@ -72,27 +73,29 @@ window['ExcalidrawWrapper'] = class {
             width: dimensions.width,
             height: dimensions.height,
             initialData: initData,
-            onChange: (el, st) => {
-              //based on https://github.com/excalidraw/excalidraw/blob/master/src/excalidraw-app/collab/CollabWrapper.tsx#L387
-              if (st.editingElement == null && st.resizingElement == null && st.draggingElement == null) {
-                const elementsString = JSON.stringify(el);
-                if(elementsString!=excalidrawPreviousElements) {
-                  excalidrawPreviousElements = elementsString;
-                  onChangeCallback( {elements: el, //.filter(e => !e.isDeleted),
-                                  appState: {theme: st.theme,
-                                              height: st.height,
-                                              name: st.name,
-                                              scrollX: st.scrollX,
-                                              scrollY: st.scrollY,
-                                              viewBackgroundColor: st.viewBackgroundColor,
-                                              width: st.width,
-                                              zoom: st.zoom,
-                                              offsetLeft: st.offsetLeft,
-                                              offsetTop: st.offsetTop}
-                                            });                                            
+            onChange: (el, st) => { 
+              if(ExcalidrawConfig.autosave) {
+                //based on https://github.com/excalidraw/excalidraw/blob/master/src/excalidraw-app/collab/CollabWrapper.tsx#L387
+                if (st.editingElement == null && st.resizingElement == null && st.draggingElement == null) {
+                  const elementsString = JSON.stringify(el);
+                  if(elementsString!=excalidrawPreviousElements) {
+                    excalidrawPreviousElements = elementsString;
+                    onChangeCallback( {elements: el, //.filter(e => !e.isDeleted),
+                                    appState: {theme: st.theme,
+                                                height: st.height,
+                                                name: st.name,
+                                                scrollX: st.scrollX,
+                                                scrollY: st.scrollY,
+                                                viewBackgroundColor: st.viewBackgroundColor,
+                                                width: st.width,
+                                                zoom: st.zoom,
+                                                offsetLeft: st.offsetLeft,
+                                                offsetTop: st.offsetTop}
+                                              });                                            
+                  }
                 }
+                else onChangeCallback(null);
               }
-              else onChangeCallback(null);
             }, //console.log("Elements :", elements, "State : ", state),
             //onPointerUpdate: (payload) => {},  //console.log(payload),
           })

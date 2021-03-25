@@ -157,7 +157,7 @@
     ;;(debug ["(save-component) start processing text"])
     (doseq [y (get-text-elements (:elements edn-map))]
       (if (:isDeleted y)
-        (if (str/start-swith? (:id y) "ROAM_")
+        (if (str/starts-with? (:id y) "ROAM_")
           (block/delete {:block {:uid (get-block-uid-from-text-element y)}})
         )
         (if (str/starts-with? (:id y) "ROAM_")

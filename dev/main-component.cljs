@@ -176,7 +176,9 @@
             (do ;;block with text does not exist as nested block, create new
               ;;(debug ["(save-component) block does not exists, creating"])
               (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
-                (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"])))) ))))
+                (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"])))) 
+                (reset! text-elements (conj @text-elements (assoc-in y [:isDeleted] true))) 
+                ))))
 
         ;;(debug ["(save-component) text-blocks with updated IDs" (str @text-elements)])
         ;;updating the data block is the final piece in saving the component

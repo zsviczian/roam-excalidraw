@@ -524,7 +524,7 @@
                                 (do
                                   (swap! (:counter save-this) dec)
                                   (if (= 0 (:counter save-this)) 
-                                    (if-not (or (nil? @(:data save-this) @saving-flag)) 
+                                    (if-not (or (nil? @(:data save-this)) @saving-flag) 
                                       (.updateScene 
                                         @ew 
                                         (save-component 
@@ -595,8 +595,8 @@
                                                             (generate-scene {:drawing drawing})
                                                             (:this-dom-node @cs)
                                                             drawing-on-change-callback ))
-                                                            (rest! (:data save-this) nil)
-                                                            (rest! (:counter save-this) -1)
+                                                            (reset! (:data save-this) nil)
+                                                            (reset! (:counter save-this) -1)
                                                             (js/setTimeout countdown-save 700)
                                                             )}
                                     "🖋"]

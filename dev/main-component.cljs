@@ -479,24 +479,17 @@
                     :aspect-ratio nil
                     :mouseover false
                     :prev-empty-block nil}) ;; this is a semaphore system to avoid creating double nested blocks when manually creating the first nested element
-        saving-flag (atom false)
         ew (r/atom nil) ;;excalidraw-wrapper
         app-name (str/join ["excalidraw-app-" block-uid])
         style (r/atom {:host-div (host-div-style cs)})
+        saving-flag (atom false)
+        save-this {:counter (atom -1)
+                   :date (atom nil)}
         resize-handler (fn [] (if (is-full-screen cs) 
                                 (swap! style assoc-in [:host-div] (host-div-style cs))  
                                 (if-not (nil? (:this-dom-node @cs)) 
                                   (swap! style assoc-in [:host-div] (host-div-style cs)))))
         ;changed-drawing (atom nil)
-        drawing-on-change-callback (fn [x] (if (and (not (nil? x)) (not @saving-flag))
-                                             (.updateScene 
-                                              @ew 
-                                              (save-component 
-                                               {:block-uid block-uid 
-                                                :map-string (js-to-clj-str x) 
-                                                :cs cs
-                                                :drawing drawing
-                                                :saving-flag saving-flag}))))
         pull-watch-callback (fn [before after]
                               ;;(debug ["(pull-watch-callback) after:" (js-to-clj-str after)])
                               (if-not (or @saving-flag (is-full-screen cs))
@@ -521,18 +514,26 @@
                                         (swap! cs assoc-in [:aspect-ratio] (get-embed-image (generate-scene {:drawing drawing}) (:this-dom-node @cs) app-name))
                                         (swap! style assoc-in [:host-div] (host-div-style cs))))
                                     ;;(debug ["(main) :callback drawing-data theme" (get-in @drawing [:drawing :appState :theme])])
-  ))))]
-;      (letfn [(autosave[] (if (is-full-screen cs) ;;kill timer if no longer full screen
-;                            (if-not (nil? @changed-drawing)  ;;only save if not editing
-;                              (do
-;                                ;;(debug ["autosave - saving"])
-;                                (.updateScene @ew (save-component {:block-uid block-uid 
-;                                                 :map-string (js-to-clj-str @changed-drawing) ;get-drawing ew))
-;                                                 :cs cs
-;                                                 :drawing drawing
-;                                                 :saving-flag saving-flag}))
-;                                (js/setTimeout autosave 10000))
-;                              (js/setTimeout autosave 2000)  )))] ;;the user is currently editing an element, try again in one sec, until able to save
+                            ))))
+        drawing-on-change-callback (fn [x] (if-not (nil? x)
+                                             (do
+                                               (reset! (:counter save-this) 3)
+                                               (reset! (:data save-this) x)
+                                             )))]
+    (letfn [(countdown-save [] (if (is-full-screen cs)
+                                (do
+                                  (swap! (:counter save-this) dec)
+                                  (if (= 0 (:counter save-this)) 
+                                    (if-not (or (nil? @(:data save-this) @saving-flag)) 
+                                      (.updateScene 
+                                        @ew 
+                                        (save-component 
+                                          {:block-uid block-uid 
+                                          :map-string (js-to-clj-str @(:data save-this)) 
+                                          :cs cs
+                                          :drawing drawing
+                                          :saving-flag saving-flag}))))
+                                  (js/setTimeout countdown-save 500))))]
        (if (= @deps-available false)
         [:div "Libraries have not yet loaded. Please refresh the block in a moment."]
         (fn []
@@ -594,7 +595,7 @@
                                                             (generate-scene {:drawing drawing})
                                                             (:this-dom-node @cs)
                                                             drawing-on-change-callback ))
-                                                            ;(js/setTimeout autosave 10000)
+                                                            (js/setTimeout countdown-save 500)
                                                             )}
                                     "🖋"]
                                   [:button
@@ -615,4 +616,4 @@
                                 [:div
                                  {:id app-name
                                   :style {:position "relative" :width "100%" :height "100%"}}
-]])})))))
+]])}))))))

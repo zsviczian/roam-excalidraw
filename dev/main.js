@@ -10,6 +10,7 @@ function excalidrawWrapperKeyboardListner(ev) {
 }
 
 ExcalidrawConfig.autosave = true;
+ExcalidrawConfig.setAutosave = (val) => {ExcalidrawConfig.autosave = val;}
 var excalidrawPreviousElements = '';
 
 window['ExcalidrawWrapper'] = class {

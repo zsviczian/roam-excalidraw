@@ -552,7 +552,7 @@
             :component-did-mount (fn [this]
                                     ;;(debug ["(main) :component-did-mount"])
                                     (load-settings)
-                                    (set! (.-autosave js/ExcalidrawConfig) (:autosave @app-settings))
+                                    (.setAutosave js/ExcalidrawConfig (:autosave @app-settings))
                                     (swap! cs assoc-in [:this-dom-node] (r/dom-node this))
                                     ;;(debug ["(main) :component-did-mount addPullWatch"])
                                     (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)

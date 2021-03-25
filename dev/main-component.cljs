@@ -121,12 +121,26 @@
                   [?c :block/uid ?drawing-uid]]
         x))
 
+(defn flatten-nested-text [level nested-text] 
+  (let [result (atom nil)]
+    (doseq [y nested-text]
+      (let [order (str/join [level (pp/cl-format nil "~2,'0d" (:block/order y))])]
+        (reset! result (conj @result {:block/string (:block/string y)
+                                       :block/order order
+                                       :block/uid (:block/uid y)}))
+        (if-not (nil? (:block/children y)) 
+          (reset! result (concat @result (flatten-nested-text order (:block/children y)))))
+    ))   
+    (debug ["flat-nest " (str @result)])
+     (into [] (sort-by :block/order @result))
+))
+
 (defn get-text-blocks [x]
-  ;;(debug ["(get-text-blocks" x])
-  (:block/children (first (first (rd/q '[:find (pull ?e [:block/children {:block/children [:block/uid :block/string]}])
+  ;;(debug ["(get-text-blocks" x]) [:block/uid :block/string {:block/children [:block/string :block/order :block/uid {:block/children ...}]}]
+  (flatten-nested-text "" (:block/children (first (first (rd/q '[:find (pull ?e [:block/children {:block/children [:block/uid :block/string :block/order {:block/cnildren ...}]}])
           :in $ ?title-uid
           :where [?e :block/uid ?title-uid]]
-        x)))))
+        x))))))
 
 (defn get-text-elements [x]
   (filter (comp #{"text"} :type) x)
@@ -287,20 +301,6 @@
   )))
   ;;(debug ["(load-drawing) drawing: " @(:drawing x) " data: " (:data x) " text: " (str (:text x)) "theme " (get-in (:data x) [:appState :theme])])
 )
-
-(defn flatten-nested-text [level nested-text] 
-  (let [result (atom nil)]
-    (doseq [y nested-text]
-      (let [order (str/join [level (pp/cl-format nil "~2,'0d" (:block/order y))])]
-        (reset! result (conj @result {:block/string (:block/string y)
-                                       :block/order order
-                                       :block/uid (:block/uid y)}))
-        (if-not (nil? (:block/children y)) 
-          (reset! result (concat @result (flatten-nested-text order (:block/children y)))))
-    ))   
-    (debug ["flat-nest " (str @result)])
-     (into [] (sort-by :block/order @result))
-))
 
 ;;check if text in nested block has changed compared to drawing and updated text in drawing element including size
 (defn update-drawing-based-on-nested-blocks [x] ;{:elements [] :appState {} :nested-text [:block/uid "BlockUID" :block/string "text"]}

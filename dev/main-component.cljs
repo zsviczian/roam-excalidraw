@@ -191,6 +191,7 @@
           (reset! (:saving-flag x) false)
       ))
       (do 
+      
         (let [elements (:elements edn-map) ;(update-elements-with-parts {:raw-elements (:elements edn-map) :text-elements @text-elements})  
             out-string (fix-double-bracket (str {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}))
             render-string (str/join ["{{roam/render: ((ExcalDATA)) " out-string " }}"])]

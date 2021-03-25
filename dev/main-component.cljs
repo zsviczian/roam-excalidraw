@@ -290,14 +290,14 @@
 
 (defn flatten-nested-text [level nested-text] 
   (let [result (atom nil)]
-    (doseq [y nested-text])
+    (doseq [y nested-text]
       (let [order (str/join [level "." (pp/cl-format nil "~2,'0d" (:block/order y))])]
         (reset! result (conj @result {:block/string (:block/string y)
                                       :block/order order
                                       :block/uid (:block/uid y)})
         (if (> (count (:block/children y) 0) )
           (reset! result (conj @result (flatten-nested-text order (:block/children y))))
-    )))
+    ))))
     (sort-by :order result)
 ))
 

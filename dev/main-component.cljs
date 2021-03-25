@@ -552,7 +552,6 @@
             :component-did-mount (fn [this]
                                     ;;(debug ["(main) :component-did-mount"])
                                     (load-settings)
-                                    (.setAutosave js/ExcalidrawConfig (:autosave @app-settings))
                                     (swap! cs assoc-in [:this-dom-node] (r/dom-node this))
                                     ;;(debug ["(main) :component-did-mount addPullWatch"])
                                     (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
@@ -586,6 +585,8 @@
                                                     0)}
                                     :draggable true
                                     :on-click (fn [e]
+                                                (load-settings)
+                                                (.setAutosave js/ExcalidrawConfig (:autosave @app-settings))
                                                 (going-full-screen? true cs style)
                                                 (if (nil? (get-in @drawing [:nestedtext-parent :block-uid])) 
                                                   (create-nested-blocks {:block-uid block-uid 

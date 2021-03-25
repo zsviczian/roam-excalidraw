@@ -287,12 +287,25 @@
   ;;(debug ["(load-drawing) drawing: " @(:drawing x) " data: " (:data x) " text: " (str (:text x)) "theme " (get-in (:data x) [:appState :theme])])
 )
 
+(defn flatten-nested-text [level nested-text] 
+  (let [result (atom nil)]
+    (doseq [y nested-text])
+      (let [order (str/join [level "." (format "%02d" (:block/order y))])]
+        (reset! result (conj @result {:block/string (:block/string y)
+                                      :block/order order
+                                      :block/uid (:block/uid y)})
+        (if (> (count (:block/children y) 0) )
+          (reset! result (conj @result (flatten-nested-text order (:block/children y))))
+    )))
+    (sort-by :order result)
+))
 
 ;;check if text in nested block has changed compared to drawing and updated text in drawing element including size
 (defn update-drawing-based-on-nested-blocks [x] ;{:elements [] :appState {} :nested-text [:block/uid "BlockUID" :block/string "text"]}
   ;;(debug ["(update-drawing-based-on-nested-blocks) Enter x:" x])
   (if-not (nil? (:nested-text x)) 
     (do
+      (debug ["flat-nest: " (flatten-nested-text "0" (:nested-text x))])
       (let [text-elements (r/atom nil)]
       ;;(debug ["(update-drawing-based-on-nested-blocks) processing nested text - apply changes to existing text elements, omit deleted ones"])
         ;;update elements on drawing based on changes to nested text

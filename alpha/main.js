@@ -9,6 +9,8 @@ function excalidrawWrapperKeyboardListner(ev) {
   }
 }
 
+/*ExcalidrawConfig.autosave = true;
+ExcalidrawConfig.setAutosave = (val) => {ExcalidrawConfig.autosave = val;}*/
 var excalidrawPreviousElements = '';
 
 window['ExcalidrawWrapper'] = class {
@@ -72,27 +74,27 @@ window['ExcalidrawWrapper'] = class {
             width: dimensions.width,
             height: dimensions.height,
             initialData: initData,
-            onChange: (el, st) => {
-              //based on https://github.com/excalidraw/excalidraw/blob/master/src/excalidraw-app/collab/CollabWrapper.tsx#L387
-              if (st.editingElement == null && st.resizingElement == null && st.draggingElement == null) {
-                const elementsString = JSON.stringify(el);
-                if(elementsString!=excalidrawPreviousElements) {
-                  excalidrawPreviousElements = elementsString;
-                  onChangeCallback( {elements: el, //.filter(e => !e.isDeleted),
-                                  appState: {theme: st.theme,
-                                              height: st.height,
-                                              name: st.name,
-                                              scrollX: st.scrollX,
-                                              scrollY: st.scrollY,
-                                              viewBackgroundColor: st.viewBackgroundColor,
-                                              width: st.width,
-                                              zoom: st.zoom,
-                                              offsetLeft: st.offsetLeft,
-                                              offsetTop: st.offsetTop}
-                                            });                                            
+            onChange: (el, st) => { 
+                //based on https://github.com/excalidraw/excalidraw/blob/master/src/excalidraw-app/collab/CollabWrapper.tsx#L387
+                if (st.editingElement == null && st.resizingElement == null && st.draggingElement == null) {
+                  const elementsString = JSON.stringify(el);
+                  if(elementsString!=excalidrawPreviousElements) {
+                    excalidrawPreviousElements = elementsString;
+                    onChangeCallback( {elements: el, //.filter(e => !e.isDeleted),
+                                    appState: {theme: st.theme,
+                                                height: st.height,
+                                                name: st.name,
+                                                scrollX: st.scrollX,
+                                                scrollY: st.scrollY,
+                                                viewBackgroundColor: st.viewBackgroundColor,
+                                                width: st.width,
+                                                zoom: st.zoom,
+                                                offsetLeft: st.offsetLeft,
+                                                offsetTop: st.offsetTop}
+                                              });                                            
+                  }
                 }
-              }
-              else onChangeCallback(null);
+                else onChangeCallback(null);
             }, //console.log("Elements :", elements, "State : ", state),
             //onPointerUpdate: (payload) => {},  //console.log(payload),
           })
@@ -179,15 +181,6 @@ window['ExcalidrawWrapper'] = class {
 
   static setImgEventListner(roamRenderNode,imgNode,appName) {
     let blockNode = roamRenderNode;
-//    const blockUID = appName.slice(-9);
-    //this is workaround wizardy. Somehow when the node is distroyed the render component re-initiates and
-    //creates a ghost, which does not have a parent element...
-/*    let uidIndex =-1;
-    while ( (blockNode!=null) && (uidIndex ==-1) ) {
-      uidIndex = blockNode.id.indexOf(blockUID);
-      if (uidIndex == -1)
-        blockNode = blockNode.parentElement;
-    }*/
     let foundIt = false;    
     while ( (blockNode!=null) && !foundIt ) {
       foundIt = blockNode.id.startsWith('block-input-');

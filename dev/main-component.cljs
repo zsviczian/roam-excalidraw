@@ -1,4 +1,4 @@
-(ns excalidraw.app.dev.v27
+(ns excalidraw.app.dev.v28
   (:require 
    [clojure.set :as s]
    [reagent.core :as r]
@@ -138,7 +138,7 @@
         (if-not (nil? (:block/children y)) 
           (reset! result (concat @result (flatten-nested-text (:block/children y) order))))
     ))   
-    (debug ["flat-nest " (str @result)])
+    ;;(debug ["flat-nest " (str @result)])
      (into [] (sort-by :block/order @result))
 ))
 

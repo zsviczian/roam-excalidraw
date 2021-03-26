@@ -25,8 +25,7 @@
                            :nested-text-start-top 40
                            :nested-text-start-left 230
                            :nested-text-font-size 20
-                           :nested-text-font-family 1
-                           :autosave true})
+                           :nested-text-font-family 1})
 (def app-settings (r/atom default-app-settings))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -149,19 +148,6 @@
     (first)
     (get-in [0 :block/children])
     (flatten-nested-text "")))
-;          (pull-children x 1)
-;        b (first a)
-;        c (get-in b [0 :block/children])
-;        d (flatten-nested-text "" c)
-
-  ;;(debug ["(get-text-blocks" x]) [:block/uid :block/string {:block/children [:block/string :block/order :block/uid {:block/children ...}]}]
- ; (flatten-nested-text (get-in (first (pull-children (:block-uid x) 1)) [0 :block/children]) ""))
-;  (get-in (:text x) [0 :block/children])
-
-;  (flatten-nested-text "" (:block/children (first (first (rd/q '[:find (pull ?e [:block/children {:block/children [:block/uid :block/string :block/order {:block/cnildren ...}]}])
-;          :in $ ?title-uid
-;          :where [?e :block/uid ?title-uid]]
-;        x))))))
 
 (defn get-text-elements [x]
   (filter (comp #{"text"} :type) x)
@@ -616,7 +602,7 @@
                                     :draggable true
                                     :on-click (fn [e]
                                                 (load-settings)
-                                                (.setAutosave js/ExcalidrawConfig (:autosave @app-settings))
+                                                ;(.setAutosave js/ExcalidrawConfig (:autosave @app-settings))
                                                 (going-full-screen? true cs style)
                                                 (if (nil? (get-in @drawing [:nestedtext-parent :block-uid])) 
                                                   (create-nested-blocks {:block-uid block-uid 

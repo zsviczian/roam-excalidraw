@@ -9,8 +9,8 @@ function excalidrawWrapperKeyboardListner(ev) {
   }
 }
 
-ExcalidrawConfig.autosave = true;
-ExcalidrawConfig.setAutosave = (val) => {ExcalidrawConfig.autosave = val;}
+/*ExcalidrawConfig.autosave = true;
+ExcalidrawConfig.setAutosave = (val) => {ExcalidrawConfig.autosave = val;}*/
 var excalidrawPreviousElements = '';
 
 window['ExcalidrawWrapper'] = class {
@@ -75,7 +75,6 @@ window['ExcalidrawWrapper'] = class {
             height: dimensions.height,
             initialData: initData,
             onChange: (el, st) => { 
-              if(ExcalidrawConfig.autosave) {
                 //based on https://github.com/excalidraw/excalidraw/blob/master/src/excalidraw-app/collab/CollabWrapper.tsx#L387
                 if (st.editingElement == null && st.resizingElement == null && st.draggingElement == null) {
                   const elementsString = JSON.stringify(el);
@@ -96,7 +95,6 @@ window['ExcalidrawWrapper'] = class {
                   }
                 }
                 else onChangeCallback(null);
-              }
             }, //console.log("Elements :", elements, "State : ", state),
             //onPointerUpdate: (payload) => {},  //console.log(payload),
           })

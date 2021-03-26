@@ -121,6 +121,14 @@
                   [?c :block/uid ?drawing-uid]]
         x))
 
+(defn pull-children [block-uid order]
+  (rd/q '[:find (pull ?b [:block/uid :block/string {:block/children [:block/string :block/order :block/uid {:block/children ...}]}])
+                                         :in $ ?block-uid ?order
+                                         :where [?e :block/uid ?block-uid]
+                                                [?e :block/children ?b]
+                                                [?b :block/order ?order]]
+			                             block-uid order))
+
 (defn flatten-nested-text [level nested-text] 
   (let [result (atom nil)]
     (doseq [y nested-text]
@@ -166,7 +174,7 @@
         text-elements (r/atom nil)
         ;;get text blocks nested under title
         nestedtext-parent-block-uid (get-in @(:drawing x) [:nestedtext-parent :block-uid])
-        nested-text-blocks (get-text-blocks nestedtext-parent-block-uid) 
+        nested-text-blocks (get-text-blocks (flatten-nested-text "" (pull-children 1 (:block-uid x)))) 
         app-state (into {} (filter (comp some? val) (:appState edn-map)))] ;;remove nil elements from appState
     
     ;;process text on drawing
@@ -473,15 +481,7 @@
       (reset! deps-available true))
     (js/setTimeout check-js-dependencies 1000)
   ))
-
-(defn pull-children [block-uid order]
-  (rd/q '[:find (pull ?b [:block/uid :block/string {:block/children [:block/string :block/order :block/uid {:block/children ...}]}])
-                                         :in $ ?block-uid ?order
-                                         :where [?e :block/uid ?block-uid]
-                                                [?e :block/children ?b]
-                                                [?b :block/order ?order]]
-			                             block-uid order))
-                                   
+                                  
 (defn get-embed-image [drawing dom-node app-name]
   (if (= (:img @app-settings) "PNG")
     (.getPNG js/window.ExcalidrawWrapper drawing dom-node app-name)

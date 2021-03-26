@@ -11,7 +11,7 @@ function excalidrawWrapperKeyboardListner(ev) {
 
 /*ExcalidrawConfig.autosave = true;
 ExcalidrawConfig.setAutosave = (val) => {ExcalidrawConfig.autosave = val;}*/
-var excalidrawPreviousElements = '';
+var excalidrawPreviousSceneVersion = 0;
 
 window['ExcalidrawWrapper'] = class {
   static notReadyToStart () {
@@ -19,7 +19,7 @@ window['ExcalidrawWrapper'] = class {
     return (typeof Excalidraw == 'undefined') && (typeof ReactDOM == 'undefined') && (typeof React == 'undefined');
   }
   constructor (appName,initData,node,onChangeCallback) {   
-    excalidrawPreviousElements = JSON.stringify(initData.elements); 
+    excalidrawPreviousSceneVersion = 0; 
     this.hostDIV = node.querySelector('#'+appName);
     while (this.hostDIV.firstChild) {
       this.hostDIV.removeChild(this.hostDIV.lastChild);
@@ -75,26 +75,24 @@ window['ExcalidrawWrapper'] = class {
             height: dimensions.height,
             initialData: initData,
             onChange: (el, st) => { 
-                //based on https://github.com/excalidraw/excalidraw/blob/master/src/excalidraw-app/collab/CollabWrapper.tsx#L387
                 if (st.editingElement == null && st.resizingElement == null && st.draggingElement == null) {
-                  const elementsString = JSON.stringify(el);
-                  if(elementsString!=excalidrawPreviousElements) {
-                    excalidrawPreviousElements = elementsString;
+                  const sceneVersion = Excalidraw.getSceneVersion(el);
+                  if(sceneVersion != excalidrawPreviousSceneVersion) {
+                    excalidrawPreviousSceneVersion = sceneVersion;
                     onChangeCallback( {elements: el, //.filter(e => !e.isDeleted),
-                                    appState: {theme: st.theme,
-                                                height: st.height,
-                                                name: st.name,
-                                                scrollX: st.scrollX,
-                                                scrollY: st.scrollY,
-                                                viewBackgroundColor: st.viewBackgroundColor,
-                                                width: st.width,
-                                                zoom: st.zoom,
-                                                offsetLeft: st.offsetLeft,
-                                                offsetTop: st.offsetTop}
-                                              });                                            
+                                       appState: {theme: st.theme,
+                                                  height: st.height,
+                                                  name: st.name,
+                                                  scrollX: st.scrollX,
+                                                  scrollY: st.scrollY,
+                                                  viewBackgroundColor: st.viewBackgroundColor,
+                                                  width: st.width,
+                                                  zoom: st.zoom,
+                                                  offsetLeft: st.offsetLeft,
+                                                  offsetTop: st.offsetTop}
+                                                 });                                            
                   }
                 }
-                else onChangeCallback(null);
             }, //console.log("Elements :", elements, "State : ", state),
             //onPointerUpdate: (payload) => {},  //console.log(payload),
           })

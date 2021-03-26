@@ -181,15 +181,6 @@ window['ExcalidrawWrapper'] = class {
 
   static setImgEventListner(roamRenderNode,imgNode,appName) {
     let blockNode = roamRenderNode;
-//    const blockUID = appName.slice(-9);
-    //this is workaround wizardy. Somehow when the node is distroyed the render component re-initiates and
-    //creates a ghost, which does not have a parent element...
-/*    let uidIndex =-1;
-    while ( (blockNode!=null) && (uidIndex ==-1) ) {
-      uidIndex = blockNode.id.indexOf(blockUID);
-      if (uidIndex == -1)
-        blockNode = blockNode.parentElement;
-    }*/
     let foundIt = false;    
     while ( (blockNode!=null) && !foundIt ) {
       foundIt = blockNode.id.startsWith('block-input-');

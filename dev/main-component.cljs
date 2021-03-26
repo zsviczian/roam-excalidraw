@@ -23,7 +23,7 @@
                            :nested-text-row-height 40
                            :nested-text-col-width 400
                            :nested-text-start-top 40
-                           :nested-text-start-left 260
+                           :nested-text-start-left 320
                            :nested-text-font-size 20
                            :nested-text-font-family 1})
 (def app-settings (r/atom default-app-settings))

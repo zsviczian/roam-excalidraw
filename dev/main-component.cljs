@@ -506,7 +506,7 @@
                                 (if-not (nil? (:this-dom-node @cs)) 
                                   (swap! style assoc-in [:host-div] (host-div-style cs)))))
         ;changed-drawing (atom nil)
-        drawing-on-change-callback (fn [x] (if-not @saving-flag)
+        drawing-on-change-callback (fn [x] (if-not @saving-flag
                                              (.updateScene 
                                               @ew 
                                               (save-component 

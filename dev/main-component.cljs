@@ -19,7 +19,7 @@
                            :full-screen-margin 0.015
                            :max-embed-width 600
                            :max-embed-height 400
-                           :nested-text-rows 10
+                           :nested-text-rows 20
                            :nested-text-row-height 40
                            :nested-text-col-width 400
                            :nested-text-start-top 40

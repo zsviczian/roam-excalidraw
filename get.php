@@ -13,6 +13,12 @@
     $code = file_get_contents($path.'data-component.cljs');
     $code = str_replace('\\','\\\\',$code);
     $response = $response.$code.'`; ';
+
+    $response = $response.'ExcalidrawConfig.svgComponent = `';
+    $code = file_get_contents($path.'svg-component.cljs');
+    $code = str_replace('\\','\\\\',$code);
+    $response = $response.$code.'`; ';
+
     $code = file_get_contents($path.'cljs-loader.js');
 
     echo $response.$code;

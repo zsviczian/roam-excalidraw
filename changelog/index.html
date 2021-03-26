@@ -19,7 +19,18 @@
 
   
   <h2>March 26th, 2021 MVP.v03 Release</h2>
-  
+
+  <div  style="width: 100%; height:506px; position: relative;"><iframe allowfullscreen="" height="100%" src="https://www.youtube.com/embed/X5xX1Ycyed0" width="100%" youtube-src-id="X5xX1Ycyed0"></iframe></div>
+  <p><a href="settings.html">Detailed description of available settings</a></p>
+  <h3>Excalidraw loader</h3>
+  <p>Nest the following codeblok under {{[[roam/js]]}}</p>
+  <!--HTML generated using hilite.me--><div style="background: rgb(255, 255, 255); border-color: gray; border-image: initial; border-style: solid; border-width: 0.1em 0.1em 0.1em 0.8em; border: solid gray; overflow: auto; padding: 0.2em 0.6em; width: auto;"><pre style="line-height: 125%; margin: 0px;">{</pre><pre style="line-height: 125%; margin: 0px;">  <span style="color: #008800; font-weight: bold;">let</span> s = <span style="color: #003388;">document</span>.createElement(<span style="background-color: #fff0f0; color: #dd2200;">'script'</span>);
+    s.type = <span style="background-color: #fff0f0; color: #dd2200;">'text/javascript'</span>;
+    s.src = <span style="background-color: #fff0f0; color: #dd2200;">'https://roam-excalidraw.com/dist/loader.js'</span>;
+    s.async = <span style="color: #008800; font-weight: bold;">false</span>;
+    <span style="color: #003388;">document</span>.getElementsByTagName(<span style="background-color: #fff0f0; color: #dd2200;">'head'</span>)[<span style="color: #0000dd; font-weight: bold;">0</span>].appendChild(s);  
+  }
+  </pre></div>
   <h3>Improved nested text support</h3>
   <p>Now supporting multi level nesting. Note however, that once you open the drawing for editing, the position of the text is fixed. You can change the text in the nested area, but not the position.</p>
   <p><img src="./20210326/1.gif" width=500 alt="">  </p>

@@ -1,4 +1,4 @@
-(ns excalidraw.app.alpha.v27
+(ns excalidraw.app.alpha.v28
   (:require 
    [clojure.set :as s]
    [reagent.core :as r]
@@ -19,7 +19,7 @@
                            :full-screen-margin 0.015
                            :max-embed-width 600
                            :max-embed-height 400
-                           :nested-text-rows 10
+                           :nested-text-rows 20
                            :nested-text-row-height 40
                            :nested-text-col-width 400
                            :nested-text-start-top 40
@@ -506,7 +506,7 @@
                                 (if-not (nil? (:this-dom-node @cs)) 
                                   (swap! style assoc-in [:host-div] (host-div-style cs)))))
         ;changed-drawing (atom nil)
-        drawing-on-change-callback (fn [x] (if (and (not (nil? x)) (not @saving-flag))
+        drawing-on-change-callback (fn [x] (if-not @saving-flag
                                              (.updateScene 
                                               @ew 
                                               (save-component 

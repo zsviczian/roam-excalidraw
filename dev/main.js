@@ -56,7 +56,7 @@ window['ExcalidrawWrapper'] = class {
       }, [excalidrawWrapperRef]);
 
       this.updateScene = (scene) => {
-        excalidrawPreviousElements = JSON.stringify(scene.elements);
+        excalidrawPreviousSceneVersion = Excalidraw.getSceneVersion(scene.elements);
         excalidrawRef.current.updateScene(scene);
       }
       

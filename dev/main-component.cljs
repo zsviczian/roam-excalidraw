@@ -129,7 +129,7 @@
                                                 [?b :block/order ?order]]
 			                             block-uid order))
 
-(defn flatten-nested-text [level nested-text] 
+(defn flatten-nested-text [nested-text level] 
   (let [result (atom nil)]
     (doseq [y nested-text]
       (let [order (str/join [level (pp/cl-format nil "~2,'0d" (:block/order y))])]
@@ -137,15 +137,25 @@
                                        :block/order order
                                        :block/uid (:block/uid y)}))
         (if-not (nil? (:block/children y)) 
-          (reset! result (concat @result (flatten-nested-text order (:block/children y)))))
+          (reset! result (concat @result (flatten-nested-text (:block/children y) order))))
     ))   
     (debug ["flat-nest " (str @result)])
      (into [] (sort-by :block/order @result))
 ))
 
 (defn get-text-blocks [x]
+  (-> x
+    (pull-children 1)
+    (first)
+    (get-in [0 :block/children])
+    (flatten-nested-text "")))
+;          (pull-children x 1)
+;        b (first a)
+;        c (get-in b [0 :block/children])
+;        d (flatten-nested-text "" c)
+
   ;;(debug ["(get-text-blocks" x]) [:block/uid :block/string {:block/children [:block/string :block/order :block/uid {:block/children ...}]}]
-  (flatten-nested-text "" (get-in (first (pull-children 1 (:block-uid x))) [0 :block/children])))
+ ; (flatten-nested-text (get-in (first (pull-children (:block-uid x) 1)) [0 :block/children]) ""))
 ;  (get-in (:text x) [0 :block/children])
 
 ;  (flatten-nested-text "" (:block/children (first (first (rd/q '[:find (pull ?e [:block/children {:block/children [:block/uid :block/string :block/order {:block/cnildren ...}]}])
@@ -319,7 +329,7 @@
   (if-not (nil? (:nested-text x)) 
     (do
       (let [text-elements (r/atom nil)
-            nested-text (flatten-nested-text "" (:nested-text x))]   
+            nested-text (flatten-nested-text (:nested-text x) "")]   
       ;;(debug ["(update-drawing-based-on-nested-blocks) processing nested text - apply changes to existing text elements, omit deleted ones"])
         ;;update elements on drawing based on changes to nested text
         (doseq [y (get-text-elements (:elements x))]

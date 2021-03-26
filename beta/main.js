@@ -1,4 +1,4 @@
-function myKeyboardListner(ev) {
+function excalidrawWrapperKeyboardListner(ev) {
   if (ev.ctrlKey && (ev.code=='z' || ev.key=='z') ) {
     ev.preventDefault();
     if (typeof ev.stopPropagation != "undefined") {
@@ -9,12 +9,17 @@ function myKeyboardListner(ev) {
   }
 }
 
+/*ExcalidrawConfig.autosave = true;
+ExcalidrawConfig.setAutosave = (val) => {ExcalidrawConfig.autosave = val;}*/
+var excalidrawPreviousElements = '';
+
 window['ExcalidrawWrapper'] = class {
   static notReadyToStart () {
     console.log("notReadyToStart()",(typeof Excalidraw == 'undefined') && (typeof ReactDOM == 'undefined') && (typeof React == 'undefined'));
     return (typeof Excalidraw == 'undefined') && (typeof ReactDOM == 'undefined') && (typeof React == 'undefined');
   }
-  constructor (appName,initData,node,onChangeCallback) {    
+  constructor (appName,initData,node,onChangeCallback) {   
+    excalidrawPreviousElements = JSON.stringify(initData.elements); 
     this.hostDIV = node.querySelector('#'+appName);
     while (this.hostDIV.firstChild) {
       this.hostDIV.removeChild(this.hostDIV.lastChild);
@@ -51,6 +56,7 @@ window['ExcalidrawWrapper'] = class {
       }, [excalidrawWrapperRef]);
 
       this.updateScene = (scene) => {
+        excalidrawPreviousElements = JSON.stringify(scene.elements);
         excalidrawRef.current.updateScene(scene);
       }
       
@@ -68,22 +74,27 @@ window['ExcalidrawWrapper'] = class {
             width: dimensions.width,
             height: dimensions.height,
             initialData: initData,
-            onChange: (el, st) => {
-              //based on https://github.com/excalidraw/excalidraw/blob/master/src/excalidraw-app/collab/CollabWrapper.tsx#L387
-              if (st.editingElement == null && st.resizingElement == null && st.draggingElement == null)
-                onChangeCallback( {elements: el,
-                                 appState: {theme: st.theme,
-                                            height: st.height,
-                                            name: st.name,
-                                            scrollX: st.scrollX,
-                                            scrollY: st.scrollY,
-                                            viewBackgroundColor: st.viewBackgroundColor,
-                                            width: st.width,
-                                            zoom: st.zoom,
-                                            offsetLeft: st.offsetLeft,
-                                            offsetTop: st.offsetTop}
-                                           });
-              else onChangeCallback(null);
+            onChange: (el, st) => { 
+                //based on https://github.com/excalidraw/excalidraw/blob/master/src/excalidraw-app/collab/CollabWrapper.tsx#L387
+                if (st.editingElement == null && st.resizingElement == null && st.draggingElement == null) {
+                  const elementsString = JSON.stringify(el);
+                  if(elementsString!=excalidrawPreviousElements) {
+                    excalidrawPreviousElements = elementsString;
+                    onChangeCallback( {elements: el, //.filter(e => !e.isDeleted),
+                                    appState: {theme: st.theme,
+                                                height: st.height,
+                                                name: st.name,
+                                                scrollX: st.scrollX,
+                                                scrollY: st.scrollY,
+                                                viewBackgroundColor: st.viewBackgroundColor,
+                                                width: st.width,
+                                                zoom: st.zoom,
+                                                offsetLeft: st.offsetLeft,
+                                                offsetTop: st.offsetTop}
+                                              });                                            
+                  }
+                }
+                else onChangeCallback(null);
             }, //console.log("Elements :", elements, "State : ", state),
             //onPointerUpdate: (payload) => {},  //console.log(payload),
           })
@@ -136,11 +147,11 @@ window['ExcalidrawWrapper'] = class {
   //to Excalidraw main div
   static fullScreenKeyboardEventRedirect(isFullScreen) {
     if (isFullScreen) {
-      document.addEventListener('keydown',myKeyboardListner);
+      document.addEventListener('keydown',excalidrawWrapperKeyboardListner);
       if (ExcalidrawConfig.DEBUG) console.log("keyboard listener added");
     }
     else {
-      document.removeEventListener('keydown',myKeyboardListner);
+      document.removeEventListener('keydown',excalidrawWrapperKeyboardListner);
       if (ExcalidrawConfig.DEBUG) console.log("keyboard listner removed");
     }
   }
@@ -170,15 +181,6 @@ window['ExcalidrawWrapper'] = class {
 
   static setImgEventListner(roamRenderNode,imgNode,appName) {
     let blockNode = roamRenderNode;
-//    const blockUID = appName.slice(-9);
-    //this is workaround wizardy. Somehow when the node is distroyed the render component re-initiates and
-    //creates a ghost, which does not have a parent element...
-/*    let uidIndex =-1;
-    while ( (blockNode!=null) && (uidIndex ==-1) ) {
-      uidIndex = blockNode.id.indexOf(blockUID);
-      if (uidIndex == -1)
-        blockNode = blockNode.parentElement;
-    }*/
     let foundIt = false;    
     while ( (blockNode!=null) && !foundIt ) {
       foundIt = blockNode.id.startsWith('block-input-');

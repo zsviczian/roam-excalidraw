@@ -145,10 +145,13 @@
 
 (defn get-text-blocks [x]
   ;;(debug ["(get-text-blocks" x]) [:block/uid :block/string {:block/children [:block/string :block/order :block/uid {:block/children ...}]}]
-  (flatten-nested-text "" (:block/children (first (first (rd/q '[:find (pull ?e [:block/children {:block/children [:block/uid :block/string :block/order {:block/cnildren ...}]}])
-          :in $ ?title-uid
-          :where [?e :block/uid ?title-uid]]
-        x))))))
+  (flatten-nested-text "" (get-in (first (pull-children 1 (:block-uid x))) [0 :block/children])))
+;  (get-in (:text x) [0 :block/children])
+
+;  (flatten-nested-text "" (:block/children (first (first (rd/q '[:find (pull ?e [:block/children {:block/children [:block/uid :block/string :block/order {:block/cnildren ...}]}])
+;          :in $ ?title-uid
+;          :where [?e :block/uid ?title-uid]]
+;        x))))))
 
 (defn get-text-elements [x]
   (filter (comp #{"text"} :type) x)
@@ -174,7 +177,7 @@
         text-elements (r/atom nil)
         ;;get text blocks nested under title
         nestedtext-parent-block-uid (get-in @(:drawing x) [:nestedtext-parent :block-uid])
-        nested-text-blocks (get-text-blocks (flatten-nested-text "" (pull-children 1 (:block-uid x)))) 
+        nested-text-blocks (get-text-blocks (:block-uid x)) 
         app-state (into {} (filter (comp some? val) (:appState edn-map)))] ;;remove nil elements from appState
     
     ;;process text on drawing

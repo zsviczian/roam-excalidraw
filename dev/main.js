@@ -9,17 +9,12 @@ function excalidrawWrapperKeyboardListner(ev) {
   }
 }
 
-/*ExcalidrawConfig.autosave = true;
-ExcalidrawConfig.setAutosave = (val) => {ExcalidrawConfig.autosave = val;}*/
-var excalidrawPreviousSceneVersion = 0;
-
 window['ExcalidrawWrapper'] = class {
   static notReadyToStart () {
     console.log("notReadyToStart()",(typeof Excalidraw == 'undefined') && (typeof ReactDOM == 'undefined') && (typeof React == 'undefined'));
     return (typeof Excalidraw == 'undefined') && (typeof ReactDOM == 'undefined') && (typeof React == 'undefined');
   }
-  constructor (appName,initData,node,onChangeCallback) {   
-    excalidrawPreviousSceneVersion = 0; 
+  constructor (appName,initData,node) {   
     this.hostDIV = node.querySelector('#'+appName);
     while (this.hostDIV.firstChild) {
       this.hostDIV.removeChild(this.hostDIV.lastChild);
@@ -32,9 +27,18 @@ window['ExcalidrawWrapper'] = class {
         width: undefined,
         height: undefined
       });
-      
+            
       this.excalidrawRef = excalidrawRef;
       
+      this.previousSceneVersion = 0; 
+      this.lastUpdatedScene = null;
+      
+      this.getLastUpdatedScene = () => {
+        const s = this.lastUpdatedScene;
+        this.lastUpdatedScene = null;
+        return s;
+      }
+
       React.useEffect(() => {
         setDimensions({
           width: excalidrawWrapperRef.current.getBoundingClientRect().width,
@@ -56,7 +60,7 @@ window['ExcalidrawWrapper'] = class {
       }, [excalidrawWrapperRef]);
 
       this.updateScene = (scene) => {
-        excalidrawPreviousSceneVersion = Excalidraw.getSceneVersion(scene.elements);
+        this.previousSceneVersion = Excalidraw.getSceneVersion(scene.elements);
         excalidrawRef.current.updateScene(scene);
       }
       
@@ -77,20 +81,20 @@ window['ExcalidrawWrapper'] = class {
             onChange: (el, st) => { 
                 if (st.editingElement == null && st.resizingElement == null && st.draggingElement == null) {
                   const sceneVersion = Excalidraw.getSceneVersion(el);
-                  if(sceneVersion != excalidrawPreviousSceneVersion) {
-                    excalidrawPreviousSceneVersion = sceneVersion;
-                    onChangeCallback( {elements: el, //.filter(e => !e.isDeleted),
-                                       appState: {theme: st.theme,
-                                                  height: st.height,
-                                                  name: st.name,
-                                                  scrollX: st.scrollX,
-                                                  scrollY: st.scrollY,
-                                                  viewBackgroundColor: st.viewBackgroundColor,
-                                                  width: st.width,
-                                                  zoom: st.zoom,
-                                                  offsetLeft: st.offsetLeft,
-                                                  offsetTop: st.offsetTop}
-                                                 });                                            
+                  if(sceneVersion != this.previousSceneVersion) {
+                    this.previousSceneVersion = sceneVersion;
+                    this.lastUpdatedScene = {elements: el, 
+                                             appState: {theme: st.theme,
+                                             height: st.height,
+                                             name: st.name,
+                                             scrollX: st.scrollX,
+                                             scrollY: st.scrollY,
+                                             viewBackgroundColor: st.viewBackgroundColor,
+                                              width: st.width,
+                                             zoom: st.zoom,
+                                             offsetLeft: st.offsetLeft,
+                                             offsetTop: st.offsetTop}
+                                            };
                   }
                 }
             }, //console.log("Elements :", elements, "State : ", state),

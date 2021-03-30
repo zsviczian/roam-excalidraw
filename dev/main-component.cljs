@@ -498,6 +498,7 @@
                     :mouseover false
                     :prev-empty-block nil}) ;; this is a semaphore system to avoid creating double nested blocks when manually creating the first nested element
         saving-flag (atom false)
+        save-sleep  (atom false) ;;throttles save
         pull-watch-active (atom false)
         ew (r/atom nil) ;;excalidraw-wrapper
         app-name (str/join ["excalidraw-app-" block-uid])
@@ -507,6 +508,19 @@
                                 (if-not (nil? (:this-dom-node @cs)) 
                                   (swap! style assoc-in [:host-div] (host-div-style cs)))))
         ;changed-drawing (atom nil)
+        on-change-callback (fn [x] (if-not (or @saving-flag @save-sleep)
+                             (if-not (nil? x) 
+                               (do
+                                (.updateScene 
+                                  @ew 
+                                  (save-component 
+                                    {:block-uid block-uid 
+                                    :map-string (js-to-clj-str x) 
+                                    :cs cs
+                                    :drawing drawing
+                                    :saving-flag saving-flag}))
+                                (reset! save-sleep true)    
+                                    ))))
         pull-watch-callback (fn [before after]
                               ;;(debug ["(pull-watch-callback) after:" (js-to-clj-str after)])
                               (if-not (or @saving-flag (is-full-screen cs) @pull-watch-active)
@@ -533,18 +547,9 @@
                                         (swap! style assoc-in [:host-div] (host-div-style cs)))))
                                   (reset! pull-watch-active false)
   )))]
-    (letfn [(autosave [] (if-not @saving-flag
-                           (let [x (.getLastUpdatedScene @ew)]
-                             (if-not (nil? x)
-                               (.updateScene 
-                                @ew 
-                                (save-component 
-                                  {:block-uid block-uid 
-                                  :map-string (js-to-clj-str x) 
-                                  :cs cs
-                                  :drawing drawing
-                                  :saving-flag saving-flag})))))
-                          (if (is-full-screen cs) (js/setTimeout autosave autosave-timeout)) )]
+    (letfn [(autosave [] (reset! save-sleep false)
+                         (if (is-full-screen cs) 
+                           (js/setTimeout autosave autosave-timeout)) )]
       (if (= @deps-available false)
       [:div "Libraries have not yet loaded. Please refresh the block in a moment."]
       (fn []
@@ -605,7 +610,8 @@
                                               (reset! ew (js/ExcalidrawWrapper.
                                                           app-name
                                                           (generate-scene {:drawing drawing})
-                                                          (:this-dom-node @cs) ))
+                                                          (:this-dom-node @cs)
+                                                          on-change-callback))
                                                           (js/setTimeout autosave autosave-timeout)
                                                           )}
                                   "🖋"]

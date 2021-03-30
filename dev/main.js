@@ -14,7 +14,7 @@ window['ExcalidrawWrapper'] = class {
     console.log("notReadyToStart()",(typeof Excalidraw == 'undefined') && (typeof ReactDOM == 'undefined') && (typeof React == 'undefined'));
     return (typeof Excalidraw == 'undefined') && (typeof ReactDOM == 'undefined') && (typeof React == 'undefined');
   }
-  constructor (appName,initData,node) {   
+  constructor (appName,initData,node,onSaveCallback) {   
     this.hostDIV = node.querySelector('#'+appName);
     while (this.hostDIV.firstChild) {
       this.hostDIV.removeChild(this.hostDIV.lastChild);
@@ -31,12 +31,6 @@ window['ExcalidrawWrapper'] = class {
       this.excalidrawRef = excalidrawRef;
       
       this.previousSceneVersion = 0; 
-      this.sceneUpdateQueue = [];
-      
-      this.getLastUpdatedScene = () => {
-        const x = this.sceneUpdateQueue.shift();
-        return (x === undefined) ? null : x;
-      }
 
       React.useEffect(() => {
         setDimensions({
@@ -82,7 +76,7 @@ window['ExcalidrawWrapper'] = class {
                   const sceneVersion = Excalidraw.getSceneVersion(el);
                   if(sceneVersion != this.previousSceneVersion) {
                     this.previousSceneVersion = sceneVersion;
-                    this.sceneUpdateQueue.push ({elements: el, 
+                    on-change-callback ({elements: el, 
                                              appState: {theme: st.theme,
                                              height: st.height,
                                              name: st.name,

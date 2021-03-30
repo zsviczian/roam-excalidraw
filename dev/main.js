@@ -31,12 +31,11 @@ window['ExcalidrawWrapper'] = class {
       this.excalidrawRef = excalidrawRef;
       
       this.previousSceneVersion = 0; 
-      this.lastUpdatedScene = null;
+      this.sceneUpdateQueue = [];
       
       this.getLastUpdatedScene = () => {
-        const s = this.lastUpdatedScene;
-        this.lastUpdatedScene = null;
-        return s;
+        const x = this.sceneUpdateQueue.shift();
+        return (x === undefined) ? null : x;
       }
 
       React.useEffect(() => {
@@ -83,7 +82,7 @@ window['ExcalidrawWrapper'] = class {
                   const sceneVersion = Excalidraw.getSceneVersion(el);
                   if(sceneVersion != this.previousSceneVersion) {
                     this.previousSceneVersion = sceneVersion;
-                    this.lastUpdatedScene = {elements: el, 
+                    this.sceneUpdateQueue.push ({elements: el, 
                                              appState: {theme: st.theme,
                                              height: st.height,
                                              name: st.name,
@@ -94,7 +93,7 @@ window['ExcalidrawWrapper'] = class {
                                              zoom: st.zoom,
                                              offsetLeft: st.offsetLeft,
                                              offsetTop: st.offsetTop}
-                                            };
+                                            });
                   }
                 }
             }, //console.log("Elements :", elements, "State : ", state),

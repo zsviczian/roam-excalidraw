@@ -27,7 +27,7 @@
                            :nested-text-font-size 20
                            :nested-text-font-family 1})
 (def app-settings (r/atom default-app-settings))
-(def autosave-timeout 30001) ;;this will throttle change to avoid hitting the 300 updates per minute roamAlphaAPI limit
+(def autosave-timeout 1000) ;;this will throttle change to avoid hitting the 300 updates per minute roamAlphaAPI limit
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; util functions

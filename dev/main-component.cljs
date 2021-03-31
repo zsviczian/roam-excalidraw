@@ -181,20 +181,24 @@
     (doseq [y (get-text-elements (:elements edn-map))]
       (if (:isDeleted y)
         (if (str/starts-with? (:id y) "ROAM_")
-          (block/delete {:block {:uid (get-block-uid-from-text-element y)}})
-        )
+          (do 
+            (debug ["(save-component) block-change text block/delete"])
+            (block/delete {:block {:uid (get-block-uid-from-text-element y)}})
+        ))
         (if (str/starts-with? (:id y) "ROAM_")
           (do ;;block with text should already exist, update text, but double check that the block is there...
             ;;(debug ["(save-component) nested block should exist text:" (:text y) "block-id" (get-block-uid-from-text-element y)])
-            (let [text-block-uid (get-block-uid-from-text-element y)]
-              (if-not (= 0 (count (filter (comp #{text-block-uid} :block/uid) nested-text-blocks)))
+            (let [text-block-uid (get-block-uid-from-text-element y)
+                  nested-block (filter (comp #{text-block-uid} :block/uid) nested-text-blocks)]
+              (if-not (= 0 (count nested-block))
                 (do ;;block exists
                   ;;(debug ["(save-component) block exists, updateing"])
+                  (debug ["(save-component) block-change text block/update " text-block-uid str(nested-block)])
                   (block/update {:block {:uid text-block-uid :string (:text y)}})
                   (reset! text-elements (conj @text-elements y))
                 )
                 (do ;block no-longer exists, create new one
-                  ;;(debug ["(save-component) block should, but does not exist, creating..."])
+                  (debug ["(save-component) block-change text block/create"])
                   (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
                     (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
           )))))

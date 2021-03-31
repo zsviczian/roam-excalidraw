@@ -9,17 +9,13 @@ function excalidrawWrapperKeyboardListner(ev) {
   }
 }
 
-/*ExcalidrawConfig.autosave = true;
-ExcalidrawConfig.setAutosave = (val) => {ExcalidrawConfig.autosave = val;}*/
-var excalidrawPreviousSceneVersion = 0;
-
 window['ExcalidrawWrapper'] = class {
   static notReadyToStart () {
     console.log("notReadyToStart()",(typeof Excalidraw == 'undefined') && (typeof ReactDOM == 'undefined') && (typeof React == 'undefined'));
     return (typeof Excalidraw == 'undefined') && (typeof ReactDOM == 'undefined') && (typeof React == 'undefined');
   }
   constructor (appName,initData,node,onChangeCallback) {   
-    excalidrawPreviousSceneVersion = 0; 
+    this.previousSceneVersion = 0; 
     this.hostDIV = node.querySelector('#'+appName);
     while (this.hostDIV.firstChild) {
       this.hostDIV.removeChild(this.hostDIV.lastChild);
@@ -56,7 +52,7 @@ window['ExcalidrawWrapper'] = class {
       }, [excalidrawWrapperRef]);
 
       this.updateScene = (scene) => {
-        excalidrawPreviousSceneVersion = Excalidraw.getSceneVersion(scene.elements);
+        this.previousSceneVersion = Excalidraw.getSceneVersion(scene.elements);
         excalidrawRef.current.updateScene(scene);
       }
       
@@ -77,8 +73,8 @@ window['ExcalidrawWrapper'] = class {
             onChange: (el, st) => { 
                 if (st.editingElement == null && st.resizingElement == null && st.draggingElement == null) {
                   const sceneVersion = Excalidraw.getSceneVersion(el);
-                  if(sceneVersion != excalidrawPreviousSceneVersion) {
-                    excalidrawPreviousSceneVersion = sceneVersion;
+                  if(sceneVersion != this.previousSceneVersion) {
+                    this.previousSceneVersion = sceneVersion;
                     onChangeCallback( {elements: el, //.filter(e => !e.isDeleted),
                                        appState: {theme: st.theme,
                                                   height: st.height,

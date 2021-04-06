@@ -256,6 +256,14 @@ window['ExcalidrawWrapper'] = class {
     hostDIV.appendChild(Excalidraw.exportToSvg(diagram));
     const svg = hostDIV.querySelector('svg');
     const aspectRatio = ExcalidrawWrapper.getAspectRatio(svg);
+    //this is a hack. Sometimes the side of images are cut off
+    //like Bezier curves, sometimes text as well
+    if(svg.viewBox?.baseVal != null) { 
+      svg.viewBox.baseVal.x -= 20;
+      svg.viewBox.baseVal.y -= 20;
+      svg.viewBox.baseVal.width += 40;
+      svg.viewBox.baseVal.height += 40;
+    }
     ExcalidrawWrapper.setImgEventListner(node, svg, appName);
     svg.removeAttribute('width');
     svg.removeAttribute('height');

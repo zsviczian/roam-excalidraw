@@ -158,6 +158,12 @@ window['ExcalidrawWrapper'] = class {
       let appstate = o.excalidrawRef.current.getAppState();
       delete appstate['collaborators'];
       delete appstate['fileHandle'];
+      delete appstate['editingElement'];
+      delete appstate['resizingElement'];
+      delete appstate['draggingElement'];
+      delete appstate['editingGroupId'];
+      delete appstate['editingLinearElement'];
+      delete appstate['selectedElementIds'];
       return {elements: 
               o.excalidrawRef.current.getSceneElements(),
               appState: appstate};

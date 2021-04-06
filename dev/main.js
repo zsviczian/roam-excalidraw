@@ -71,7 +71,9 @@ window['ExcalidrawWrapper'] = class {
             height: dimensions.height,
             initialData: initData,
             onChange: (el, st) => { 
-                if (st.editingElement == null && st.resizingElement == null && st.draggingElement == null) {
+                if (st.editingElement == null && st.resizingElement == null && 
+                    st.draggingElement == null && st.editingGroupId == null &&
+                    st.editingLinearElement == null ) {
                   const sceneVersion = Excalidraw.getSceneVersion(el);
                   if(sceneVersion != this.previousSceneVersion) {
                     this.previousSceneVersion = sceneVersion;

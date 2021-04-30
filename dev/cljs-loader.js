@@ -74,7 +74,7 @@ if (!window.ExcalidrawWrapper) {
         firstEverRun = true;                                
       }
       ExcalidrawConfig.log('cljs-loader.js','buildPage() [[roam/excalidraw]] is present?',!firstEverRun);
-      debugger;
+      
       function isParent(blockUID, parentUID) {
         q = `[:find ?uid . :where [?b :block/uid "${blockUID}"][?p :block/children ?b][?p :block/uid ?uid]]`;
         uid = window.roamAlphaAPI.q(q);

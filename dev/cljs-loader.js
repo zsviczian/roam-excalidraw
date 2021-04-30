@@ -10,23 +10,23 @@
     settingsComponentParent : 'Settings', 
     defaultSetting: '{\n:mode "light"\n:img "SVG"\n:max-embed-width 600\n:max-embed-height 400\n:full-screen-margin 0.015\n}',
 
-    updateCodeBlock(blockUID, sourceCode) {
-      window.roamAlphaAPI.updateBlock({"block": 
+    async updateCodeBlock(blockUID, sourceCode) {
+      await window.roamAlphaAPI.updateBlock({"block": 
                                       {"string": sourceCode,
                                         "uid": blockUID}});
     },
 
-    createBlockWithUID(parentUID, order, blockString, blockUID) {
-      window.roamAlphaAPI.createBlock({"location":
+    async createBlockWithUID(parentUID, order, blockString, blockUID) {
+      await window.roamAlphaAPI.createBlock({"location":
                                       {"parent-uid": parentUID, 
                                       "order": order}, 
                                         "block": {"string": blockString,
                                                   "uid": blockUID}});  
     },
 
-    createBlock(parentUID, order, blockString) {
+    async createBlock(parentUID, order, blockString) {
       blockUID = window.roamAlphaAPI.util.generateUID();
-      this.createBlockWithUID (parentUID, order, blockString, blockUID);
+      await this.createBlockWithUID (parentUID, order, blockString, blockUID);
       return blockUID;
     },
 
@@ -39,10 +39,10 @@
       return window.roamAlphaAPI.q(q);
     },
 
-    getORcreateBlockBYString (pageUID, order, blockString) {
+    async getORcreateBlockBYString (pageUID, order, blockString) {
       uid = this.getBlockUIDByString (pageUID, blockString);
       if (!uid)
-        uid = this.createBlock(pageUID,order, blockString);
+        uid = await this.createBlock(pageUID,order, blockString);
       return uid;
     },
 
@@ -52,21 +52,21 @@
       return (res!=null);
     }, 
 
-    createBlockIfNotExists (parentUID, blockUID, blockString) {
+    async createBlockIfNotExists (parentUID, blockUID, blockString) {
       if(this.blockExists(blockUID))
-        this.updateCodeBlock(blockUID,blockString);
+        await this.updateCodeBlock(blockUID,blockString);
       else
-        this.createBlockWithUID (parentUID,0,blockString,blockUID);
+        await this.createBlockWithUID (parentUID,0,blockString,blockUID);
     },
 
-    buildPage() {
+    async buildPage() {
       //check if page exists, if not, create it
       q = `[:find ?uid . :where [?e :node/title "${this.pageTitle}"][?e :block/uid ?uid]]`;
       firstEverRun = false;
       pageUID = window.roamAlphaAPI.q(q);
       if(pageUID == null) {
         pageUID = window.roamAlphaAPI.util.generateUID();
-        window.roamAlphaAPI.createPage(
+        await window.roamAlphaAPI.createPage(
           {"page": 
             {"title": this.pageTitle, 
             "uid": pageUID}});
@@ -80,53 +80,53 @@
         return (uid == parentUID);
       }
 
-      mainComponentParentUID = this.getORcreateBlockBYString (pageUID,0,this.mainComponentParent);
+      mainComponentParentUID = await this.getORcreateBlockBYString (pageUID,0,this.mainComponentParent);
       ExcalidrawConfig.log('cljs-loader.js','buildPage() mainComponentParentUID',mainComponentParentUID);
-      dataComponentParentUID = this.getORcreateBlockBYString (pageUID,1,this.dataComponentParent);
+      dataComponentParentUID = await this.getORcreateBlockBYString (pageUID,1,this.dataComponentParent);
       ExcalidrawConfig.log('cljs-loader.js','buildPage() dataComponentParentUID',dataComponentParentUID);
-      svgComponentParentUID  = this.getORcreateBlockBYString (pageUID,2,this.svgComponentParent);
+      svgComponentParentUID  = await this.getORcreateBlockBYString (pageUID,2,this.svgComponentParent);
       ExcalidrawConfig.log('cljs-loader.js','buildPage() svgComponentParentUID',svgComponentParentUID);
-      settingsComponentParentUID = this.getORcreateBlockBYString (pageUID,3,this.settingsComponentParent);
+      settingsComponentParentUID = await this.getORcreateBlockBYString (pageUID,3,this.settingsComponentParent);
       ExcalidrawConfig.log('cljs-loader.js','buildPage() settingsComponentParentUID',settingsComponentParentUID);
 
-      this.createBlockIfNotExists (mainComponentParentUID, this.sketchingUID, '');
+      await this.createBlockIfNotExists (mainComponentParentUID, this.sketchingUID, '');
       ExcalidrawConfig.log('cljs-loader.js','buildPage() created sketching block');
-      this.createBlockIfNotExists (dataComponentParentUID, this.excalDATAUID, '');
+      await this.createBlockIfNotExists (dataComponentParentUID, this.excalDATAUID, '');
       ExcalidrawConfig.log('cljs-loader.js','buildPage() created data block');
-      this.createBlockIfNotExists (svgComponentParentUID, this.excalSVGUID,'');
+      await this.createBlockIfNotExists (svgComponentParentUID, this.excalSVGUID,'');
       ExcalidrawConfig.log('cljs-loader.js','buildPage() created svg block');
       if(!this.blockExists(this.settingsUID)) {
-        this.createBlockWithUID (settingsComponentParentUID,0,this.defaultSetting,this.settingsUID);
+        await this.createBlockWithUID (settingsComponentParentUID,0,this.defaultSetting,this.settingsUID);
         ExcalidrawConfig.log('cljs-loader.js','buildPage() created default settings');
       }
 
       if(!isParent(this.sketchingUID,this.mainComponentParent)) {
-        window.roamAlphaAPI.moveBlock({"location":
+        await window.roamAlphaAPI.moveBlock({"location":
                                         {"parent-uid": mainComponentParentUID, 
                                       "order": 0}, 
                                         "block": {"uid": this.sketchingUID}});
         ExcalidrawConfig.log('cljs-loader.js','buildPage() moved sketching');
       }
       if(!isParent(this.excalDATAUID,this.dataComponentParent)) {
-        window.roamAlphaAPI.moveBlock({"location":
+        await window.roamAlphaAPI.moveBlock({"location":
                                         {"parent-uid": dataComponentParentUID, 
                                       "order": 0}, 
                                         "block": {"uid": this.excalDATAUID}});
         ExcalidrawConfig.log('cljs-loader.js','buildPage() moved data');
       }
       if(!isParent(this.excalSVGUID,this.svgComponentParent)) {                            
-        window.roamAlphaAPI.moveBlock({"location":
+        await window.roamAlphaAPI.moveBlock({"location":
                                         {"parent-uid": svgComponentParentUID, 
                                       "order": 0}, 
                                         "block": {"uid": this.excalSVGUID}});
         ExcalidrawConfig.log('cljs-loader.js','buildPage() moved svg');
       }                                   
       
-      window.roamAlphaAPI.updateBlock({"block": {"uid": mainComponentParentUID,
+      await window.roamAlphaAPI.updateBlock({"block": {"uid": mainComponentParentUID,
                                                 "open": false}});
-      window.roamAlphaAPI.updateBlock({"block": {"uid": dataComponentParentUID,
+      await window.roamAlphaAPI.updateBlock({"block": {"uid": dataComponentParentUID,
                                                 "open": false}});
-      window.roamAlphaAPI.updateBlock({"block": {"uid": svgComponentParentUID,
+      await window.roamAlphaAPI.updateBlock({"block": {"uid": svgComponentParentUID,
       "open": false}});
 
       
@@ -136,20 +136,20 @@
         if (roamTemplatesUID == null) {
           ExcalidrawConfig.log('cljs-loader.js','[[roam/templates]] did not exist. Creating it...');
           roamTemplatesUID = window.roamAlphaAPI.util.generateUID();
-          window.roamAlphaAPI.createPage( 
+          await window.roamAlphaAPI.createPage( 
             {"page": 
               {"uid": roamTemplatesUID,
                 "title": "roam/templates"}});
         }
         templateUID = window.roamAlphaAPI.util.generateUID();
-        window.roamAlphaAPI.createBlock( 
+        await window.roamAlphaAPI.createBlock( 
           {"location": 
             {"parent-uid": roamTemplatesUID,
               "order": 1000},
           "block": 
             {"string": "Excalidraw",
               "uid": templateUID}});
-        window.roamAlphaAPI.createBlock(
+        await window.roamAlphaAPI.createBlock(
           {"location":
             {"parent-uid": templateUID,
               "order": 0},
@@ -165,21 +165,21 @@
     ExcalidrawConfig.log('cljs-loader.js','loadExcalidrawCljs()','updateCodeBlock');
     
     //update main-component
-    ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.sketchingUID,tripple_accent + 
+    await ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.sketchingUID,tripple_accent + 
                     'clojure\n' + 
                     ExcalidrawConfig.mainComponent +
                     tripple_accent);
     delete ExcalidrawConfig.mainComponent;
 
     //update data-component
-    ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalDATAUID,tripple_accent + 
+    await ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalDATAUID,tripple_accent + 
                     'clojure\n' + 
                     ExcalidrawConfig.dataComponent +
                     tripple_accent);
     delete ExcalidrawConfig.dataComponent;
 
     //update svg-component
-    ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalSVGUID,tripple_accent + 
+    await ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalSVGUID,tripple_accent + 
                                       'clojure\n' + 
                                       ExcalidrawConfig.svgComponent +
                                       tripple_accent);

@@ -182,30 +182,30 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
    /* await ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.sketchingUID,tripple_accent + 
                     'clojure\n' + 
                     ExcalidrawConfig.mainComponent +
-                    tripple_accent);
+                    tripple_accent);*/
     delete ExcalidrawConfig.mainComponent;
 
     //update data-component
-    await ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalDATAUID,tripple_accent + 
+    /*await ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalDATAUID,tripple_accent + 
                     'clojure\n' + 
                     ExcalidrawConfig.dataComponent +
-                    tripple_accent);
+                    tripple_accent);*/
     delete ExcalidrawConfig.dataComponent;
 
     //update svg-component
-    await ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalSVGUID,tripple_accent + 
+    /*await ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalSVGUID,tripple_accent + 
                                       'clojure\n' + 
                                       ExcalidrawConfig.svgComponent +
-                                      tripple_accent);
-    delete ExcalidrawConfig.svgComponent;*/
+                                      tripple_accent);*/
+    delete ExcalidrawConfig.svgComponent;
 
   }
 
   loadExcalidrawCljs();
   ExcalidrawConfig.log('cljs-loader.js','terminating temporary objects');
   
-/*  loadExcalidrawCljs = undefined;
+  loadExcalidrawCljs = undefined;
   delete ExcalidrawConfig.sketchingUID;
   delete ExcalidrawConfig.excalDATAUID;
-  delete ExcalidrawConfig.settingsUID;*/
+  delete ExcalidrawConfig.settingsUID;
 }

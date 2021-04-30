@@ -87,7 +87,7 @@ window['ExcalidrawWrapper'] = class {
             // Do nothing because elements array is already empty
           }
         }
-        return data;
+        return lib;
       };
       
 

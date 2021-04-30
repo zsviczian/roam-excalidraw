@@ -174,29 +174,10 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
 
   async function loadExcalidrawCljs() {
     ExcalidrawConfig.log('cljs-loader.js','loadExcalidrawCljs()','Enter');
-    await ExcalidrawLoader.buildPage();
-    tripple_accent = String.fromCharCode(96,96,96);
-    ExcalidrawConfig.log('cljs-loader.js','loadExcalidrawCljs()','updateCodeBlock');
-    
-    //update main-component
-   /* await ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.sketchingUID,tripple_accent + 
-                    'clojure\n' + 
-                    ExcalidrawConfig.mainComponent +
-                    tripple_accent);*/
+    await ExcalidrawLoader.buildPage();  
+
     delete ExcalidrawConfig.mainComponent;
-
-    //update data-component
-    /*await ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalDATAUID,tripple_accent + 
-                    'clojure\n' + 
-                    ExcalidrawConfig.dataComponent +
-                    tripple_accent);*/
     delete ExcalidrawConfig.dataComponent;
-
-    //update svg-component
-    /*await ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.excalSVGUID,tripple_accent + 
-                                      'clojure\n' + 
-                                      ExcalidrawConfig.svgComponent +
-                                      tripple_accent);*/
     delete ExcalidrawConfig.svgComponent;
 
   }

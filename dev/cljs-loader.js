@@ -81,33 +81,46 @@
       }
 
       mainComponentParentUID = this.getORcreateBlockBYString (pageUID,0,this.mainComponentParent);
+      ExcalidrawConfig.log('cljs-loader.js','buildPage() mainComponentParentUID',mainComponentParentUID);
       dataComponentParentUID = this.getORcreateBlockBYString (pageUID,1,this.dataComponentParent);
+      ExcalidrawConfig.log('cljs-loader.js','buildPage() dataComponentParentUID',dataComponentParentUID);
       svgComponentParentUID  = this.getORcreateBlockBYString (pageUID,2,this.svgComponentParent);
+      ExcalidrawConfig.log('cljs-loader.js','buildPage() svgComponentParentUID',svgComponentParentUID);
       settingsComponentParentUID = this.getORcreateBlockBYString (pageUID,3,this.settingsComponentParent);
+      ExcalidrawConfig.log('cljs-loader.js','buildPage() settingsComponentParentUID',settingsComponentParentUID);
 
       this.createBlockIfNotExists (mainComponentParentUID, this.sketchingUID, '');
+      ExcalidrawConfig.log('cljs-loader.js','buildPage() created sketching block');
       this.createBlockIfNotExists (dataComponentParentUID, this.excalDATAUID, '');
+      ExcalidrawConfig.log('cljs-loader.js','buildPage() created data block');
       this.createBlockIfNotExists (svgComponentParentUID, this.excalSVGUID,'');
-      if(!this.blockExists(this.settingsUID)) 
+      ExcalidrawConfig.log('cljs-loader.js','buildPage() created svg block');
+      if(!this.blockExists(this.settingsUID)) {
         this.createBlockWithUID (settingsComponentParentUID,0,this.defaultSetting,this.settingsUID);
+        ExcalidrawConfig.log('cljs-loader.js','buildPage() created default settings');
+      }
 
-      if(!isParent(this.sketchingUID,this.mainComponentParent))
+      if(!isParent(this.sketchingUID,this.mainComponentParent)) {
         window.roamAlphaAPI.moveBlock({"location":
                                         {"parent-uid": mainComponentParentUID, 
                                       "order": 0}, 
                                         "block": {"uid": this.sketchingUID}});
-      if(!isParent(this.excalDATAUID,this.dataComponentParent))                                    
+        ExcalidrawConfig.log('cljs-loader.js','buildPage() moved sketching');
+      }
+      if(!isParent(this.excalDATAUID,this.dataComponentParent)) {
         window.roamAlphaAPI.moveBlock({"location":
                                         {"parent-uid": dataComponentParentUID, 
                                       "order": 0}, 
                                         "block": {"uid": this.excalDATAUID}});
-
-      if(!isParent(this.excalSVGUID,this.svgComponentParent))                                    
-      window.roamAlphaAPI.moveBlock({"location":
-                                      {"parent-uid": svgComponentParentUID, 
-                                    "order": 0}, 
-                                      "block": {"uid": this.excalSVGUID}});
-                                  
+        ExcalidrawConfig.log('cljs-loader.js','buildPage() moved data');
+      }
+      if(!isParent(this.excalSVGUID,this.svgComponentParent)) {                            
+        window.roamAlphaAPI.moveBlock({"location":
+                                        {"parent-uid": svgComponentParentUID, 
+                                      "order": 0}, 
+                                        "block": {"uid": this.excalSVGUID}});
+        ExcalidrawConfig.log('cljs-loader.js','buildPage() moved svg');
+      }                                   
       
       window.roamAlphaAPI.updateBlock({"block": {"uid": mainComponentParentUID,
                                                 "open": false}});

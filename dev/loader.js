@@ -59,9 +59,9 @@ if (typeof window.ExcalidrawWrapper === 'undefined') {
   })();
   
   ExcalidrawConfig.log('loader.js','Terminating temporary objects variables, rootPath, channel, getClojureNS, cljCodeVersion');
-/*
+
   delete ExcalidrawConfig.rootPath;
   delete ExcalidrawConfig.channel;
   getClojureNS = undefined;
-  delete ExcalidrawConfig.cljCodeVersion;*/
+  delete ExcalidrawConfig.cljCodeVersion;
 };

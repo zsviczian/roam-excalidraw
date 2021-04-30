@@ -95,6 +95,7 @@
       ExcalidrawConfig.log('cljs-loader.js','buildPage() created data block');
       await this.createBlockIfNotExists (svgComponentParentUID, this.excalSVGUID,'');
       ExcalidrawConfig.log('cljs-loader.js','buildPage() created svg block');
+      break;
       if(!this.blockExists(this.settingsUID)) {
         await this.createBlockWithUID (settingsComponentParentUID,0,this.defaultSetting,this.settingsUID);
         ExcalidrawConfig.log('cljs-loader.js','buildPage() created default settings');

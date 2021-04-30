@@ -43,8 +43,10 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
 
     async getORcreateBlockBYString (pageUID, order, blockString) {
       uid = this.getBlockUIDByString (pageUID, blockString);
-      if (!uid)
+      if (!uid) {
+        debugger;
         uid = await this.createBlock(pageUID,order, blockString);
+      }
       return uid;
     },
 

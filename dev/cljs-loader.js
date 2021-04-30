@@ -41,7 +41,7 @@ window.ExcalidrawLoader = {
 
   getORcreateBlockBYString (pageUID, order, blockString) {
     uid = this.getBlockUIDByString (pageUID, blockString);
-    if (uid == null)
+    if (!uid)
       uid = this.createBlock(pageUID,order, blockString);
     return uid;
   },
@@ -73,7 +73,7 @@ window.ExcalidrawLoader = {
       firstEverRun = true;                                
     }
     ExcalidrawConfig.log('cljs-loader.js','buildPage() [[roam/excalidraw]] is present?',!firstEverRun);
-
+    debugger;
     function isParent(blockUID, parentUID) {
       q = `[:find ?uid . :where [?b :block/uid "${blockUID}"][?p :block/children ?b][?p :block/uid ?uid]]`;
       uid = window.roamAlphaAPI.q(q);

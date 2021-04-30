@@ -28,7 +28,7 @@ window['ExcalidrawWrapper'] = class {
         width: undefined,
         height: undefined
       });
-      
+
       this.excalidrawRef = excalidrawRef;
       
       React.useEffect(() => {
@@ -56,6 +56,41 @@ window['ExcalidrawWrapper'] = class {
         excalidrawRef.current.updateScene(scene);
       }
       
+      const saveToLocalStorage = (data) => {
+        try {
+          localStorage.setItem(
+            'excalidraw',
+            JSON.stringify(data),
+          );
+        } catch (error) {
+          // Unable to access window.localStorage
+          console.error(error);
+        }
+      };
+
+      const importFromLocalStorage = () => {
+        let data = null;
+
+        try {
+          data = localStorage.getItem("excalidraw");
+        } catch (error) {
+          // Unable to access localStorage
+          console.error(error);
+        }
+      
+        let lib = [];
+        if (data) {
+          try {
+            lib = JSON.parse(data);
+          } catch (error) {
+            console.error(error);
+            // Do nothing because elements array is already empty
+          }
+        }
+        return lib;
+      };
+      
+
       return React.createElement(
         React.Fragment,
         null,
@@ -69,7 +104,9 @@ window['ExcalidrawWrapper'] = class {
             ref: excalidrawRef,
             width: dimensions.width,
             height: dimensions.height,
-            initialData: initData,
+            initialData: {
+              libraryItems: importFromLocalStorage(),
+              ... initData},
             onChange: (el, st) => { 
                 if (st.editingElement == null && st.resizingElement == null && 
                     st.draggingElement == null && st.editingGroupId == null &&
@@ -78,7 +115,7 @@ window['ExcalidrawWrapper'] = class {
                   if(sceneVersion != this.previousSceneVersion) {
                     this.previousSceneVersion = sceneVersion;
                     onChangeCallback( {elements: el, //.filter(e => !e.isDeleted),
-                                       appState: {theme: st.theme,
+                                      appState: {theme: st.theme,
                                                   height: st.height,
                                                   name: st.name,
                                                   scrollX: st.scrollX,
@@ -88,10 +125,13 @@ window['ExcalidrawWrapper'] = class {
                                                   zoom: st.zoom,
                                                   offsetLeft: st.offsetLeft,
                                                   offsetTop: st.offsetTop}
-                                                 });                                            
+                                                });                                            
                   }
                 }
             }, //console.log("Elements :", elements, "State : ", state),
+            onLibraryChange: (items) => {
+              saveToLocalStorage(items);
+            }
             //onPointerUpdate: (payload) => {},  //console.log(payload),
           })
         )
@@ -151,7 +191,7 @@ window['ExcalidrawWrapper'] = class {
       if (ExcalidrawConfig.DEBUG) console.log("keyboard listner removed");
     }
   }
- 
+
   static getDrawing(o) {
     if (ExcalidrawConfig.DEBUG) console.log("js: ExcalidrawWrapper.getDrawing() entering function, object is available: ",(o!=null));
     if(o!=null) {
@@ -314,11 +354,11 @@ window['ExcalidrawWrapper'] = class {
     const aspectRatio = ExcalidrawWrapper.getAspectRatio(svg);
     return aspectRatio; //aspect ration
   }
-   
+  
   static createBlock(parentUID, order, blockString) {
     const uid = window.roamAlphaAPI.util.generateUID();
     window.roamAlphaAPI.createBlock ({location: {"parent-uid": parentUID,
-                                                 "order": order},
+                                                "order": order},
                                       block: {"string": blockString,
                                               "uid": uid}});
     return uid;
@@ -332,7 +372,7 @@ window['ExcalidrawWrapper'] = class {
       .addPullWatch(
         `[:block/children :block/string :block/order {:block/children ...}]`,
         `[:block/uid "${blockUID}"]`,
-         callback); 
+        callback); 
   }
   
   static removePullWatch(blockUID, callback) {
@@ -343,7 +383,7 @@ window['ExcalidrawWrapper'] = class {
       .removePullWatch(
         `[:block/children :block/string :block/order {:block/children ...}]`,
         `[:block/uid "${blockUID}"]`,
-         callback);     
+        callback);     
   }
 
 }

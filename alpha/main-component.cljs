@@ -1,4 +1,4 @@
-(ns excalidraw.app.alpha.v28
+(ns excalidraw.app.alpha.v29
   (:require 
    [clojure.set :as s]
    [reagent.core :as r]
@@ -31,7 +31,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; util functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(def silent (r/atom true))
+(def silent (r/atom false))
 (defn debug [x]
   (if-not @silent (apply (.-log js/console) "<<< Roam-Excalidraw Main cljs >>>" x)))
 
@@ -103,7 +103,6 @@
               (str/replace #"\(#js"  "")
               (str/replace #"#js" "")
               (str/replace #"\}\}\)" "}}"))]
-    ;;(debug ["(js-to-clj-str) result: " res])
     res))
 
 (defn fix-double-bracket [x]
@@ -273,10 +272,10 @@
                           :nestedtext-parent {:block-uid (create-block (:block-uid x) 1 "**Text nested here will appear on your drawing:**")}})
                                                               
     (if (nil? (:empty-block-uid x)) 
-      (block/update {:block {:uid (:block-uid x) :open false}})) ;;fold up the drawing block to hide children
+      (block/update {:block {:uid (:block-uid x) :open false}}) ;;fold up the drawing block to hide children
       (block/move {:location {:parent-uid (get-in @(:drawing x) [:nestedtext-parent :block-uid]) ;;move new block under nested text
-                              :order 0}
-                   :block {:uid (:empty-block-uid x)}})
+                            :order 0}
+                 :block {:uid (:empty-block-uid x)}}))
 ))
 
 

@@ -174,7 +174,7 @@ function loadExcalidrawCljs() {
 
 }
 
-if(!ExcalidrawWrapper) {
+if(ExcalidrawWrapper === undefined) {
   loadExcalidrawCljs();
   ExcalidrawConfig.log('cljs-loader.js','terminating temporary objects');
 }

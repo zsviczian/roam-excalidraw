@@ -103,7 +103,6 @@
               (str/replace #"\(#js"  "")
               (str/replace #"#js" "")
               (str/replace #"\}\}\)" "}}"))]
-    (debug ["(js-to-clj-str) result: " res])
     res))
 
 (defn fix-double-bracket [x]
@@ -269,17 +268,14 @@
                       :roamExcalidraw {:version 1}}]
     (create-block (:block-uid x) 0 (str/join ["{{roam/render: ((ExcalDATA)) "
                                 (str default-data) " }}"]))
-    (debug ["(create-nested-blocks) roam/render ((ExcalDATA)) created"])                                
     (reset! (:drawing x) {:drawing default-data 
                           :nestedtext-parent {:block-uid (create-block (:block-uid x) 1 "**Text nested here will appear on your drawing:**")}})
                                                               
     (if (nil? (:empty-block-uid x)) 
-      (debug ["(create-nested-blocks) nil? (:empty-block-uid x)"])
-      (block/update {:block {:uid (:block-uid x) :open false}})) ;;fold up the drawing block to hide children
-      (debug ["(create-nested-blocks) nil? (:empty-block-uid x) before block move"])
+      (block/update {:block {:uid (:block-uid x) :open false}}) ;;fold up the drawing block to hide children
       (block/move {:location {:parent-uid (get-in @(:drawing x) [:nestedtext-parent :block-uid]) ;;move new block under nested text
-                              :order 0}
-                   :block {:uid (:empty-block-uid x)}})
+                            :order 0}
+                 :block {:uid (:empty-block-uid x)}}))
 ))
 
 

@@ -1,4 +1,4 @@
-if (!window.ExcalidrawWrapper) {
+if (typeof window.ExcalidrawWrapper === 'undefined') {
   window.ExcalidrawLoader = {
     sketchingUID : ExcalidrawConfig.sketchingUID,
     excalDATAUID : ExcalidrawConfig.excalDATAUID,

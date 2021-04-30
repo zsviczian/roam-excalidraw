@@ -1,4 +1,4 @@
-if (!window.ExcalidrawWrapper) {
+if (typeof window.ExcalidrawWrapper === 'undefined') {
   window.ExcalidrawConfig = {
     rootPath: 'https://roam-excalidraw.com/',
     channel: 'dev',

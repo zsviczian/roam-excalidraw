@@ -1,4 +1,3 @@
-if (typeof window.ExcalidrawWrapper === 'undefined') {
   window.ExcalidrawLoader = {
     sketchingUID : ExcalidrawConfig.sketchingUID,
     excalDATAUID : ExcalidrawConfig.excalDATAUID,
@@ -183,4 +182,3 @@ if (typeof window.ExcalidrawWrapper === 'undefined') {
   delete ExcalidrawConfig.sketchingUID;
   delete ExcalidrawConfig.excalDATAUID;
   delete ExcalidrawConfig.settingsUID;
-};

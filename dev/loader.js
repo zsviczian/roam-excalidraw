@@ -55,8 +55,7 @@ if (typeof window.ExcalidrawWrapper == 'undefined') {
       ExcalidrawConfig.addScriptToPage ('roam-excalidraw-main',ExcalidrawConfig.rootPath+ExcalidrawConfig.channel+'/main.js?v='+ExcalidrawConfig.cljCodeVersion);
       ExcalidrawConfig.addScriptToPage ('roam-excalidraw-react','https://unpkg.com/react@17/umd/react.production.min.js');
       ExcalidrawConfig.addScriptToPage ('roam-excalidraw-reactdom','https://unpkg.com/react-dom@17/umd/react-dom.production.min.js');
-      ExcalidrawConfig.addScriptToPage ('roam-excalidraw-excalidraw','https://unpkg.com/@excalidraw/excalidraw@0.6.0/dist/excalidraw.production.min.js');
-      //ExcalidrawConfig.addScriptToPage ('roam-excalidraw-excalidraw-utils','https://unpkg.com/@excalidraw/utils@0.1.0-temp/dist/excalidraw-utils.min.js');
+      ExcalidrawConfig.addScriptToPage ('roam-excalidraw-excalidraw','https://unpkg.com/@excalidraw/excalidraw@0.7.0/dist/excalidraw.production.min.js');
       ExcalidrawConfig.addCSSToPage ('roam-excalidraw-css',ExcalidrawConfig.rootPath+ExcalidrawConfig.channel+'/style.css?v='+ExcalidrawConfig.cljCodeVersion);
   })();
   

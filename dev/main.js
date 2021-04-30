@@ -28,7 +28,7 @@ window['ExcalidrawWrapper'] = class {
         width: undefined,
         height: undefined
       });
-      
+
       this.excalidrawRef = excalidrawRef;
       
       React.useEffect(() => {
@@ -56,6 +56,41 @@ window['ExcalidrawWrapper'] = class {
         excalidrawRef.current.updateScene(scene);
       }
       
+      const saveToLocalStorage = (data) => {
+        try {
+          localStorage.setItem(
+            'excalidraw',
+            JSON.stringify(data),
+          );
+        } catch (error) {
+          // Unable to access window.localStorage
+          console.error(error);
+        }
+      };
+
+      const importFromLocalStorage = () => {
+        let data = null;
+
+        try {
+          data = localStorage.getItem("excalidraw");
+        } catch (error) {
+          // Unable to access localStorage
+          console.error(error);
+        }
+      
+        let lib = [];
+        if (data) {
+          try {
+            lib = JSON.parse(data);
+          } catch (error) {
+            console.error(error);
+            // Do nothing because elements array is already empty
+          }
+        }
+        return data;
+      };
+      
+
       return React.createElement(
         React.Fragment,
         null,
@@ -69,7 +104,9 @@ window['ExcalidrawWrapper'] = class {
             ref: excalidrawRef,
             width: dimensions.width,
             height: dimensions.height,
-            initialData: initData,
+            initialData: {
+              libraryItems: importFromLocalStorage(),
+              ... initData},
             onChange: (el, st) => { 
                 if (st.editingElement == null && st.resizingElement == null && 
                     st.draggingElement == null && st.editingGroupId == null &&
@@ -92,6 +129,9 @@ window['ExcalidrawWrapper'] = class {
                   }
                 }
             }, //console.log("Elements :", elements, "State : ", state),
+            onLibraryChange: (items) => {
+              saveToLocalStorage(items);
+            }
             //onPointerUpdate: (payload) => {},  //console.log(payload),
           })
         )

@@ -1,5 +1,4 @@
-if (typeof window.ExcalidrawWrapper == 'undefined') {
-  
+if (!window.ExcalidrawWrapper) {
   window.ExcalidrawConfig = {
     rootPath: 'https://roam-excalidraw.com/',
     channel: 'dev',
@@ -40,30 +39,29 @@ if (typeof window.ExcalidrawWrapper == 'undefined') {
     return '';
   } 
 
-  if(!window.ExcalidrawWrapper) {
-    ( async ()=>{
-      ExcalidrawConfig.log('loader.js','rootPath:',ExcalidrawConfig.rootPath,'channel:',ExcalidrawConfig.channel,'debug?',ExcalidrawConfig.DEBUG);
-        if (getClojureNS(ExcalidrawConfig.sketchingUID) != ExcalidrawConfig.cljCodeVersion) {
-          ExcalidrawConfig.log('loader.js','Need to update CLJS script. Starting roam-excalidraw-cljs-loader');
-          ExcalidrawConfig.addScriptToPage( 'roam-excalidraw-cljs-loader',  ExcalidrawConfig.rootPath + 'get_dev.php?c='+ExcalidrawConfig.channel);
-        }
-        else {
-          ExcalidrawConfig.log('loader.js','cljs NS is up to date');
-          delete ExcalidrawConfig.sketchingUID;
-          delete ExcalidrawConfig.excalDATAUID;
-        }
-        
-        ExcalidrawConfig.addScriptToPage ('roam-excalidraw-main',ExcalidrawConfig.rootPath+ExcalidrawConfig.channel+'/main.js?v='+ExcalidrawConfig.cljCodeVersion);
-        ExcalidrawConfig.addScriptToPage ('roam-excalidraw-react','https://unpkg.com/react@17/umd/react.production.min.js');
-        ExcalidrawConfig.addScriptToPage ('roam-excalidraw-reactdom','https://unpkg.com/react-dom@17/umd/react-dom.production.min.js');
-        ExcalidrawConfig.addScriptToPage ('roam-excalidraw-excalidraw','https://unpkg.com/@excalidraw/excalidraw@0.7.0/dist/excalidraw.production.min.js');
-        ExcalidrawConfig.addCSSToPage ('roam-excalidraw-css',ExcalidrawConfig.rootPath+ExcalidrawConfig.channel+'/style.css?v='+ExcalidrawConfig.cljCodeVersion);
-    })();
-    
-    ExcalidrawConfig.log('loader.js','Terminating temporary objects variables, rootPath, channel, getClojureNS, cljCodeVersion');
-  }
+  ( async ()=>{
+    ExcalidrawConfig.log('loader.js','rootPath:',ExcalidrawConfig.rootPath,'channel:',ExcalidrawConfig.channel,'debug?',ExcalidrawConfig.DEBUG);
+      if (getClojureNS(ExcalidrawConfig.sketchingUID) != ExcalidrawConfig.cljCodeVersion) {
+        ExcalidrawConfig.log('loader.js','Need to update CLJS script. Starting roam-excalidraw-cljs-loader');
+        ExcalidrawConfig.addScriptToPage( 'roam-excalidraw-cljs-loader',  ExcalidrawConfig.rootPath + 'get_dev.php?c='+ExcalidrawConfig.channel);
+      }
+      else {
+        ExcalidrawConfig.log('loader.js','cljs NS is up to date');
+        delete ExcalidrawConfig.sketchingUID;
+        delete ExcalidrawConfig.excalDATAUID;
+      }
+      
+      ExcalidrawConfig.addScriptToPage ('roam-excalidraw-main',ExcalidrawConfig.rootPath+ExcalidrawConfig.channel+'/main.js?v='+ExcalidrawConfig.cljCodeVersion);
+      ExcalidrawConfig.addScriptToPage ('roam-excalidraw-react','https://unpkg.com/react@17/umd/react.production.min.js');
+      ExcalidrawConfig.addScriptToPage ('roam-excalidraw-reactdom','https://unpkg.com/react-dom@17/umd/react-dom.production.min.js');
+      ExcalidrawConfig.addScriptToPage ('roam-excalidraw-excalidraw','https://unpkg.com/@excalidraw/excalidraw@0.7.0/dist/excalidraw.production.min.js');
+      ExcalidrawConfig.addCSSToPage ('roam-excalidraw-css',ExcalidrawConfig.rootPath+ExcalidrawConfig.channel+'/style.css?v='+ExcalidrawConfig.cljCodeVersion);
+  })();
+  
+  ExcalidrawConfig.log('loader.js','Terminating temporary objects variables, rootPath, channel, getClojureNS, cljCodeVersion');
+
   delete ExcalidrawConfig.rootPath;
   delete ExcalidrawConfig.channel;
   getClojureNS = undefined;
   delete ExcalidrawConfig.cljCodeVersion;
-}
+};

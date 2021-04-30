@@ -64,6 +64,7 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
     },
 
     async buildPage() {
+      const tripple_accent = String.fromCharCode(96,96,96);
       //check if page exists, if not, create it
       q = `[:find ?uid . :where [?e :node/title "${this.pageTitle}"][?e :block/uid ?uid]]`;
       firstEverRun = false;
@@ -93,11 +94,20 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
       settingsComponentParentUID = await this.getORcreateBlockBYString (pageUID,3,this.settingsComponentParent);
       ExcalidrawConfig.log('cljs-loader.js','buildPage() settingsComponentParentUID',settingsComponentParentUID);
 
-      await this.createBlockIfNotExists (mainComponentParentUID, this.sketchingUID, '');
+      await this.createBlockIfNotExists (mainComponentParentUID, this.sketchingUID, tripple_accent + 
+                                                                                    'clojure\n' + 
+                                                                                    ExcalidrawConfig.mainComponent +
+                                                                                    tripple_accent);
       ExcalidrawConfig.log('cljs-loader.js','buildPage() created sketching block');
-      await this.createBlockIfNotExists (dataComponentParentUID, this.excalDATAUID, '');
+      await this.createBlockIfNotExists (dataComponentParentUID, this.excalDATAUID, tripple_accent + 
+                                                                                    'clojure\n' + 
+                                                                                    ExcalidrawConfig.dataComponent +
+                                                                                    tripple_accent);
       ExcalidrawConfig.log('cljs-loader.js','buildPage() created data block');
-      await this.createBlockIfNotExists (svgComponentParentUID, this.excalSVGUID,'');
+      await this.createBlockIfNotExists (svgComponentParentUID, this.excalSVGUID, tripple_accent + 
+                                                                                  'clojure\n' + 
+                                                                                  ExcalidrawConfig.svgComponent +
+                                                                                  tripple_accent);
       ExcalidrawConfig.log('cljs-loader.js','buildPage() created svg block');
       if(!this.blockExists(this.settingsUID)) {
         await this.createBlockWithUID (settingsComponentParentUID,0,this.defaultSetting,this.settingsUID);
@@ -169,7 +179,7 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
     ExcalidrawConfig.log('cljs-loader.js','loadExcalidrawCljs()','updateCodeBlock');
     
     //update main-component
-    await ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.sketchingUID,tripple_accent + 
+   /* await ExcalidrawLoader.updateCodeBlock(ExcalidrawLoader.sketchingUID,tripple_accent + 
                     'clojure\n' + 
                     ExcalidrawConfig.mainComponent +
                     tripple_accent);
@@ -187,7 +197,7 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
                                       'clojure\n' + 
                                       ExcalidrawConfig.svgComponent +
                                       tripple_accent);
-    delete ExcalidrawConfig.svgComponent;
+    delete ExcalidrawConfig.svgComponent;*/
 
   }
 

@@ -97,7 +97,6 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
       ExcalidrawConfig.log('cljs-loader.js','buildPage() created data block');
       await this.createBlockIfNotExists (svgComponentParentUID, this.excalSVGUID,'');
       ExcalidrawConfig.log('cljs-loader.js','buildPage() created svg block');
-      debugger;
       if(!this.blockExists(this.settingsUID)) {
         await this.createBlockWithUID (settingsComponentParentUID,0,this.defaultSetting,this.settingsUID);
         ExcalidrawConfig.log('cljs-loader.js','buildPage() created default settings');
@@ -190,11 +189,11 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
 
   }
 
-  loadExcalidrawCljs();
+  await loadExcalidrawCljs();
   ExcalidrawConfig.log('cljs-loader.js','terminating temporary objects');
   
-  loadExcalidrawCljs = undefined;
+/*  loadExcalidrawCljs = undefined;
   delete ExcalidrawConfig.sketchingUID;
   delete ExcalidrawConfig.excalDATAUID;
-  delete ExcalidrawConfig.settingsUID;
+  delete ExcalidrawConfig.settingsUID;*/
 }

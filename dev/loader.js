@@ -40,7 +40,7 @@ if (typeof window.ExcalidrawWrapper == 'undefined') {
     return '';
   } 
 
-  if(ExcalidrawWrapper === undefined) {
+  if(!window.ExcalidrawWrapper) {
     ( async ()=>{
       ExcalidrawConfig.log('loader.js','rootPath:',ExcalidrawConfig.rootPath,'channel:',ExcalidrawConfig.channel,'debug?',ExcalidrawConfig.DEBUG);
         if (getClojureNS(ExcalidrawConfig.sketchingUID) != ExcalidrawConfig.cljCodeVersion) {

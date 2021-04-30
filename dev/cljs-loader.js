@@ -191,7 +191,7 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
 
   }
 
-  await loadExcalidrawCljs();
+  loadExcalidrawCljs();
   ExcalidrawConfig.log('cljs-loader.js','terminating temporary objects');
   
 /*  loadExcalidrawCljs = undefined;

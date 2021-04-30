@@ -163,7 +163,7 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
 
   async function loadExcalidrawCljs() {
     ExcalidrawConfig.log('cljs-loader.js','loadExcalidrawCljs()','Enter');
-    ExcalidrawLoader.buildPage();
+    await ExcalidrawLoader.buildPage();
     tripple_accent = String.fromCharCode(96,96,96);
     ExcalidrawConfig.log('cljs-loader.js','loadExcalidrawCljs()','updateCodeBlock');
     

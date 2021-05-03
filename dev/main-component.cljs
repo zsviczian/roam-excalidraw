@@ -43,15 +43,15 @@
 (defn create-block [parent-uid order block-string]
   (.createBlock js/window.ExcalidrawWrapper parent-uid order block-string))
 
+(defn block-update [x]
+  (.updateBlock js/ExcalidrawWrapper x))
+
 (defn pretty-settings [x]
   (let [y (into (sorted-map) (sort-by first (seq x)))]
     (-> (str y)
           (str/replace "{" "{\n")
           (str/replace ", " "\n")
           (str/replace "}" "\n}"))))
-
-(defn block-update [x]
-  (block/update x))
 
 (defn get-next-block-order [x]
   (let [o (rd/q '[:find (max ?o) . 

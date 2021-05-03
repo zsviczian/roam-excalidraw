@@ -355,6 +355,10 @@ window['ExcalidrawWrapper'] = class {
     return aspectRatio; //aspect ration
   }
   
+  static async updateBlock(data) {
+    await window.roamAlphaAPI.updateBlock(data);
+  }
+
   static async createBlock(parentUID, order, blockString) {
     const uid = window.roamAlphaAPI.util.generateUID();
     await window.roamAlphaAPI.createBlock ({location: {"parent-uid": parentUID,

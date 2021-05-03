@@ -12,23 +12,23 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
     settingsComponentParent : 'Settings', 
     defaultSetting: '{\n:mode "light"\n:img "SVG"\n:max-embed-width 600\n:max-embed-height 400\n:full-screen-margin 0.015\n}',
 
-    async updateCodeBlock(blockUID, sourceCode) {
-      await window.roamAlphaAPI.updateBlock({"block": 
+    updateCodeBlock(blockUID, sourceCode) {
+      window.roamAlphaAPI.updateBlock({"block": 
                                       {"string": sourceCode,
                                         "uid": blockUID}});
     },
 
-    async createBlockWithUID(parentUID, order, blockString, blockUID) {
-      await window.roamAlphaAPI.createBlock({"location":
+    createBlockWithUID(parentUID, order, blockString, blockUID) {
+      window.roamAlphaAPI.createBlock({"location":
                                       {"parent-uid": parentUID, 
                                       "order": order}, 
                                         "block": {"string": blockString,
                                                   "uid": blockUID}});  
     },
 
-    async createBlock(parentUID, order, blockString) {
+    createBlock(parentUID, order, blockString) {
       blockUID = window.roamAlphaAPI.util.generateUID();
-      await this.createBlockWithUID (parentUID, order, blockString, blockUID);
+      this.createBlockWithUID (parentUID, order, blockString, blockUID);
       return blockUID;
     },
 
@@ -41,11 +41,11 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
       return window.roamAlphaAPI.q(q);
     },
 
-    async getORcreateBlockBYString (pageUID, order, blockString) {
+    getORcreateBlockBYString (pageUID, order, blockString) {
       uid = this.getBlockUIDByString (pageUID, blockString);
       if (!uid) {
         debugger;
-        uid = await this.createBlock(pageUID,order, blockString);
+        uid = this.createBlock(pageUID,order, blockString);
       }
       return uid;
     },
@@ -56,14 +56,14 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
       return (res!=null);
     }, 
 
-    async createBlockIfNotExists (parentUID, blockUID, blockString) {
+    createBlockIfNotExists (parentUID, blockUID, blockString) {
       if(this.blockExists(blockUID))
-        await this.updateCodeBlock(blockUID,blockString);
+        this.updateCodeBlock(blockUID,blockString);
       else
-        await this.createBlockWithUID (parentUID,0,blockString,blockUID);
+        this.createBlockWithUID (parentUID,0,blockString,blockUID);
     },
 
-    async buildPage() {
+    buildPage() {
       const tripple_accent = String.fromCharCode(96,96,96);
       //check if page exists, if not, create it
       q = `[:find ?uid . :where [?e :node/title "${this.pageTitle}"][?e :block/uid ?uid]]`;
@@ -71,7 +71,7 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
       pageUID = window.roamAlphaAPI.q(q);
       if(pageUID == null) {
         pageUID = window.roamAlphaAPI.util.generateUID();
-        await window.roamAlphaAPI.createPage(
+        window.roamAlphaAPI.createPage(
           {"page": 
             {"title": this.pageTitle, 
             "uid": pageUID}});
@@ -85,62 +85,62 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
         return (uid == parentUID);
       }
 
-      mainComponentParentUID = await this.getORcreateBlockBYString (pageUID,0,this.mainComponentParent);
+      mainComponentParentUID = this.getORcreateBlockBYString (pageUID,0,this.mainComponentParent);
       ExcalidrawConfig.log('cljs-loader.js','buildPage() mainComponentParentUID',mainComponentParentUID);
-      dataComponentParentUID = await this.getORcreateBlockBYString (pageUID,1,this.dataComponentParent);
+      dataComponentParentUID = this.getORcreateBlockBYString (pageUID,1,this.dataComponentParent);
       ExcalidrawConfig.log('cljs-loader.js','buildPage() dataComponentParentUID',dataComponentParentUID);
-      svgComponentParentUID  = await this.getORcreateBlockBYString (pageUID,2,this.svgComponentParent);
+      svgComponentParentUID  = this.getORcreateBlockBYString (pageUID,2,this.svgComponentParent);
       ExcalidrawConfig.log('cljs-loader.js','buildPage() svgComponentParentUID',svgComponentParentUID);
-      settingsComponentParentUID = await this.getORcreateBlockBYString (pageUID,3,this.settingsComponentParent);
+      settingsComponentParentUID = this.getORcreateBlockBYString (pageUID,3,this.settingsComponentParent);
       ExcalidrawConfig.log('cljs-loader.js','buildPage() settingsComponentParentUID',settingsComponentParentUID);
 
-      await this.createBlockIfNotExists (mainComponentParentUID, this.sketchingUID, tripple_accent + 
+      this.createBlockIfNotExists (mainComponentParentUID, this.sketchingUID, tripple_accent + 
                                                                                     'clojure\n' + 
                                                                                     ExcalidrawConfig.mainComponent +
                                                                                     tripple_accent);
       ExcalidrawConfig.log('cljs-loader.js','buildPage() created sketching block');
-      await this.createBlockIfNotExists (dataComponentParentUID, this.excalDATAUID, tripple_accent + 
+      this.createBlockIfNotExists (dataComponentParentUID, this.excalDATAUID, tripple_accent + 
                                                                                     'clojure\n' + 
                                                                                     ExcalidrawConfig.dataComponent +
                                                                                     tripple_accent);
       ExcalidrawConfig.log('cljs-loader.js','buildPage() created data block');
-      await this.createBlockIfNotExists (svgComponentParentUID, this.excalSVGUID, tripple_accent + 
+      this.createBlockIfNotExists (svgComponentParentUID, this.excalSVGUID, tripple_accent + 
                                                                                   'clojure\n' + 
                                                                                   ExcalidrawConfig.svgComponent +
                                                                                   tripple_accent);
       ExcalidrawConfig.log('cljs-loader.js','buildPage() created svg block');
       if(!this.blockExists(this.settingsUID)) {
-        await this.createBlockWithUID (settingsComponentParentUID,0,this.defaultSetting,this.settingsUID);
+        this.createBlockWithUID (settingsComponentParentUID,0,this.defaultSetting,this.settingsUID);
         ExcalidrawConfig.log('cljs-loader.js','buildPage() created default settings');
       }
 
       if(!isParent(this.sketchingUID,this.mainComponentParent)) {
-        await window.roamAlphaAPI.moveBlock({"location":
+        window.roamAlphaAPI.moveBlock({"location":
                                         {"parent-uid": mainComponentParentUID, 
                                       "order": 0}, 
                                         "block": {"uid": this.sketchingUID}});
         ExcalidrawConfig.log('cljs-loader.js','buildPage() moved sketching');
       }
       if(!isParent(this.excalDATAUID,this.dataComponentParent)) {
-        await window.roamAlphaAPI.moveBlock({"location":
+        window.roamAlphaAPI.moveBlock({"location":
                                         {"parent-uid": dataComponentParentUID, 
                                       "order": 0}, 
                                         "block": {"uid": this.excalDATAUID}});
         ExcalidrawConfig.log('cljs-loader.js','buildPage() moved data');
       }
       if(!isParent(this.excalSVGUID,this.svgComponentParent)) {                            
-        await window.roamAlphaAPI.moveBlock({"location":
+        window.roamAlphaAPI.moveBlock({"location":
                                         {"parent-uid": svgComponentParentUID, 
                                       "order": 0}, 
                                         "block": {"uid": this.excalSVGUID}});
         ExcalidrawConfig.log('cljs-loader.js','buildPage() moved svg');
       }                                   
       
-      await window.roamAlphaAPI.updateBlock({"block": {"uid": mainComponentParentUID,
+      window.roamAlphaAPI.updateBlock({"block": {"uid": mainComponentParentUID,
                                                 "open": false}});
-      await window.roamAlphaAPI.updateBlock({"block": {"uid": dataComponentParentUID,
+      window.roamAlphaAPI.updateBlock({"block": {"uid": dataComponentParentUID,
                                                 "open": false}});
-      await window.roamAlphaAPI.updateBlock({"block": {"uid": svgComponentParentUID,
+      window.roamAlphaAPI.updateBlock({"block": {"uid": svgComponentParentUID,
       "open": false}});
 
       
@@ -150,20 +150,20 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
         if (roamTemplatesUID == null) {
           ExcalidrawConfig.log('cljs-loader.js','[[roam/templates]] did not exist. Creating it...');
           roamTemplatesUID = window.roamAlphaAPI.util.generateUID();
-          await window.roamAlphaAPI.createPage( 
+          window.roamAlphaAPI.createPage( 
             {"page": 
               {"uid": roamTemplatesUID,
                 "title": "roam/templates"}});
         }
         templateUID = window.roamAlphaAPI.util.generateUID();
-        await window.roamAlphaAPI.createBlock( 
+        window.roamAlphaAPI.createBlock( 
           {"location": 
             {"parent-uid": roamTemplatesUID,
               "order": 1000},
           "block": 
             {"string": "Excalidraw",
               "uid": templateUID}});
-        await window.roamAlphaAPI.createBlock(
+        window.roamAlphaAPI.createBlock(
           {"location":
             {"parent-uid": templateUID,
               "order": 0},
@@ -172,9 +172,9 @@ if(typeof window.ExcalidrawLoader === 'undefined') {
     }
   }
 
-  async function loadExcalidrawCljs() {
+  function loadExcalidrawCljs() {
     ExcalidrawConfig.log('cljs-loader.js','loadExcalidrawCljs()','Enter');
-    await ExcalidrawLoader.buildPage();  
+    ExcalidrawLoader.buildPage();  
 
     delete ExcalidrawConfig.mainComponent;
     delete ExcalidrawConfig.dataComponent;

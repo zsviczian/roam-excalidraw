@@ -44,7 +44,7 @@
   (.createBlock js/window.ExcalidrawWrapper parent-uid order block-string))
 
 (defn block-update [x]
-  (.updateBlock js/ExcalidrawWrapper x))
+  (.updateBlock js/window.ExcalidrawWrapper x))
 
 (defn pretty-settings [x]
   (let [y (into (sorted-map) (sort-by first (seq x)))]

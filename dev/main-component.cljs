@@ -118,7 +118,7 @@
                   [?e :block/children ?c]
                   [?c :block/order 0]
                   [?c :block/string ?s]
-                  [(clojure.string/starts-with? ?s "{{roam/render: ((ExcalDATA)) ")]
+                  [(clojure.string/includes? ?s "((ExcalDATA))")]
                   [?c :block/uid ?drawing-uid]]
         x))
 

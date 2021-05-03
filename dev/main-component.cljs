@@ -64,7 +64,7 @@
 ))
 
 (defn save-settings []
-  (debug ["(save-settings) Enter"])
+  ;;(debug ["(save-settings) Enter"])
   (let [settings-host (r/atom (rd/q '[:find ?uid .
                                      :in $ ?page ?block
                                      :where [?p :node/title ?page]
@@ -74,7 +74,7 @@
                                     app-page app-settings-block))]
     (if (nil? @settings-host)
       (do 
-        (debug ["(save-settings) settings host does not exist"])
+        ;;(debug ["(save-settings) settings host does not exist"])
         (reset! settings-host
           (create-block 
             (rd/q '[:find ?uid . 
@@ -92,15 +92,15 @@
                                         @settings-host))]
       (if (nil? @settings-block)
         (do 
-          (debug ["(save-settings) settings-block does not exist"])
+          ;;(debug ["(save-settings) settings-block does not exist"])
           (create-block @settings-host 0 (pretty-settings @app-settings)))
         (do 
-          (debug ["(save-settings) settings-block exists, updating"])
+          ;;(debug ["(save-settings) settings-block exists, updating"])
           (block-update {:block {:uid @settings-block 
                                  :string (pretty-settings @app-settings)}}))))))
 
 (defn js-to-clj-str [& x]
-  (debug ["(js-to-clj-str): x: " x (str x)])
+  ;;(debug ["(js-to-clj-str): x: " x (str x)])
   (let [res (-> x
               (str)
               (str/replace #"\(#js"  "")
@@ -140,7 +140,7 @@
         (if-not (nil? (:block/children y)) 
           (reset! result (concat @result (flatten-nested-text (:block/children y) order))))
     ))   
-    (debug ["flat-nest " (str @result)])
+    ;;(debug ["flat-nest " (str @result)])
      (into [] (sort-by :block/order @result))
 ))
 
@@ -168,7 +168,7 @@
 (defn save-component [x] 
   ;;Disable the pullWatch while blocks are edited
   (reset! (:saving-flag x) true) 
-  (debug ["(save-component) Enter"])
+  ;;(debug ["(save-component) Enter"])
 
   (let [data-block-uid (get-data-block-uid (:block-uid x))
         edn-map (edn/read-string (:map-string x))
@@ -179,7 +179,7 @@
         app-state (into {} (filter (comp some? val) (:appState edn-map)))] ;;remove nil elements from appState
     
     ;;process text on drawing
-    (debug ["(save-component) start processing text"])
+    ;;(debug ["(save-component) start processing text"])
     (doseq [y (get-text-elements (:elements edn-map))]
       (if (:isDeleted y)
         (if (str/starts-with? (:id y) "ROAM_")
@@ -187,29 +187,29 @@
         )
         (if (str/starts-with? (:id y) "ROAM_")
           (do ;;block with text should already exist, update text, but double check that the block is there...
-            (debug ["(save-component) nested block should exist text:" (:text y) "block-id" (get-block-uid-from-text-element y)])
+            ;;(debug ["(save-component) nested block should exist text:" (:text y) "block-id" (get-block-uid-from-text-element y)])
             (let [text-block-uid (get-block-uid-from-text-element y)
                   nested-block (filter (comp #{text-block-uid} :block/uid) nested-text-blocks)]
               (if-not (= 0 (count nested-block))
                 (do ;;block exists
-                  (debug ["(save-component) block exists, updateing"])
+                  ;;(debug ["(save-component) block exists, updateing"])
                   (if-not (= (:block/string (first nested-block)) (:text y))
                     (block-update {:block {:uid text-block-uid :string (:text y)}}))
                   (reset! text-elements (conj @text-elements y))
                 )
                 (do ;block no-longer exists, create new one
-                  (debug ["(save-component) block should, but does not exist, creating..."])
+                  ;;(debug ["(save-component) block should, but does not exist, creating..."])
                   (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
                     (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"]))))
           )))))
           (do ;;block with text does not exist as nested block, create new
-            (debug ["(save-component) block does not exists, creating"])
+            ;;(debug ["(save-component) block does not exists, creating"])
             (let [new-block-uid (.createBlock js/ExcalidrawWrapper nestedtext-parent-block-uid (get-next-block-order nestedtext-parent-block-uid) (:text y))]
               (reset! text-elements (conj @text-elements (assoc-in y [:id] (str/join ["ROAM_" new-block-uid "_ROAM"])))) 
               (reset! text-elements (conj @text-elements (assoc-in y [:isDeleted] true))) 
               )))))
 
-    (debug ["(save-component) text-blocks with updated IDs" (str @text-elements)])
+    ;;(debug ["(save-component) text-blocks with updated IDs" (str @text-elements)])
     ;;updating the data block is the final piece in saving the component
     (let [elements (update-elements-with-parts {:raw-elements (:elements edn-map) :text-elements @text-elements})  
           out-string (fix-double-bracket (str {:elements elements :appState app-state :roamExcalidraw {:version plugin-version}}))
@@ -224,7 +224,7 @@
 )))
 
 (defn load-settings []
-  (debug ["(load-settings) Enter"])
+  ;;(debug ["(load-settings) Enter"])
   (let [settings-block (rd/q '[:find ?settings .
                               :in $ ?page ?block
                               :where [?p :node/title ?page]
@@ -236,7 +236,7 @@
                             app-page app-settings-block)]
     (if-not (nil? settings-block)
       (do 
-        (debug ["(load-settings) settings: " settings-block])
+        ;;(debug ["(load-settings) settings: " settings-block])
         (reset! app-settings (edn/read-string settings-block))
         (if (nil? @app-settings)
           (reset! app-settings default-app-settings))
@@ -250,15 +250,15 @@
 
 ;;finds the json enclosed in double parentheses and returns it
 (defn get-data-from-block-string [x]
-  (debug ["(get-data-from-block-string)" (count x)])
+  ;;(debug ["(get-data-from-block-string)" (count x)])
   (if (= (count x) 0)
     (do 
-      (debug ["(get-data-from-block-string) returning nil"])
+      ;;(debug ["(get-data-from-block-string) returning nil"])
       nil)
     (do
       (let [data-string (get-in (first x) [0 :block/string])
             return-string (second (re-find #"ExcalDATA\){2}\s*(\{.*\})\s*\}{2}" data-string))]
-        ;(debug ["(get-data-from-block-string) returning: " retrun-string])
+        ;;;(debug ["(get-data-from-block-string) returning: " retrun-string])
         (edn/read-string return-string)))))
 
 (defn create-nested-blocks [x]; {:block-uid "BlockUID" :drawing atom :empty-block-uid "BlockUID"}
@@ -266,7 +266,7 @@
 ;;empty block is the block created by the user by trying to nest text under 
 ;;a new drawing that hasn't been edited yet (i.e. the data and title children
 ;;are missing)
-  (debug ["(create-nested-blocks)"])
+  ;;(debug ["(create-nested-blocks)"])
   (let [default-data {:appState {:theme (:mode @app-settings)}
                       :roamExcalidraw {:version 1}}]
     (create-block (:block-uid x) 0 (str/join ["{{roam/render: ((ExcalDATA)) "
@@ -288,10 +288,10 @@
 ;block uid is the block with the roam/render component
 ;data are the drawing objects
 ;text are the nested text blocks
-  (debug ["(load-drawing) enter"])
+  ;;(debug ["(load-drawing) enter"])
   (if (= (count (:data x)) 0)
       (do
-        (debug ["(load-drawing) no children - creating dummy data"])
+        ;;(debug ["(load-drawing) no children - creating dummy data"])
         (let [default-data {:appState {:theme (:mode @app-settings)}
                             :roamExcalidraw {:version 1}}]
           (reset! (:drawing x) {:drawing default-data 
@@ -299,28 +299,28 @@
       ))
       (if (= (count (:text x)) 0)
         (do
-          (debug ["(load-drawing) create title only"])
+          ;;(debug ["(load-drawing) create title only"])
           (reset! (:drawing x) {:drawing (:data x)
                                 :nestedtext-parent {:block-uid (create-block (:block-uid x) 1 "**Text nested here will appear on your drawing:**")}})
           (block-update {:block {:uid (:block-uid x) :open false}})
         )
         (do
-          (debug ["(load-drawing) ExcalDATA & title already exist"])
+          ;;(debug ["(load-drawing) ExcalDATA & title already exist"])
           (reset! (:drawing x) {:drawing (:data x)
                                 :nestedtext-parent {:block-uid  (get-in (:text x) [0 :block/uid])}
                                 :text (get-in (:text x) [0 :block/children])})
   )))
-  (debug ["(load-drawing) drawing: " @(:drawing x) " data: " (:data x) " text: " (str (:text x)) "theme " (get-in (:data x) [:appState :theme])])
+  ;;(debug ["(load-drawing) drawing: " @(:drawing x) " data: " (:data x) " text: " (str (:text x)) "theme " (get-in (:data x) [:appState :theme])])
 )
 
 ;;check if text in nested block has changed compared to drawing and updated text in drawing element including size
 (defn update-drawing-based-on-nested-blocks [x] ;{:elements [] :appState {} :nested-text [:block/uid "BlockUID" :block/string "text"]}
-  (debug ["(update-drawing-based-on-nested-blocks) Enter x:" x])
+  ;;(debug ["(update-drawing-based-on-nested-blocks) Enter x:" x])
   (if-not (nil? (:nested-text x)) 
     (do
       (let [text-elements (r/atom nil)
             nested-text (flatten-nested-text (:nested-text x) "")]   
-      (debug ["(update-drawing-based-on-nested-blocks) processing nested text - apply changes to existing text elements, omit deleted ones"])
+      ;;(debug ["(update-drawing-based-on-nested-blocks) processing nested text - apply changes to existing text elements, omit deleted ones"])
         ;;update elements on drawing based on changes to nested text
         (doseq [y (get-text-elements (:elements x))]
           (let [block-uid (get-block-uid-from-text-element y)
@@ -348,7 +348,7 @@
                 (reset! text-elements (conj @text-elements y)))
         )))
         
-        (debug ["(update-drawing-based-on-nested-blocks) processing nested text - add new nested blocks"])
+        ;;(debug ["(update-drawing-based-on-nested-blocks) processing nested text - add new nested blocks"])
         ;;add text for newly nested blocks
         (let [counter (atom -1)]
           (doseq [nt nested-text]
@@ -364,7 +364,7 @@
                       x (+ (:nested-text-start-left @app-settings) (* col (:nested-text-col-width @app-settings)))
                       y (+ (:nested-text-start-top @app-settings) (* row (:nested-text-row-height @app-settings)))  
                       text-measures (js->clj (.measureText js/ExcalidrawWrapper text dummy))]
-                  (debug ["(update-drawing-based-on-nested-blocks) add new: text" text "id" id])
+                  ;;(debug ["(update-drawing-based-on-nested-blocks) add new: text" text "id" id])
                   (reset! text-elements 
                             (conj @text-elements 
                                   {:y y
@@ -403,7 +403,7 @@
 ))
 
 (defn generate-scene [x] ;{:drawing atom}]
-  (debug ["(generate-scene) enter" x])
+  ;;(debug ["(generate-scene) enter" x])
   (update-drawing-based-on-nested-blocks {:elements (:elements (:drawing @(:drawing x)))
                                                       :appState (:appState (:drawing @(:drawing x)))
                                                       :nested-text (:text @(:drawing x))
@@ -413,15 +413,15 @@
 ;; Main Function Form-3
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn resize [ew]
-  (debug ["(resize)"])
+  ;;(debug ["(resize)"])
   (if-not (nil? @ew) (.onResize @ew)))
 
 (defn update-scene [ew scene]
-  (debug ["(update-scene) scene: " scene])
+  ;;(debug ["(update-scene) scene: " scene])
   (if-not (nil? @ew) (.updateScene @ew scene)))
 
 (defn get-drawing [ew]
-  (debug ["(get-drawing): " (.getDrawing js/window.ExcalidrawWrapper @ew)])
+  ;;(debug ["(get-drawing): " (.getDrawing js/window.ExcalidrawWrapper @ew)])
   (.getDrawing js/window.ExcalidrawWrapper @ew))
 
 (defn host-div-style [cs]
@@ -492,7 +492,7 @@
   ))
 
 (defn main [{:keys [block-uid]} & args]
-  (debug ["(main) component starting..."])
+  ;;(debug ["(main) component starting..."])
   (check-js-dependencies)
   (let [drawing (r/atom nil)
         cs (r/atom {:position embedded-view  ;;component-state
@@ -520,7 +520,7 @@
                                                 :drawing drawing
                                                 :saving-flag saving-flag}))))
         pull-watch-callback (fn [before after]
-                              (debug ["(pull-watch-callback) after:" (js-to-clj-str after)])
+                              ;;(debug ["(pull-watch-callback) after:" (js-to-clj-str after)])
                               (if-not (or @saving-flag (is-full-screen cs) @pull-watch-active)
                                 (do 
                                   (reset! pull-watch-active true)
@@ -548,7 +548,7 @@
     (if (= @deps-available false)
     [:div "Libraries have not yet loaded. Please refresh the block in a moment."]
     (fn []
-      (debug ["(main) fn[] starting..."])
+      ;;(debug ["(main) fn[] starting..."])
       (r/create-class
       { :display-name "Excalidraw Roam Beta"
         ;; Constructor
@@ -561,27 +561,27 @@
 ;          :get-snapshot-before-update (fn [this old-argv new-argv] )
 ;          :should-component-update (fn [this old-argv new-argv])
         :component-did-mount (fn [this]
-                                (debug ["(main) :component-did-mount"])
+                                ;;(debug ["(main) :component-did-mount"])
                                 (load-settings)
                                 (swap! cs assoc-in [:this-dom-node] (r/dom-node this))
-                                (debug ["(main) :component-did-mount addPullWatch"])
+                                ;;(debug ["(main) :component-did-mount addPullWatch"])
                                 (.addPullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
                                 (pull-watch-callback nil nil)
                                 (swap! style assoc-in [:host-div] (host-div-style cs))
                                 (.addEventListener js/window "resize" resize-handler)
-                                (debug ["(main) :component-did-mount Exalidraw mount initiated"])
+                                ;;(debug ["(main) :component-did-mount Exalidraw mount initiated"])
                               )
         :component-did-update (fn [this old-argv old-state snapshot]
-                                (debug ["(main) :component-did-update"])
+                                ;;(debug ["(main) :component-did-update"])
                                 (if (is-full-screen cs)
                                   (resize ew)))
         :component-will-unmount (fn [this]
-                                  (debug ["(main) :component-will-unmount"])
+                                  ;;(debug ["(main) :component-will-unmount"])
                                   (.removePullWatch js/ExcalidrawWrapper block-uid pull-watch-callback)
                                   (.removeEventListener js/window "resize" resize-handler))
 ;           :component-did-catch (fn [this error info])
         :reagent-render (fn [{:keys [block-uid]} & args]
-                          (debug ["(main) :reagent-render"])
+                          ;;(debug ["(main) :reagent-render"])
                           [:div
                             {:class "excalidraw-host"
                               :style (:host-div @style)

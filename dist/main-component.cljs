@@ -1,4 +1,4 @@
-(ns excalidraw.app.mvp.v06
+(ns excalidraw.app.mvp.v07
   (:require 
    [clojure.set :as s]
    [reagent.core :as r]
@@ -44,7 +44,7 @@
   (.createBlock js/window.ExcalidrawWrapper parent-uid order block-string))
 
 (defn block-update [x]
-  (.updateBlock js/window.ExcalidrawWrapper x))
+  (.updateBlock js/window.ExcalidrawWrapper (clj->js x)))
 
 (defn pretty-settings [x]
   (let [y (into (sorted-map) (sort-by first (seq x)))]
@@ -331,7 +331,7 @@
               (do
                 ;if text has changed, update measures
                 (if-not (= block-text (:text y)) 
-                  (let [text-measures (js->clj (.measureText js/ExcalidrawWrapper block-text y))]
+                  (let [text-measures (js->clj (.measureText js/ExcalidrawWrapper block-text (clj->js y)))]
                     (reset! text-elements 
                               (conj @text-elements 
                                       (-> y 
@@ -363,7 +363,7 @@
                       row (mod @counter (:nested-text-rows @app-settings))
                       x (+ (:nested-text-start-left @app-settings) (* col (:nested-text-col-width @app-settings)))
                       y (+ (:nested-text-start-top @app-settings) (* row (:nested-text-row-height @app-settings)))  
-                      text-measures (js->clj (.measureText js/ExcalidrawWrapper text dummy))]
+                      text-measures (js->clj (.measureText js/ExcalidrawWrapper text (clj->js dummy)))]
                   ;;(debug ["(update-drawing-based-on-nested-blocks) add new: text" text "id" id])
                   (reset! text-elements 
                             (conj @text-elements 
@@ -418,7 +418,7 @@
 
 (defn update-scene [ew scene]
   ;;(debug ["(update-scene) scene: " scene])
-  (if-not (nil? @ew) (.updateScene @ew scene)))
+  (if-not (nil? @ew) (.updateScene @ew (clj->js scene))))
 
 (defn get-drawing [ew]
   ;;(debug ["(get-drawing): " (.getDrawing js/window.ExcalidrawWrapper @ew)])
@@ -486,10 +486,10 @@
   ))
                                   
 (defn get-embed-image [drawing dom-node app-name]
-  (if (= (:img @app-settings) "PNG")
-    (.getPNG js/window.ExcalidrawWrapper drawing dom-node app-name)
-    (.getSVG js/window.ExcalidrawWrapper drawing dom-node app-name)
-  ))
+  (let [drawing-js (clj->js drawing)]
+    (if (= (:img @app-settings) "PNG")
+      (.getPNG js/window.ExcalidrawWrapper drawing-js dom-node app-name)
+      (.getSVG js/window.ExcalidrawWrapper drawing-js dom-node app-name))))
 
 (defn main [{:keys [block-uid]} & args]
   ;;(debug ["(main) component starting..."])
@@ -513,12 +513,13 @@
         drawing-on-change-callback (fn [x] (if-not @saving-flag
                                              (.updateScene 
                                               @ew 
-                                              (save-component 
-                                               {:block-uid block-uid 
-                                                :map-string (js-to-clj-str x) 
-                                                :cs cs
-                                                :drawing drawing
-                                                :saving-flag saving-flag}))))
+                                              (clj->js 
+                                               (save-component
+                                                {:block-uid block-uid
+                                                 :map-string (js-to-clj-str x)
+                                                 :cs cs
+                                                 :drawing drawing
+                                                 :saving-flag saving-flag})))))
         pull-watch-callback (fn [before after]
                               ;;(debug ["(pull-watch-callback) after:" (js-to-clj-str after)])
                               (if-not (or @saving-flag (is-full-screen cs) @pull-watch-active)
